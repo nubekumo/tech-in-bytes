@@ -1,0 +1,86 @@
+{% extends "base.html" %} {% load static %} {% block content %}
+<div class="container py-5">
+  <h1 class="mb-4">Account Settings</h1>
+
+  {% if messages %}
+  <div class="messages mb-4">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Profile Settings Form -->
+  <div class="card mb-4">
+    <div class="card-header">
+      <h3 class="card-title mb-0">Profile Settings</h3>
+    </div>
+    <div class="card-body">
+      <form
+        method="post"
+        action="{% url 'accounts:update_profile' %}"
+        enctype="multipart/form-data"
+      >
+        {% csrf_token %} {% for field in settings_form %}
+        <div class="mb-3">
+          <label for="{{ field.id_for_label }}" class="form-label"
+            >{{ field.label }}</label
+          >
+          {{ field }} {% if field.help_text %}
+          <div class="form-text">{{ field.help_text }}</div>
+          {% endif %} {% if field.errors %}
+          <div class="invalid-feedback d-block">{{ field.errors.0 }}</div>
+          {% endif %}
+        </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary">Update Profile</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Password Change Form -->
+  <div class="card mb-4">
+    <div class="card-header">
+      <h3 class="card-title mb-0">Change Password</h3>
+    </div>
+    <div class="card-body">
+      <form method="post" action="{% url 'accounts:update_password' %}">
+        {% csrf_token %} {% for field in password_form %}
+        <div class="mb-3">
+          <label for="{{ field.id_for_label }}" class="form-label"
+            >{{ field.label }}</label
+          >
+          {{ field }} {% if field.help_text %}
+          <div class="form-text">{{ field.help_text }}</div>
+          {% endif %} {% if field.errors %}
+          <div class="invalid-feedback d-block">{{ field.errors.0 }}</div>
+          {% endif %}
+        </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary">Change Password</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete Account -->
+  <div class="card border-danger">
+    <div class="card-header bg-danger text-white">
+      <h3 class="card-title mb-0">Delete Account</h3>
+    </div>
+    <div class="card-body">
+      <p class="text-danger">
+        Warning: This action cannot be undone. All your data will be permanently
+        deleted.
+      </p>
+      <form
+        method="post"
+        action="{% url 'accounts:delete_account' %}"
+        onsubmit="return confirm('Are you sure you want to delete your account? This cannot be undone.');"
+      >
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Delete My Account</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

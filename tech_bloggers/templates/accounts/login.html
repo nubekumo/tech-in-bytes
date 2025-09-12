@@ -1,0 +1,57 @@
+{% extends "base.html" %} {% load static %} {% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title mb-0">Log In</h3>
+        </div>
+        <div class="card-body">
+          {% if messages %}
+          <div class="messages mb-4">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+          </div>
+          {% endif %}
+
+          <form method="post">
+            {% csrf_token %} {% for field in form %}
+            <div class="mb-3">
+              <label for="{{ field.id_for_label }}" class="form-label"
+                >{{ field.label }}</label
+              >
+              {{ field }} {% if field.help_text %}
+              <div class="form-text">{{ field.help_text }}</div>
+              {% endif %} {% if field.errors %}
+              <div class="invalid-feedback d-block">{{ field.errors.0 }}</div>
+              {% endif %}
+            </div>
+            {% endfor %}
+
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn btn-primary">Log In</button>
+            </div>
+
+            <input type="hidden" name="next" value="{{ next }}" />
+          </form>
+
+          <hr />
+
+          <div class="text-center">
+            <p class="mb-2">
+              Don't have an account?
+              <a href="{% url 'accounts:signup' %}">Sign Up</a>
+            </p>
+            <p class="mb-0">
+              <a href="{% url 'accounts:password_reset' %}"
+                >Forgot your password?</a
+              >
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

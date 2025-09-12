@@ -1,0 +1,32 @@
+{% extends "base.html" %} {% load static %} {% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title mb-0">Registration Successful</h3>
+        </div>
+        <div class="card-body">
+          <div class="alert alert-success">
+            <h4 class="alert-heading">Thank you for registering!</h4>
+            <p>
+              We've sent an activation link to your email address. Please check
+              your inbox and click on the link to activate your account.
+            </p>
+            <hr />
+            <p class="mb-0">
+              If you don't receive the email within a few minutes, please check
+              your spam folder.
+            </p>
+          </div>
+          <div class="text-center mt-3">
+            <a href="{% url 'pages:index' %}" class="btn btn-primary"
+              >Return to Home</a
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

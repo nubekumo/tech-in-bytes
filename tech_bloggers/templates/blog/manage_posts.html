@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tech Bloggers - Manage Posts</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="container nav-content">
+      <div class="nav-logo">Tech Bloggers</div>
+
+      <!-- Hamburger button -->
+      <div class="hamburger" id="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+
+      <!-- Nav Menu -->
+      <nav class="nav-menu" id="nav-menu">
+        <div class="nav-links">
+          <a href="#">All Posts</a>
+          <a href="#">AI</a>
+          <a href="#">Web Development</a>
+          <a href="#">Cybersecurity</a>
+          <a href="#">IT</a>
+          <a href="#">Favorites</a>
+        </div>
+        <div class="nav-buttons">
+          <a href="#" class="btn btn--outline">Log in</a>
+          <a href="#" class="btn btn--primary">Sign up</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Manage Posts Section -->
+  <main class="container">
+    <!-- Search + Filter -->
+    <div class="manage-posts-controls">
+      <input type="text" placeholder="Search your posts..." class="search-bar">
+      <select class="filter-select" class="form-control">
+        <option value="all">All</option>
+        <option value="published">Published</option>
+        <option value="draft">Draft</option>
+      </select>
+    </div>
+
+    <!-- Heading -->
+    <h1 class="manage-posts-heading">Your Posts</h1>
+
+    <!-- New Post Button -->
+    <div class="new-post-wrapper">
+      <a href="#" class="btn btn--primary"><i class="fas fa-plus"></i> New Post</a>
+    </div>
+
+    <!-- Posts List -->
+    <div class="posts-list">
+      <!-- Example Post Card -->
+      <div class="post-card">
+        <div class="post-image" style="background-image: url('images/mountains.jpg');">
+          <span>Image</span>
+        </div>
+        <div class="post-card-content">
+          <h2 class="post-title">My First Blog Post</h2>
+          <p class="post-excerpt">This is a short excerpt from my post...</p>
+          <span class="post-status published">Published</span>
+        </div>
+        <div class="post-actions">
+          <button class="btn-icon" title="Edit"><i class="fas fa-pen"></i></button>
+          <button class="btn-icon" title="Delete"><i class="fas fa-trash"></i></button>
+          <button class="btn-icon" title="Publish"><i class="fas fa-paper-plane"></i></button>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-image">
+          <span>No Image</span>
+        </div>
+        <div class="post-card-content">
+          <h2 class="post-title">Another Draft Post</h2>
+          <p class="post-excerpt">Draft content preview goes here...</p>
+          <span class="post-status draft">Draft</span>
+        </div>
+        <div class="post-actions">
+          <button class="btn-icon" title="Edit"><i class="fas fa-pen"></i></button>
+          <button class="btn-icon" title="Delete"><i class="fas fa-trash"></i></button>
+          <button class="btn-icon" title="Publish"><i class="fas fa-paper-plane"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+      <a href="#" class="page-link">«</a>
+      <a href="#" class="page-link active">1</a>
+      <a href="#" class="page-link">2</a>
+      <a href="#" class="page-link">3</a>
+      <a href="#" class="page-link">»</a>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>© 2025 Tech Bloggers. All rights reserved.</p>
+    <p><a href="#">Privacy Policy</a> • <a href="#">Terms</a></p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

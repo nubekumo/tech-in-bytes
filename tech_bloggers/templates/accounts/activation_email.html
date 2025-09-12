@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Activate Your Tech Bloggers Account</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+      }
+      .container {
+        max-width: 600px;
+        margin: 20px auto;
+        padding: 20px;
+      }
+      .button {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        margin: 20px 0;
+      }
+      .footer {
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #eee;
+        font-size: 0.9em;
+        color: #666;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Welcome to Tech Bloggers!</h2>
+      <p>Hi {{ user.username }},</p>
+      <p>
+        Thank you for registering with Tech Bloggers. To activate your account
+        and start sharing your tech insights, please click the button below:
+      </p>
+
+      <a
+        href="http://{{ domain }}{% url 'accounts:activate' uidb64=uid token=token %}"
+        class="button"
+      >
+        Activate Account
+      </a>
+
+      <p>Or copy and paste this link in your browser:</p>
+      <p>
+        http://{{ domain }}{% url 'accounts:activate' uidb64=uid token=token %}
+      </p>
+
+      <p>This link will expire in 24 hours for security reasons.</p>
+
+      <div class="footer">
+        <p>
+          If you didn't register for a Tech Bloggers account, you can safely
+          ignore this email.
+        </p>
+        <p>Best regards,<br />The Tech Bloggers Team</p>
+      </div>
+    </div>
+  </body>
+</html>

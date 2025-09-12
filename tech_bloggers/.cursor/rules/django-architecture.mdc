@@ -1,0 +1,33 @@
+---
+description: Django project-specific architecture and conventions for the Tech Bloggers app
+alwaysApply: false
+globs: ["apps/**/*.py", "templates/**/*.html", "manage.py"]
+---
+
+## Project Structure
+- The Django project already exists; do not scaffold it again.
+- Apps: `apps/blog`, `apps/accounts`, `apps/pages`, `apps/core`.
+- Templates live in a top-level `templates/` directory, organized by app (e.g., `templates/blog/`, `templates/accounts/`, `templates/core/`).
+
+## Coding Conventions
+- Prefer Django’s class-based views (ListView, DetailView, CreateView, etc.).
+- Always extend `apps.blog.models.Post` with slug, image, and status logic in models.
+- Use Django’s built-in authentication and forms.
+- For list views, always use `select_related` and `prefetch_related` to optimize related queries.
+- Consider security and performance in every stage of development.
+
+## Error Handling, Validation & Images
+- Use the `validate_image` function for image uploads (file size and format only).
+- Ensure media settings: `MEDIA_URL = "/media/"` and `MEDIA_ROOT = BASE_DIR / "media"`.
+- Customize error pages (e.g., 404, 500) to improve user experience and provide helpful information.
+
+## Static & Template Usage
+- In HTML templates, always load static with `{% load static %}` at the top.
+- Reference assets with `{% static 'css/yourfile.css' %}` to prevent path errors like `/about/static/...`.
+
+## Feature Implementation
+- Incrementally add features: CRUD, comments, tags, likes, email recommendation (log to console), search, SEO-friendly URLs, and sitemap.
+- Reuse existing HTML/CSS; only add Django template tags or context as needed.
+
+## Admin Enhancements
+- Add filters, search fields, and prepopulated slug fields if not added yet.
