@@ -1,39 +1,48 @@
-{% extends "base.html" %} {% load static %} {% block content %}
-<div class="container py-5">
-  <div class="row justify-content-center">
-    <div class="col-md-8">
-      <div class="card border-danger">
-        <div class="card-header bg-danger text-white">
-          <h3 class="card-title mb-0">Delete Account Confirmation</h3>
-        </div>
-        <div class="card-body">
-          <div class="alert alert-warning">
-            <h4 class="alert-heading">Warning!</h4>
-            <p>
-              You are about to delete your account. This action cannot be undone
-              and will result in:
-            </p>
-            <ul>
-              <li>Permanent deletion of your account</li>
-              <li>Removal of all your posts and comments</li>
-              <li>Loss of access to all your content</li>
-            </ul>
-          </div>
-
-          <form method="post">
-            {% csrf_token %}
-            <div class="d-flex justify-content-between">
-              <a href="{% url 'accounts:settings' %}" class="btn btn-secondary"
-                >Cancel</a
-              >
-              <button type="submit" class="btn btn-danger">
-                Yes, Delete My Account
-              </button>
-            </div>
-          </form>
-        </div>
+{% extends "base.html" %} {% load static %} {% block title %}Delete Account -
+Tech Bloggers{% endblock %} {% block content %}
+<div class="auth-container">
+  <div class="auth-card danger">
+    <div class="auth-header">
+      <div class="auth-icon">
+        <i class="fas fa-exclamation-triangle"></i>
       </div>
+      <h1>Delete Account</h1>
+      <p class="auth-message">This action cannot be undone.</p>
     </div>
+
+    <div class="warning-box">
+      <h2>What will happen?</h2>
+      <ul>
+        <li>
+          <i class="fas fa-user-slash"></i>
+          Your account will be permanently deleted
+        </li>
+        <li>
+          <i class="fas fa-file-alt"></i>
+          All your posts and comments will be removed
+        </li>
+        <li>
+          <i class="fas fa-lock"></i>
+          You'll lose access to all your content
+        </li>
+        <li>
+          <i class="fas fa-heart-broken"></i>
+          Your likes and bookmarks will be deleted
+        </li>
+      </ul>
+    </div>
+
+    <form method="post" class="auth-form">
+      {% csrf_token %}
+      <div class="form-actions">
+        <a href="{% url 'accounts:settings' %}" class="btn btn--outline">
+          <i class="fas fa-arrow-left"></i> Go Back
+        </a>
+        <button type="submit" class="btn btn--danger">
+          <i class="fas fa-trash-alt"></i> Delete My Account
+        </button>
+      </div>
+    </form>
   </div>
 </div>
 {% endblock %}

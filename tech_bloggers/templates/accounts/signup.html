@@ -1,51 +1,134 @@
-{% extends "base.html" %} {% load static %} {% block content %}
-<div class="container py-5">
-  <div class="row justify-content-center">
-    <div class="col-md-8">
-      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title mb-0">Create an Account</h3>
-        </div>
-        <div class="card-body">
-          {% if messages %}
-          <div class="messages mb-4">
-            {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-            {% endfor %}
-          </div>
-          {% endif %}
+{% extends "base.html" %} {% load static %} {% block title %}Sign Up - Tech
+Bloggers{% endblock %} {% block content %}
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="auth-header">
+      <h1>Create Account</h1>
+      <p>Join Tech Bloggers and start sharing your knowledge</p>
+    </div>
 
-          <form method="post" novalidate>
-            {% csrf_token %} {% for field in form %}
-            <div class="mb-3">
-              <label for="{{ field.id_for_label }}" class="form-label">
-                {{ field.label }} {% if field.field.required %}
-                <span class="text-danger">*</span>
-                {% endif %}
-              </label>
-              {{ field }} {% if field.help_text %}
-              <div class="form-text">{{ field.help_text }}</div>
-              {% endif %} {% if field.errors %}
-              <div class="invalid-feedback d-block">{{ field.errors.0 }}</div>
-              {% endif %}
-            </div>
-            {% endfor %}
-
-            <div class="d-grid gap-2">
-              <button type="submit" class="btn btn-primary">Sign Up</button>
-            </div>
-          </form>
-
-          <hr />
-
-          <div class="text-center">
-            <p class="mb-0">
-              Already have an account?
-              <a href="{% url 'accounts:login' %}">Log In</a>
-            </p>
-          </div>
-        </div>
+    {% if messages %}
+    <div class="auth-messages">
+      {% for message in messages %}
+      <div
+        class="form-feedback {% if message.tags %}{{ message.tags }}{% endif %}"
+      >
+        {{ message }}
       </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <form method="post" id="signup-form">
+      {% csrf_token %}
+
+      <div class="form-group">
+        <label for="id_username">Username</label>
+        <input
+          type="text"
+          name="username"
+          id="id_username"
+          class="form-control"
+          required
+          autocomplete="username"
+          minlength="5"
+          maxlength="30"
+        />
+        <div class="form-feedback"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="id_email">Email Address</label>
+        <input
+          type="email"
+          name="email"
+          id="id_email"
+          class="form-control"
+          required
+          autocomplete="email"
+        />
+        <div class="form-feedback"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="id_password1">Password</label>
+        <div class="password-field">
+          <input
+            type="password"
+            name="password1"
+            id="id_password1"
+            class="form-control"
+            required
+            autocomplete="new-password"
+          />
+          <button
+            type="button"
+            class="password-toggle"
+            data-target="id_password1"
+          >
+            <i class="far fa-eye"></i>
+          </button>
+        </div>
+        <div class="password-requirements">
+          <h3 class="requirements-title">Password requirements</h3>
+          <div class="requirement-item" data-requirement="length">
+            <i class="fas fa-circle"></i>
+            <span>At least 8 characters long</span>
+          </div>
+          <div class="requirement-item" data-requirement="uppercase">
+            <i class="fas fa-circle"></i>
+            <span>Contains uppercase letter</span>
+          </div>
+          <div class="requirement-item" data-requirement="lowercase">
+            <i class="fas fa-circle"></i>
+            <span>Contains lowercase letter</span>
+          </div>
+          <div class="requirement-item" data-requirement="number">
+            <i class="fas fa-circle"></i>
+            <span>Contains number</span>
+          </div>
+          <div class="requirement-item" data-requirement="special">
+            <i class="fas fa-circle"></i>
+            <span>Contains special character</span>
+          </div>
+        </div>
+        <div class="form-feedback"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="id_password2">Confirm Password</label>
+        <div class="password-field">
+          <input
+            type="password"
+            name="password2"
+            id="id_password2"
+            class="form-control"
+            required
+            autocomplete="new-password"
+          />
+          <button
+            type="button"
+            class="password-toggle"
+            data-target="id_password2"
+          >
+            <i class="far fa-eye"></i>
+          </button>
+        </div>
+        <div class="form-feedback"></div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn--primary btn--block">
+          Create Account
+        </button>
+      </div>
+    </form>
+
+    <div class="auth-links">
+      <p>
+        Already have an account?
+        <a href="{% url 'accounts:login' %}" class="link-primary">Log In</a>
+      </p>
     </div>
   </div>
 </div>

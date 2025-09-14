@@ -1,0 +1,53 @@
+<nav class="navbar">
+  <div class="container nav-content">
+    <a href="{% url 'pages:index' %}" class="nav-logo">Tech Bloggers</a>
+
+    <div class="hamburger" id="hamburger">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+
+    <div class="nav-menu" id="nav-menu">
+      <div class="nav-links">
+        <a href="{% url 'pages:index' %}">Home</a>
+        <a href="{% url 'blog:post_list' %}">Blog</a>
+        <a href="{% url 'pages:about' %}">About</a>
+        <a href="{% url 'pages:contact' %}">Contact</a>
+      </div>
+
+      <div class="nav-buttons">
+        {% if user.is_authenticated %}
+        <a
+          href="{% url 'blog:post_create' %}"
+          class="btn btn--primary btn--icon"
+        >
+          <i class="fas fa-pen"></i> Write
+        </a>
+        <a
+          href="{% url 'blog:post_list' %}?filter=liked"
+          class="btn btn--outline btn--icon"
+        >
+          <i class="fas fa-heart"></i> Liked
+        </a>
+        <a href="{% url 'accounts:settings' %}" class="btn btn--outline"
+          >Settings</a
+        >
+        <form
+          method="post"
+          action="{% url 'accounts:logout' %}"
+          style="display: inline"
+        >
+          {% csrf_token %}
+          <button type="submit" class="btn btn--outline">Log out</button>
+        </form>
+        {% else %}
+        <a href="{% url 'accounts:login' %}" class="btn btn--outline">Log in</a>
+        <a href="{% url 'accounts:signup' %}" class="btn btn--primary"
+          >Sign up</a
+        >
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</nav>

@@ -1,115 +1,169 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tech Bloggers - Create Post</title>
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-</head>
-<body>
+{% extends 'base.html' %} {% load static %} {% block title %}Create Post - Tech
+Bloggers{% endblock %} {% block content %}
+<!-- Create Post Section -->
+<div class="container create-post-container">
+  <form
+    class="create-post-form"
+    method="post"
+    enctype="multipart/form-data"
+    action="{% url 'blog:post_create' %}"
+  >
+    {% csrf_token %}
 
-  <!-- Navbar -->
-  <header class="navbar">
-    <div class="container nav-content">
-      <div class="nav-logo">Tech Bloggers</div>
+    <!-- Post Section -->
+    <div class="form-section">
+      <h1 class="form-heading">Write an Awesome Post</h1>
 
-      <!-- Hamburger button -->
-      <div class="hamburger" id="hamburger">
-        <span></span>
-        <span></span>
-        <span></span>
+      {% if form.non_field_errors %}
+      <div class="alert alert-error">
+        {% for error in form.non_field_errors %}
+        <p>{{ error }}</p>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- Tags Selection -->
+      <div class="form-group">
+        <label for="tags">Tags</label>
+        <select
+          id="tags"
+          name="tags"
+          class="form-control tag-select"
+          multiple
+          required
+        >
+          {% for tag in available_tags %}
+          <option
+            value="{{ tag.id }}"
+            {%
+            if
+            tag.id
+            in
+            form.tags.value
+            %}selected{%
+            endif
+            %}
+          >
+            {{ tag.name }}
+          </option>
+          {% endfor %}
+        </select>
+        {% if form.tags.errors %}
+        <div class="form-error">{{ form.tags.errors }}</div>
+        {% endif %}
       </div>
 
-      <!-- Nav Menu -->
-      <nav class="nav-menu" id="nav-menu">
-        <div class="nav-links">
-          <a href="#">All Posts</a>
-          <a href="#">AI</a>
-          <a href="#">Web Development</a>
-          <a href="#">Cybersecurity</a>
-          <a href="#">IT</a>
-          <a href="#">Favorites</a>
-        </div>
-        <div class="nav-buttons">
-          <a href="#" class="btn btn--outline">Log in</a>
-          <a href="#" class="btn btn--primary">Sign up</a>
-        </div>
-      </nav>
-    </div>
-  </header>
-
-  <!-- Create Post Section -->
-  <main class="container create-post-container">
-    <form class="create-post-form">
-
-      <!-- Post Section -->
-      <div class="form-section">
-        <h1 class="form-heading">Write an Awesome Post</h1>
-
-        <!-- New Row: Category & Status -->
-        <div class="form-row">
-          <div class="form-group">
-            <label for="category">Category</label>
-            <select id="category" name="category" class="form-control">
-              <option value="ai">AI</option>
-              <option value="web">Web Development</option>
-              <option value="cybersecurity">Cybersecurity</option>
-              <option value="it">IT</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="status">Status</label>
-            <select id="status" name="status" class="form-control">
-              <option value="draft">Draft</option>
-              <option value="published">Published</option>
-            </select>
-          </div>
-        </div>
-
+      <div class="form-group">
         <label for="title">Post Title</label>
-        <input type="text" id="title" name="title" placeholder="Enter your post title" class="form-control">
+        <input
+          type="text"
+          id="title"
+          name="title"
+          placeholder="Enter your post title"
+          class="form-control"
+          value="{{ form.title.value|default:'' }}"
+          required
+        />
+        {% if form.title.errors %}
+        <div class="form-error">{{ form.title.errors }}</div>
+        {% endif %}
+      </div>
 
+      <div class="form-group">
         <label for="content">Post Content</label>
-        <textarea id="content" name="content" placeholder="Write your blog content here..." class="form-control"></textarea>
+        <textarea
+          id="content"
+          name="content"
+          placeholder="Write your blog content here..."
+          class="form-control"
+          required
+        >
+{{ form.content.value|default:'' }}</textarea
+        >
+        {% if form.content.errors %}
+        <div class="form-error">{{ form.content.errors }}</div>
+        {% endif %}
       </div>
+    </div>
 
-      <!-- Post Summary Section -->
-      <div class="form-section">
+    <!-- Post Summary Section -->
+    <div class="form-section">
+      <div class="form-group">
         <label for="summary">Post Summary</label>
-        <textarea id="summary" name="summary" placeholder="Write a short summary..." class="form-control"></textarea>
-        <button type="button" class="btn btn--primary">Create with AI</button>
+        <textarea
+          id="summary"
+          name="summary"
+          placeholder="Write a short summary..."
+          class="form-control"
+          required
+        >
+{{ form.summary.value|default:'' }}</textarea
+        >
+        {% if form.summary.errors %}
+        <div class="form-error">{{ form.summary.errors }}</div>
+        {% endif %}
       </div>
+      <button type="button" class="btn btn--primary" id="generateSummary">
+        Generate Summary with AI
+      </button>
+    </div>
 
-      <!-- Post Image Section -->
-      <div class="form-section">
-        <label for="image">Post Image</label>
-        <div class="image-container">
-          <div class="image-placeholder" id="imagePreview">Image Preview</div>
-        </div>
-        <div class="image-actions">
-          <label for="upload" class="btn btn--outline upload-btn">Upload Image</label>
-          <input type="file" id="upload" accept="image/*" hidden>
-          <span class="or">or</span>
-          <button type="button" class="btn btn--primary">Create with AI</button>
+    <!-- Post Image Section -->
+    <div class="form-section">
+      <label for="image">Post Image</label>
+      <div class="image-container">
+        <div class="image-placeholder" id="imagePreview">
+          {% if form.image.value %}
+          <img src="{{ form.image.value.url }}" alt="Post image preview" />
+          {% else %} Image Preview {% endif %}
         </div>
       </div>
+      <div class="image-actions">
+        <input
+          type="file"
+          id="image"
+          name="image"
+          accept="image/*"
+          class="hidden-file-input"
+          {%
+          if
+          form.image.field.required
+          %}required{%
+          endif
+          %}
+        />
+        <button type="button" class="btn btn--outline" id="uploadImage">
+          Upload Image
+        </button>
+        {% if form.image.errors %}
+        <div class="form-error">{{ form.image.errors }}</div>
+        {% endif %}
+        <span class="or">or</span>
+        <button type="button" class="btn btn--primary" id="generateImage">
+          Generate with AI
+        </button>
+      </div>
+    </div>
 
-      <!-- Save Post -->
-      <button type="submit" class="btn btn--primary">Save Post</button>
-
-    </form>
-  </main>
-
-
-  <!-- Footer -->
-  <footer class="footer">
-    <p>© 2025 Tech Bloggers. All rights reserved.</p>
-    <p><a href="#">Privacy Policy</a> • <a href="#">Terms</a></p>
-  </footer>
-
-  <!-- Scripts -->
-  <script src="script.js"></script>
-</body>
-</html>
+    <!-- Save Post -->
+    <div class="form-actions">
+      <button
+        type="submit"
+        name="action"
+        value="draft"
+        class="btn btn--outline"
+      >
+        Save as Draft
+      </button>
+      <button
+        type="submit"
+        name="action"
+        value="publish"
+        class="btn btn--primary"
+      >
+        Publish Post
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}
