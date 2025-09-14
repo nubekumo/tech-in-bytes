@@ -4,10 +4,23 @@ from django.contrib.auth.models import User
 from .models import Profile
 
 class CustomAuthenticationForm(AuthenticationForm):
+    error_messages = {
+        'invalid_login': 'Please enter a correct username and password. Note that both fields may be case-sensitive.',
+        'inactive': 'This account is inactive. Please check your email for the activation link.',
+    }
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field in self.fields:
             self.fields[field].widget.attrs.update({'class': 'form-control'})
+
+    def confirm_login_allowed(self, user):
+        if not user.is_active:
+            raise forms.ValidationError(
+                self.error_messages['inactive'],
+                code='inactive',
+            )
+        return super().confirm_login_allowed(user)
 
 class SignUpForm(UserCreationForm):
     email = forms.EmailField(required=True)

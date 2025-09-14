@@ -1,94 +1,67 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>About | Tech Bloggers</title>
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-</head>
-<body>
-
-  <header class="navbar">
-    <div class="container nav-content">
-      <div class="nav-logo">Tech Bloggers</div>
-
-      <!-- Hamburger button -->
-      <div class="hamburger" id="hamburger">
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
-
-      <!-- Nav Menu -->
-      <nav class="nav-menu" id="nav-menu">
-        <div class="nav-links">
-          <a href="#">All Posts</a>
-          <a href="#">AI</a>
-          <a href="#">Web Development</a>
-          <a href="#">Cybersecurity</a>
-          <a href="#">IT</a>
-          <a href="#">Favorites</a>
-        </div>
-        <div class="nav-buttons">
-          <a href="#" class="btn btn--outline">Log in</a>
-          <a href="#" class="btn btn--primary">Sign up</a>
-        </div>
-      </nav>
-    </div>
-  </header>
-
-  <!-- Hero / Intro -->
-  <section class="about-hero">
-    <div class="container">
-      <h1>About Tech Bloggers</h1>
-      <p class="lead">
-        Tech Bloggers is a modern blogging platform for developers, IT professionals, and tech enthusiasts.
-        Share insights, explore AI-powered content, and connect with a growing community.
-      </p>
-    </div>
-  </section>
-
-  <!-- Features -->
-  <section class="about-features container">
-    <div class="feature-card">
-      <i class="fas fa-robot"></i>
-      <h3>AI Assistance</h3>
-      <p>Summarize and refine posts with AI tools to make your writing sharper and more engaging.</p>
-    </div>
-    <div class="feature-card">
-      <i class="fas fa-users"></i>
-      <h3>Community</h3>
-      <p>Connect with fellow developers and tech lovers, share knowledge, and grow together.</p>
-    </div>
-    <div class="feature-card">
-      <i class="fas fa-bolt"></i>
-      <h3>Fast & Responsive</h3>
-      <p>Enjoy a sleek, mobile-first design that works beautifully across all devices.</p>
-    </div>
-  </section>
-
-  <!-- Vision -->
-  <section class="about-vision container card">
-    <h2>Our Vision</h2>
-    <p>
-      We believe knowledge should be accessible, collaborative, and inspiring. 
-      Tech Bloggers is built to empower every developer and IT professional to share their expertise and learn from others. 
-      Whether you're writing your first post or building a following, we’re here to support your journey.
+{% extends 'base.html' %} {% load static %} {% block title %}About Us - Tech
+Bloggers{% endblock %} {% block content %}
+<!-- Hero / Intro -->
+<section class="about-hero">
+  <div class="container">
+    <h1>About Tech Bloggers</h1>
+    <p class="lead">
+      Tech Bloggers is a modern blogging platform for developers, IT
+      professionals, and tech enthusiasts. Share insights, explore AI-powered
+      content, and connect with a growing community.
     </p>
-  </section>
-  <div class="about-buttons container">
-    <a href="#" class="btn btn--outline">Contact us</a>
-    <a href="#" class="btn btn--primary">Join us</a>
   </div>
+</section>
 
+<!-- Features -->
+<section class="about-features container">
+  <div class="feature-card">
+    <i class="fas fa-robot"></i>
+    <h3>AI Assistance</h3>
+    <p>
+      Summarize and refine posts with AI tools to make your writing sharper and
+      more engaging.
+    </p>
+  </div>
+  <div class="feature-card">
+    <i class="fas fa-users"></i>
+    <h3>Community</h3>
+    <p>
+      Connect with fellow developers and tech lovers, share knowledge, and grow
+      together.
+    </p>
+  </div>
+  <div class="feature-card">
+    <i class="fas fa-bolt"></i>
+    <h3>Fast & Responsive</h3>
+    <p>
+      Enjoy a sleek, mobile-first design that works beautifully across all
+      devices.
+    </p>
+  </div>
+  <div class="feature-card">
+    <i class="fas fa-shield-alt"></i>
+    <h3>Security</h3>
+    <p>
+      Stay updated with the latest in cybersecurity, best practices, and
+      emerging threats.
+    </p>
+  </div>
+</section>
 
-  <!-- Footer -->
-  <footer class="footer">
-    <p>© 2025 Tech Bloggers. All rights reserved.</p>
-    <p><a href="#">Privacy Policy</a> • <a href="#">Terms</a></p>
-  </footer>
+<!-- Vision -->
+<section class="about-vision container card">
+  <h2>Our Vision</h2>
+  <p>
+    We believe knowledge should be accessible, collaborative, and inspiring.
+    Tech Bloggers is built to empower every developer and IT professional to
+    share their expertise and learn from others. Whether you're writing your
+    first post or building a following, we're here to support your journey.
+  </p>
+</section>
 
-  <script src="script.js"></script>
-</body>
-</html>
+<!-- Call to Action -->
+<div class="about-buttons container">
+  <a href="{% url 'pages:contact' %}" class="btn btn--outline">Contact us</a>
+  <a href="{% url 'accounts:signup' %}" class="btn btn--primary">Join us</a>
+</div>
+{% endblock %}

@@ -1,66 +1,117 @@
+{% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Activate Your Tech Bloggers Account</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        line-height: 1.6;
-        color: #333;
-      }
-      .container {
-        max-width: 600px;
-        margin: 20px auto;
-        padding: 20px;
-      }
-      .button {
-        display: inline-block;
-        padding: 10px 20px;
-        background-color: #007bff;
-        color: white;
-        text-decoration: none;
-        border-radius: 5px;
-        margin: 20px 0;
-      }
-      .footer {
-        margin-top: 30px;
-        padding-top: 20px;
-        border-top: 1px solid #eee;
-        font-size: 0.9em;
-        color: #666;
-      }
-    </style>
   </head>
-  <body>
-    <div class="container">
-      <h2>Welcome to Tech Bloggers!</h2>
-      <p>Hi {{ user.username }},</p>
-      <p>
-        Thank you for registering with Tech Bloggers. To activate your account
-        and start sharing your tech insights, please click the button below:
-      </p>
+  <body
+    style="
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+        'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.5;
+      color: #24292e;
+      margin: 0;
+      padding: 0;
+      background-color: #f6f8fa;
+    "
+  >
+    <div style="max-width: 600px; margin: 0 auto; padding: 20px">
+      <!-- Header -->
+      <div style="text-align: center; margin-bottom: 30px">
+        <img
+          src="{{ domain }}{% static 'images/logo.png' %}"
+          alt="Tech Bloggers Logo"
+          style="max-width: 200px; height: auto; margin-bottom: 20px"
+        />
+        <h1
+          style="
+            font-size: 24px;
+            font-weight: bold;
+            color: #0366d6;
+            margin: 0 0 10px;
+          "
+        >
+          Welcome to Tech Bloggers!
+        </h1>
+      </div>
 
-      <a
-        href="http://{{ domain }}{% url 'accounts:activate' uidb64=uid token=token %}"
-        class="button"
+      <!-- Content -->
+      <div
+        style="
+          background: #ffffff;
+          border: 1px solid #e1e4e8;
+          border-radius: 6px;
+          padding: 30px;
+          margin-bottom: 30px;
+        "
       >
-        Activate Account
-      </a>
+        <p style="margin: 0 0 15px">Hi {{ user.username }},</p>
 
-      <p>Or copy and paste this link in your browser:</p>
-      <p>
-        http://{{ domain }}{% url 'accounts:activate' uidb64=uid token=token %}
-      </p>
-
-      <p>This link will expire in 24 hours for security reasons.</p>
-
-      <div class="footer">
-        <p>
-          If you didn't register for a Tech Bloggers account, you can safely
-          ignore this email.
+        <p style="margin: 0 0 15px">
+          Thanks for signing up for Tech Bloggers! We're excited to have you
+          join our community.
         </p>
-        <p>Best regards,<br />The Tech Bloggers Team</p>
+
+        <p style="margin: 0 0 15px">
+          Please click the button below to activate your account:
+        </p>
+
+        <!-- Button -->
+        <div style="text-align: center; margin: 25px 0">
+          <a
+            href="http://127.0.0.1:8000{% url 'accounts:activate' uidb64=uid token=token %}"
+            style="
+              display: inline-block;
+              background: #0366d6;
+              color: #ffffff;
+              text-decoration: none;
+              padding: 12px 24px;
+              border-radius: 6px;
+              font-weight: 600;
+            "
+          >
+            Activate Your Account
+          </a>
+        </div>
+
+        <p style="margin: 0 0 10px">
+          Or copy and paste this link into your browser:
+        </p>
+        <p style="word-break: break-all; color: #0366d6; margin: 0 0 15px">
+          http://127.0.0.1:8000{% url 'accounts:activate' uidb64=uid token=token
+          %}
+        </p>
+
+        <p style="font-size: 14px; color: #6a737d; margin: 20px 0 0">
+          This link will expire in 24 hours. If you didn't create an account
+          with Tech Bloggers, you can safely ignore this email.
+        </p>
+      </div>
+
+      <!-- Footer -->
+      <div
+        style="
+          text-align: center;
+          font-size: 14px;
+          color: #6a737d;
+          margin-top: 30px;
+        "
+      >
+        <p style="margin: 0">
+          Tech Bloggers - Share your tech knowledge with the world<br />
+          Questions? Email us at support@techbloggers.com
+        </p>
       </div>
     </div>
   </body>
 </html>
+
+{% comment %} Plain text version (used as fallback): Hi {{ user.username }},
+Thanks for signing up for Tech Bloggers! We're excited to have you join our
+community. To activate your account, please visit this link: http://{{ domain
+}}{% url 'accounts:activate' uidb64=uid token=token %} This link will expire in
+24 hours. If you didn't create an account with Tech Bloggers, you can safely
+ignore this email. Questions? Email us at support@techbloggers.com Tech Bloggers
+- Share your tech knowledge with the world {% endcomment %}

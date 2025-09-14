@@ -1,160 +1,160 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The AI Revolution: What It Means for Everyday Life - Tech Bloggers</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-</head>
-<body>
-  <!-- Navbar -->
-  <header class="navbar">
-    <div class="container nav-content">
-      <div class="nav-logo">Tech Bloggers</div>
+{% extends 'base.html' %} {% load static %} {% block title %}{{ post.title }} -
+Tech Bloggers{% endblock %} {% block content %}
+<!-- Breadcrumb -->
+<div class="breadcrumb">
+  <a href="{% url 'pages:index' %}">Home</a>
+  <span>></span>
+  <a href="{% url 'blog:post_list' %}">Blog</a>
+  <span>></span>
+  <span>{{ post.title }}</span>
+</div>
 
-      <!-- Hamburger button -->
-      <div class="hamburger" id="hamburger">
-        <span></span>
-        <span></span>
-        <span></span>
+<!-- Single Post -->
+<article class="single-post">
+  <!-- Post Header -->
+  <header class="post-header">
+    <div class="post-category">
+      {% for tag in post.tags.all %}
+      <a href="{% url 'blog:tag_detail' tag.slug %}" class="category-tag"
+        >{{ tag.name }}</a
+      >
+      {% endfor %}
+    </div>
+    <h1 class="post-title">{{ post.title }}</h1>
+    <div class="post-meta">
+      <div class="author-info">
+        {% if post.author.profile.avatar %}
+        <img
+          src="{{ post.author.profile.avatar.url }}"
+          alt="{{ post.author.get_full_name }}"
+          class="author-avatar"
+        />
+        {% else %}
+        <img
+          src="{% static 'images/default-avatar.jpg' %}"
+          alt="{{ post.author.get_full_name }}"
+          class="author-avatar"
+        />
+        {% endif %}
+        <span class="author-name"
+          >By {{ post.author.get_full_name|default:post.author.username }}</span
+        >
       </div>
-
-      <!-- Nav Menu (links + buttons together on mobile) -->
-      <nav class="nav-menu" id="nav-menu">
-        <div class="nav-links">
-          <a href="#">All Posts</a>
-          <a href="#">AI</a>
-          <a href="#">Web Development</a>
-          <a href="#">Cybersecurity</a>
-          <a href="#">IT</a>
-          <a href="#">Favorites</a>
-        </div>
-        <div class="nav-buttons">
-          <a href="#" class="btn btn--outline">Log in</a>
-          <a href="#" class="btn btn--primary">Sign up</a>
-        </div>
-      </nav>
+      <div class="post-date">
+        <i class="fas fa-calendar"></i>
+        <span>{{ post.published_at|date:"F d, Y" }}</span>
+      </div>
+      <div class="post-actions">
+        {% if user.is_authenticated %}
+        <form
+          method="post"
+          action="{% url 'blog:like_post' post.id %}"
+          class="d-inline"
+        >
+          {% csrf_token %}
+          <button
+            type="submit"
+            class="action-btn like-btn {% if user in post.likes.all %}active{% endif %}"
+          >
+            <i
+              class="{% if user in post.likes.all %}fas{% else %}far{% endif %} fa-heart"
+            ></i>
+            <span>Like</span>
+          </button>
+        </form>
+        {% endif %}
+      </div>
     </div>
   </header>
 
-    <!-- Main Content -->
-    <main class="container">
-        <!-- Breadcrumb -->
-        <div class="breadcrumb">
-            <a href="index.html">Home</a>
-            <span>></span>
-            <a href="posts.html">The AI Revolution: What It Means for Everyday Life</a>
-        </div>
+  <!-- Featured Image -->
+  {% if post.image %}
+  <div class="post-featured-image">
+    <img src="{{ post.image.url }}" alt="{{ post.title }}" onerror="this.src='{%
+    static "images/default-post.jpg" %}'">
+  </div>
+  {% endif %}
 
-        <!-- Single Post -->
-        <article class="single-post">
-            <!-- Post Header -->
-            <header class="post-header">
-                <div class="post-category">
-                    <span class="category-tag">Technology & Innovation</span>
-                </div>
-                <h1 class="post-title">The AI Revolution: What It Means for Everyday Life</h1>
-                <div class="post-meta">
-                    <div class="author-info">
-                        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face" alt="Author" class="author-avatar">
-                        <span class="author-name">By John Doe</span>
-                    </div>
-                    <div class="post-date">
-                        <i class="fas fa-calendar"></i>
-                        <span>December 15, 2023</span>
-                    </div>
-                    <div class="post-actions">
-                        <button class="action-btn like-btn">
-                            <i class="fas fa-heart"></i>
-                            <span>いいね</span>
-                        </button>
-                        <button class="action-btn bookmark-btn">
-                            <i class="fas fa-bookmark"></i>
-                            <span>ブックマーク</span>
-                        </button>
-                    </div>
-                </div>
-            </header>
+  <!-- Post Content -->
+  <div class="post-content">{{ post.content|safe|linebreaks }}</div>
 
-            <!-- Featured Image -->
-            <div class="post-featured-image">
-                <img src="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=400&fit=crop" alt="AI Robot interacting with human">
-            </div>
+  <!-- Author Bio -->
+  <div class="author-bio">
+    <h3>About Author</h3>
+    <div class="author-card">
+      {% if post.author.profile.avatar %}
+      <img
+        src="{{ post.author.profile.avatar.url }}"
+        alt="{{ post.author.get_full_name }}"
+        class="author-image"
+      />
+      {% else %}
+      <img
+        src="{% static 'images/default-avatar.jpg' %}"
+        alt="{{ post.author.get_full_name }}"
+        class="author-image"
+      />
+      {% endif %}
+      <div class="author-details">
+        <h4>{{ post.author.get_full_name|default:post.author.username }}</h4>
+        <p>{{ post.author.profile.bio|default:"No bio available." }}</p>
+      </div>
+    </div>
+  </div>
+</article>
 
-            <!-- Post Content -->
-            <div class="post-content">
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla rhoncus, nulla et commodo sagittis, sapien dui rhoncus dui, non vehicula lorem lorem non mauris. Nulla rhoncus, nulla et commodo sagittis, sapien dui rhoncus dui, non vehicula lorem lorem non mauris dui et mauris lorem lorem non mauris.</p>
+<!-- Comments Section -->
+<section class="comments-section">
+  <h2>Comments ({{ post.comments.count }})</h2>
 
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla rhoncus, nulla et commodo sagittis, sapien dui rhoncus dui, non vehicula lorem lorem non mauris. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+  {% for comment in post.comments.all %}
+  <div class="comment">
+    <div class="comment-author">
+      {{ comment.author.get_full_name|default:comment.author.username }}
+    </div>
+    <div class="comment-text">{{ comment.content }}</div>
+    {% if user.is_authenticated %}
+    <div class="comment-actions">
+      <button class="btn-reply" data-comment-id="{{ comment.id }}">
+        Reply
+      </button>
+    </div>
+    {% endif %} {% for reply in comment.replies.all %}
+    <div class="comment reply">
+      <div class="comment-author">
+        {{ reply.author.get_full_name|default:reply.author.username }}
+      </div>
+      <div class="comment-text">{{ reply.content }}</div>
+    </div>
+    {% endfor %}
+  </div>
+  {% empty %}
+  <p class="text-center">No comments yet. Be the first to comment!</p>
+  {% endfor %}
 
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla rhoncus, nulla et commodo sagittis.</p>
-
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-
-                <p>Aliquam sagittis, elit sit amet rhoncus placerat, sem sapien rhoncus mauris, aliquam porttitor lacus vel leo quis. Quisque feugiat dui lorem, vel porttitor elit rhoncus sit.</p>
-
-                <ul>
-                    <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit</li>
-                    <li>Nulla rhoncus, nulla et commodo sagittis, sapien dui rhoncus dui</li>
-                    <li>Non vehicula lorem lorem non mauris aliquam porttitor lacus vel leo quis</li>
-                </ul>
-            </div>
-
-            <!-- Author Bio -->
-            <div class="author-bio">
-                <h3>About Author</h3>
-                <div class="author-card">
-                    <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt="David" class="author-image">
-                    <div class="author-details">
-                        <h4>David</h4>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla rhoncus, nulla et commodo sagittis, sapien dui rhoncus dui, non vehicula lorem lorem non mauris. Nulla rhoncus, nulla et commodo sagittis, sapien dui rhoncus dui, non vehicula lorem lorem non mauris dui et mauris lorem lorem non mauris.</p>
-                    </div>
-                </div>
-            </div>
-        </article>
-
-        <!-- Comments Section -->
-        <section class="comments-section">
-            <h2>Comments</h2>
-
-            <!-- Example Comment -->
-            <div class="comment">
-                <div class="comment-author">Jane Doe</div>
-                <div class="comment-text">
-                    This is a great post! Thanks for sharing your thoughts.
-                </div>
-                <div class="comment-actions">
-                    <button class="btn-reply">Reply</button>
-                </div>
-            </div>
-
-            <div class="comment">
-                <div class="comment-author">John Smith</div>
-                <div class="comment-text">
-                    I learned a lot from this. Could you also write about Django forms?
-                </div>
-                <div class="comment-actions">
-                    <button class="btn-reply">Reply</button>
-                </div>
-            </div>
-
-            <!-- Add Comment Form -->
-            <div class="add-comment">
-                <h3>Leave a Comment</h3>
-                <textarea placeholder="Write your comment..." class="form-control"></textarea>
-                <button class="btn btn--primary">Submit Comment</button>
-            </div>
-        </section>
-    </main>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <p>&copy; 2023 Tech Bloggers. All rights reserved.</p>
-            <p><a href="#">Privacy Policy</a> | <a href="#">Terms</a></p>
-        </div>
-    </footer>
-    <script src="script.js"></script>
-</body>
-</html>
+  <!-- Add Comment Form -->
+  {% if user.is_authenticated %}
+  <div class="add-comment">
+    <h3>Leave a Comment</h3>
+    <form method="post" action="{% url 'blog:add_comment' post.id %}">
+      {% csrf_token %}
+      <textarea
+        name="content"
+        placeholder="Write your comment..."
+        class="form-control"
+        required
+      ></textarea>
+      <button type="submit" class="btn btn--primary">Submit Comment</button>
+    </form>
+  </div>
+  {% else %}
+  <div class="add-comment text-center">
+    <p>
+      Please
+      <a href="{% url 'accounts:login' %}?next={{ request.path }}">log in</a> to
+      leave a comment.
+    </p>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

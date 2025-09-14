@@ -8,11 +8,8 @@ app_name = 'accounts'
 
 urlpatterns = [
     # Django's default auth URLs
-    path('login/', auth_views.LoginView.as_view(
-        template_name='accounts/login.html',
-        authentication_form=CustomAuthenticationForm
-    ), name='login'),
-    path('logout/', auth_views.LogoutView.as_view(next_page='pages:index'), name='logout'),
+    path('login/', views.CustomLoginView.as_view(), name='login'),
+    path('logout/', views.LogoutView.as_view(), name='logout'),
     # Password reset (forgot password)
     path('password-reset/', auth_views.PasswordResetView.as_view(
         template_name='accounts/password_reset.html',
@@ -40,4 +37,7 @@ urlpatterns = [
     path('settings/update-profile/', views.UpdateProfileSettingsView.as_view(), name='update_profile'),
     path('settings/update-password/', views.UpdatePasswordView.as_view(), name='update_password'),
     path('settings/delete-account/', views.DeleteAccountView.as_view(), name='delete_account'),
+    
+    # Temporary URL for email preview (remove in production)
+    path('preview-activation-email/', views.preview_activation_email, name='preview_activation_email'),
 ]

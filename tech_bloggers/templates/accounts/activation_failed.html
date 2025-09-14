@@ -1,33 +1,39 @@
-{% extends "base.html" %} {% load static %} {% block content %}
-<div class="container py-5">
-  <div class="row justify-content-center">
-    <div class="col-md-8">
-      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title mb-0">Activation Failed</h3>
-        </div>
-        <div class="card-body">
-          <div class="alert alert-danger">
-            <h4 class="alert-heading">Invalid or Expired Link</h4>
-            <p>
-              The activation link you clicked is either invalid or has expired.
-            </p>
-            <hr />
-            <p class="mb-0">
-              If you still need to activate your account, please try registering
-              again or contact support.
-            </p>
-          </div>
-          <div class="text-center mt-3">
-            <a href="{% url 'accounts:signup' %}" class="btn btn-primary"
-              >Register Again</a
-            >
-            <a href="{% url 'pages:index' %}" class="btn btn-secondary"
-              >Return to Home</a
-            >
-          </div>
-        </div>
+{% extends "base.html" %} {% load static %} {% block title %}Activation Failed -
+Tech Bloggers{% endblock %} {% block content %}
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="auth-icon error">
+        <i class="fas fa-exclamation-circle"></i>
       </div>
+      <h1>Activation Failed</h1>
+      <p>We couldn't activate your account</p>
+    </div>
+
+    <div class="auth-message">
+      <p>
+        The activation link you used is either invalid or has expired.
+        Activation links are only valid for 24 hours after signup.
+      </p>
+      <p>
+        If you still want to activate your account, you'll need to sign up again
+        with the same email address to receive a new activation link.
+      </p>
+    </div>
+
+    <div class="auth-actions">
+      <a href="{% url 'accounts:signup' %}" class="btn btn--primary btn--block">
+        Sign Up Again
+      </a>
+      <a href="{% url 'accounts:login' %}" class="btn btn--outline btn--block">
+        Back to Login
+      </a>
+    </div>
+
+    <div class="auth-links">
+      <p>
+        <a href="#" class="link-muted"> Need help? Contact support </a>
+      </p>
     </div>
   </div>
 </div>

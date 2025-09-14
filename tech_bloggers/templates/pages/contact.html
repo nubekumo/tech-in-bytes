@@ -1,85 +1,67 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tech Bloggers</title>
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-</head>
-<body>
+{% extends 'base.html' %} {% load static %} {% block title %}Contact Us - Tech
+Bloggers{% endblock %} {% block content %}
+<!-- Hero Section -->
+<section class="hero contact-us-hero">
+  <div class="hero-content">
+    <h1 class="contact-heading">Contact Us</h1>
+  </div>
+</section>
 
-  <header class="navbar">
-    <div class="container nav-content">
-      <div class="nav-logo">Tech Bloggers</div>
-
-      <!-- Hamburger button -->
-      <div class="hamburger" id="hamburger">
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
-
-      <!-- Nav Menu (links + buttons together on mobile) -->
-      <nav class="nav-menu" id="nav-menu">
-        <div class="nav-links">
-          <a href="#">All Posts</a>
-          <a href="#">AI</a>
-          <a href="#">Web Development</a>
-          <a href="#">Cybersecurity</a>
-          <a href="#">IT</a>
-          <a href="#">Favorites</a>
-        </div>
-        <div class="nav-buttons">
-          <a href="#" class="btn btn--outline">Log in</a>
-          <a href="#" class="btn btn--primary">Sign up</a>
-        </div>
-      </nav>
+<!-- Contact Form Section -->
+<section class="contact-section container">
+  <form method="post" class="contact-form card">
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="first_name">First Name</label>
+      <input
+        type="text"
+        id="first_name"
+        name="first_name"
+        class="form-control"
+        placeholder="Joe"
+        required
+      />
     </div>
-  </header>
 
-  <!-- Hero Section -->
-  <section class="hero contact-us-hero">
-    <div class="hero-content">
-      <h1 class="contact-heading">Contact Us</h1>
+    <div class="form-group">
+      <label for="last_name">Last Name</label>
+      <input
+        type="text"
+        id="last_name"
+        name="last_name"
+        class="form-control"
+        placeholder="Doe"
+        required
+      />
     </div>
-  </section>
 
-  <!-- Contact Form Section -->
-  <section class="contact-section container">
-    <form class="contact-form card">
-      <div class="form-group">
-        <label for="firstName">First Name</label>
-        <input type="text" id="firstName" name="firstName" class="form-control" placeholder="Joe">
-      </div>
+    <div class="form-group full-width">
+      <label for="email">Email</label>
+      <input
+        type="email"
+        id="email"
+        name="email"
+        class="form-control"
+        placeholder="joedoe@email.com"
+        required
+      />
+    </div>
 
-      <div class="form-group">
-        <label for="lastName">Last Name</label>
-        <input type="text" id="lastName" name="lastName" class="form-control" placeholder="Doe" required>
-      </div>
+    <div class="form-group full-width">
+      <label for="message">Message</label>
+      <textarea
+        id="message"
+        name="message"
+        rows="6"
+        class="form-control"
+        placeholder="Write your message here..."
+        required
+      ></textarea>
+    </div>
 
-      <div class="form-group full-width">
-        <label for="email">Email</label>
-        <input type="email" id="email" name="email" class="form-control" placeholder="joedoe@email.com">
-      </div>
-
-      <div class="form-group full-width">
-        <label for="message">Message</label>
-        <textarea id="message" name="message" rows="6" class="form-control" placeholder="Write your message here..."></textarea>
-      </div>
-
-      <div class="form-actions full-width">
-        <button type="submit" class="btn btn--primary">Send</button>
-      </div>
-    </form>
-  </section>
-
-  <!-- Footer -->
-  <footer class="footer">
-    <p>© 2025 Tech Bloggers. All rights reserved.</p>
-    <p><a href="#">Privacy Policy</a> • <a href="#">Terms</a></p>
-  </footer>
-<script src="script.js"></script>
-</body>
-</html>
+    <div class="form-actions full-width">
+      <button type="submit" class="btn btn--primary">Send Message</button>
+    </div>
+  </form>
+</section>
+{% endblock %}
