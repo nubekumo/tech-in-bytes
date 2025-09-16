@@ -12,7 +12,8 @@ from django.contrib import messages
 from django.contrib.auth import login, update_session_auth_hash, authenticate
 import logging
 from .models import Profile
-from .forms import SignUpForm, AccountSettingsForm, CustomPasswordChangeForm
+from .forms import SignUpForm, AccountSettingsForm, EmailUpdateForm, CustomPasswordChangeForm
+from .utils import process_avatar_image
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
@@ -89,42 +90,44 @@ class SignUpView(CreateView):
     success_url = reverse_lazy('accounts:signup_done')
 
     def post(self, request, *args, **kwargs):
-        print("\nProcessing signup form submission:")
-        print(f"POST data: {request.POST}")
+        # Track if the form submission is successful
+        logger.debug("Processing signup form submission")
+        logger.debug(f"POST data: {request.POST}")
         return super().post(request, *args, **kwargs)
 
     def form_valid(self, form):
-        print("\nForm is valid, creating user...")
+        # Track if the form is valid
+        logger.debug("Form is valid, creating user...")
         try:
-            # Create inactive user
             user = form.save(commit=False)
             user.is_active = False
             user.save()
-            print(f"Created user: {user.username} (id: {user.pk})")
+            logger.info(f"Created user: {user.username} (id: {user.pk})")
             
-            # Send activation email
             self.send_activation_email(user)
             
             return super().form_valid(form)
         except Exception as e:
-            print(f"Error in form_valid: {str(e)}")
+            logger.error(f"Error in form_valid: {str(e)}")
             raise
 
     def form_invalid(self, form):
-        print("\nForm is invalid:")
-        print(f"Form errors: {form.errors}")
+        # Track if the form is invalid
+        logger.warning("Form is invalid")
+        logger.debug(f"Form errors: {form.errors}")
         return super().form_invalid(form)
     
     def send_activation_email(self, user):
         try:
-            print(f"\nSending activation email to {user.email}")
+            # Track if the activation email is sent
+            logger.debug(f"Sending activation email to {user.email}")
             current_site = get_current_site(self.request)
-            print(f"Current site domain: {current_site.domain}")
+            logger.debug(f"Current site domain: {current_site.domain}")
             
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             token = account_activation_token.make_token(user)
-            print(f"Generated UID: {uid}")
-            print(f"Generated token: {token}")
+            logger.debug(f"Generated UID: {uid}")
+            logger.debug(f"Generated token: {token}")
             
             mail_subject = 'Activate your Tech Bloggers account'
             message = render_to_string('accounts/activation_email.html', {
@@ -137,14 +140,14 @@ class SignUpView(CreateView):
             email = EmailMessage(
                 mail_subject, message, to=[user.email]
             )
-            email.content_subtype = 'html'  # Main content is now HTML
-            print("Attempting to send email...")
+            email.content_subtype = 'html'
+            logger.debug("Attempting to send email...")
             email.send()
-            print("Email sent successfully!")
+            logger.info("Activation email sent successfully!")
             
         except Exception as e:
-            print(f"Error sending activation email: {str(e)}")
-            raise  # Re-raise the exception to handle it in the view
+            logger.error(f"Error sending activation email: {str(e)}")
+            raise
 
 class SignUpDoneView(TemplateView):
     template_name = 'accounts/signup_done.html'
@@ -152,34 +155,36 @@ class SignUpDoneView(TemplateView):
 class ActivateAccountView(View):
     def get(self, request, uidb64, token):
         try:
-            # Debug print statements
-            print(f"Activation attempt - uidb64: {uidb64}, token: {token}")
+            # Track if the activation attempt is successful
+            logger.debug(f"Activation attempt - uidb64: {uidb64}, token: {token}")
             
             uid = force_str(urlsafe_base64_decode(uidb64))
-            print(f"Decoded UID: {uid}")
+            logger.debug(f"Decoded UID: {uid}")
             
             user = User.objects.get(pk=uid)
-            print(f"Found user: {user.username} (active: {user.is_active})")
+            logger.debug(f"Found user: {user.username} (active: {user.is_active})")
             
             token_valid = account_activation_token.check_token(user, token)
-            print(f"Token valid: {token_valid}")
+            logger.debug(f"Token valid: {token_valid}")
 
             if token_valid:
                 user.is_active = True
                 user.save()
                 login(request, user)
+                logger.info(f"Account activated successfully for user: {user.username}")
                 messages.success(request, 'Your account has been activated. Welcome to Tech Bloggers!')
                 return redirect('pages:index')
             else:
+                logger.warning(f"Invalid or expired activation token for user: {user.username}")
                 messages.error(request, 'Activation link is invalid or has expired!')
                 return redirect('accounts:activation_failed')
                 
         except (TypeError, ValueError, OverflowError) as e:
-            print(f"Error decoding UID: {str(e)}")
+            logger.error(f"Error decoding UID: {str(e)}")
             messages.error(request, 'Invalid activation link format!')
             return redirect('accounts:activation_failed')
         except User.DoesNotExist:
-            print(f"No user found with ID: {uid}")
+            logger.error(f"No user found with ID: {uid}")
             messages.error(request, 'User not found!')
             return redirect('accounts:activation_failed')
 
@@ -190,9 +195,11 @@ class AccountSettingsBaseView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         profile, created = Profile.objects.get_or_create(user=self.request.user)
+        settings_form = AccountSettingsForm(instance=profile)
         context.update({
             'profile': profile,
-            'settings_form': AccountSettingsForm(instance=profile),
+            'form': settings_form,
+            'email_form': EmailUpdateForm(user=self.request.user),
             'password_form': CustomPasswordChangeForm(self.request.user),
         })
         return context
@@ -208,15 +215,58 @@ class UpdateProfileSettingsView(LoginRequiredMixin, UpdateView):
         return Profile.objects.get_or_create(user=self.request.user)[0]
     
     def form_valid(self, form):
-        form.save()
+        logger.info(f"Profile form is valid. Data: {form.cleaned_data}")
+        # Save instance without committing to allow avatar processing
+        profile = form.save(commit=False)
+
+        # Process avatar only if user uploaded a new file in this submission
+        avatar_file = self.request.FILES.get('avatar')
+
+        if avatar_file:
+            processed = process_avatar_image(
+                avatar_file,
+                size=(300, 300),
+            )
+            if processed is not None:
+                # Use the processed file's own name to keep correct extension/mimetype
+                profile.avatar.save(getattr(processed, 'name', 'avatar.jpg'), processed, save=False)
+                logger.info("Avatar processed and set on profile")
+            else:
+                logger.warning("Avatar processing failed; using original upload")
+                # Fallback to saving the original upload
+                profile.avatar = avatar_file
+
+        # Persist other fields (e.g., bio)
+        profile.save()
+        self.object = profile
+        logger.info(f"Profile saved: {profile}")
         messages.success(self.request, 'Your account settings have been updated.')
-        return super().form_valid(form)
+        return redirect(self.get_success_url())
+    
+    def form_invalid(self, form):
+        logger.warning(f"Profile form is invalid. Errors: {form.errors}")
+        messages.error(self.request, 'Please correct the errors below.')
+        return super().form_invalid(form)
     
     def get_context_data(self, **kwargs):
         # Include all forms in context for template reuse
         context = super().get_context_data(**kwargs)
         context['password_form'] = CustomPasswordChangeForm(self.request.user)
         return context
+
+class UpdateEmailView(LoginRequiredMixin, View):
+    """Handles email updates"""
+    
+    def post(self, request):
+        form = EmailUpdateForm(request.POST, user=request.user)
+        if form.is_valid():
+            logger.info(f"Email form is valid. Data: {form.cleaned_data}")
+            form.save()
+            messages.success(request, 'Your email has been updated.')
+        else:
+            logger.warning(f"Email form is invalid. Errors: {form.errors}")
+            messages.error(request, 'Please correct the errors below.')
+        return redirect('accounts:settings')
 
 class UpdatePasswordView(LoginRequiredMixin, PasswordChangeView):
     """Handles password changes"""
@@ -237,18 +287,30 @@ class UpdatePasswordView(LoginRequiredMixin, PasswordChangeView):
         context['settings_form'] = AccountSettingsForm(instance=profile)
         return context
 
-class DeleteAccountView(LoginRequiredMixin, DeleteView):
+class DeleteAccountView(LoginRequiredMixin, View):
     """Handles account deletion with confirmation"""
-    model = User
     template_name = 'accounts/delete_confirm.html'
-    success_url = reverse_lazy('pages:index')
     
-    def get_object(self, queryset=None):
-        return self.request.user
+    def get(self, request):
+        """Show the delete confirmation page"""
+        return render(request, self.template_name)
     
-    def delete(self, request, *args, **kwargs):
+    def post(self, request):
+        """Handle the actual account deletion"""
+        # Verify password before deletion
+        password = request.POST.get('password', '')
+        user = request.user
+        
+        if not user.check_password(password):
+            messages.error(request, 'Invalid password. Please try again.')
+            return render(request, self.template_name)
+        
+        # Delete the user account
+        username = user.username
+        user.delete()
+        
         messages.success(request, 'Your account has been successfully deleted.')
-        return super().delete(request, *args, **kwargs)
+        return redirect('pages:index')
 
 def preview_activation_email(request):
     """Temporary view to preview activation email template"""

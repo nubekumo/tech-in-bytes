@@ -2,7 +2,10 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils.text import slugify
 from django.core.exceptions import ValidationError
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 from PIL import Image
+import os
 
 def validate_image(image):
     # Check file size (2MB limit)
@@ -72,3 +75,17 @@ class Comment(models.Model):
 class Like(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
+
+
+@receiver(post_delete, sender=Post)
+def delete_post_image_file(sender, instance, **kwargs):
+    """
+    Delete the post image file from the filesystem when a Post instance is deleted.
+    """
+    if instance.image:
+        try:
+            if os.path.isfile(instance.image.path):
+                os.remove(instance.image.path)
+        except (ValueError, OSError):
+            # Handle cases where the file might not exist or path is invalid
+            pass

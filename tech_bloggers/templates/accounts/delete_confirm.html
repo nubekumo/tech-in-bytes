@@ -34,6 +34,24 @@ Tech Bloggers{% endblock %} {% block content %}
 
     <form method="post" class="auth-form">
       {% csrf_token %}
+
+      <div class="form-group">
+        <label for="password">Enter your password to confirm deletion</label>
+        <div class="password-field">
+          <input
+            type="password"
+            name="password"
+            id="password"
+            class="form-control"
+            placeholder="Enter your password"
+            required
+          />
+          <button type="button" class="password-toggle" data-target="password">
+            <i class="far fa-eye"></i>
+          </button>
+        </div>
+      </div>
+
       <div class="form-actions">
         <a href="{% url 'accounts:settings' %}" class="btn btn--outline">
           <i class="fas fa-arrow-left"></i> Go Back
