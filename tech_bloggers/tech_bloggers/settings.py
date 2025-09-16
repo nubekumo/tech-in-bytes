@@ -25,10 +25,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-default-key-for-development')
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DJANGO_DEBUG', 'True').lower() == 'true'
+DEBUG = os.getenv('DJANGO_DEBUG', 'False').lower() == 'true'
 
 ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '').split(',') if os.getenv('DJANGO_ALLOWED_HOSTS') else []
 
@@ -44,11 +44,27 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.sitemaps',
     'taggit',
+    'easy_thumbnails',
+    'image_cropping',
     'apps.accounts',
     'apps.blog',
     'apps.pages',
     'apps.core',
 ]
+
+# Image cropping settings
+from easy_thumbnails.conf import Settings as thumbnail_settings
+THUMBNAIL_PROCESSORS = (
+    'image_cropping.thumbnail_processors.crop_corners',
+) + thumbnail_settings.THUMBNAIL_PROCESSORS
+
+IMAGE_CROPPING_BACKEND = 'image_cropping.backends.easy_thumbnails.EasyThumbnailsBackend'
+IMAGE_CROPPING_BACKEND_PARAMS = {}
+
+# Additional image cropping settings
+IMAGE_CROPPING_SIZE_WARNING = True
+IMAGE_CROPPING_THUMB_SIZE = (300, 300)
+IMAGE_CROPPING_MIN_SIZE = [20, 20]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -135,12 +151,12 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / "media"
 
 # Email configuration
-EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
-EMAIL_HOST = os.getenv('EMAIL_HOST', '')
-EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND')
+EMAIL_HOST = os.getenv('EMAIL_HOST')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
 EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True').lower() == 'true'
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -152,6 +168,8 @@ LOGIN_REDIRECT_URL = 'pages:index'
 LOGIN_URL = 'accounts:login'
 
 # Logging Configuration
+DEV_LOGGING_ENABLED = os.getenv('DEV_LOGGING_ENABLED', 'False').lower() == 'true'
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -171,20 +189,26 @@ LOGGING = {
             'formatter': 'simple',
         },
         'file': {
-            'class': 'logging.FileHandler',
+            'class': 'logging.handlers.RotatingFileHandler',
             'filename': BASE_DIR / 'logs' / 'tech_bloggers.log',
             'formatter': 'verbose',
+            'maxBytes': 10485760,  # 10MB
+            'backupCount': 5,      # Keep 5 backup files
+            'encoding': 'utf-8',
+        },
+        'null': {
+            'class': 'logging.NullHandler',
         },
     },
     'loggers': {
         # Django's default logging
         'django': {
-            'handlers': ['console', 'file'],
+            'handlers': ['console', 'file'] if (not DEBUG or DEV_LOGGING_ENABLED) else ['console', 'null'],
             'level': 'INFO',
         },
         # Our application logging
         'apps': {
-            'handlers': ['console', 'file'],
+            'handlers': ['console', 'file'] if (not DEBUG or DEV_LOGGING_ENABLED) else ['console', 'null'],
             'level': 'DEBUG' if DEBUG else 'INFO',
             'propagate': False,
         },

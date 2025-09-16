@@ -1,5 +1,7 @@
-{% extends "base.html" %} {% load static %} {% block title %}Account Settings -
-Tech Bloggers{% endblock %} {% block content %}
+{% extends "base.html" %} 
+{% load static %} {% block title %}Account Settings - Tech Bloggers {% endblock %} 
+{% block extra_head %}{% endblock %} {% block content %}
+
 <div class="settings-container">
   <!-- Header -->
   <div class="settings-header">
@@ -36,35 +38,22 @@ Tech Bloggers{% endblock %} {% block content %}
               id="avatar-preview-img"
             />
             {% else %}
-            <div class="avatar-placeholder">Upload your Picture</div>
+            <div class="avatar-placeholder" id="avatar-placeholder">
+              Upload your Picture
+            </div>
             {% endif %}
             <div class="avatar-overlay">
               <i class="fas fa-camera"></i>
               <span>Change Avatar</span>
             </div>
-            <input
-              type="file"
-              name="avatar"
-              id="avatar-input"
-              accept="image/*"
-              class="hidden-file-input"
-            />
+            {{ form.avatar }}
           </div>
         </div>
 
         <!-- Bio -->
         <div class="form-group">
-          <label for="bio">Bio</label>
-          <textarea
-            name="bio"
-            id="bio"
-            class="form-control"
-            rows="4"
-            placeholder="Tell us about yourself..."
-          >
-{{ form.bio.value|default:'' }}</textarea
-          >
-          {% if form.bio.errors %}
+          <label for="id_bio">Bio</label>
+          {{ form.bio }} {% if form.bio.errors %}
           <div class="form-feedback error">{{ form.bio.errors.0 }}</div>
           {% endif %}
         </div>
@@ -77,23 +66,14 @@ Tech Bloggers{% endblock %} {% block content %}
     <div class="tab-panel" id="account-panel">
       <form
         method="post"
-        action="{% url 'accounts:update_profile' %}"
+        action="{% url 'accounts:update_email' %}"
         id="email-form"
-        enctype="multipart/form-data"
       >
         {% csrf_token %}
         <div class="form-group">
-          <label for="email">Email Address</label>
-          <input
-            type="email"
-            name="email"
-            id="email"
-            class="form-control"
-            value="{{ user.email }}"
-            required
-          />
-          {% if form.email.errors %}
-          <div class="form-feedback error">{{ form.email.errors.0 }}</div>
+          <label for="id_email">Email Address</label>
+          {{ email_form.email }} {% if email_form.email.errors %}
+          <div class="form-feedback error">{{ email_form.email.errors.0 }}</div>
           {% endif %}
         </div>
 
@@ -205,37 +185,14 @@ Tech Bloggers{% endblock %} {% block content %}
           Once you delete your account, there is no going back. Please be
           certain.
         </p>
-        <form
-          method="post"
-          action="{% url 'accounts:delete_account' %}"
-          id="delete-form"
-        >
-          {% csrf_token %}
-          <div class="form-group">
-            <label for="confirm_password">Enter your password to confirm</label>
-            <div class="password-field">
-              <input
-                type="password"
-                name="confirm_password"
-                id="confirm_password"
-                class="form-control"
-                required
-              />
-              <button
-                type="button"
-                class="password-toggle"
-                data-target="confirm_password"
-              >
-                <i class="far fa-eye"></i>
-              </button>
-            </div>
-          </div>
-          <button type="submit" class="btn btn--danger">
-            Delete My Account
-          </button>
-        </form>
+        <div class="form-group">
+          <a href="{% url 'accounts:delete_account' %}" class="btn btn--danger">
+            <i class="fas fa-trash-alt"></i> Delete My Account
+          </a>
+        </div>
       </div>
     </div>
   </div>
 </div>
+
 {% endblock %}

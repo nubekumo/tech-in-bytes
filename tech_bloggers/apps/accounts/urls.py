@@ -35,6 +35,7 @@ urlpatterns = [
     ), name='activation_failed'),
     path('settings/', views.AccountSettingsBaseView.as_view(), name='settings'),
     path('settings/update-profile/', views.UpdateProfileSettingsView.as_view(), name='update_profile'),
+    path('settings/update-email/', views.UpdateEmailView.as_view(), name='update_email'),
     path('settings/update-password/', views.UpdatePasswordView.as_view(), name='update_password'),
     path('settings/delete-account/', views.DeleteAccountView.as_view(), name='delete_account'),
     
