@@ -28,7 +28,7 @@ Home{% endblock %} {% block content %}
   <h2>Latest Posts</h2>
   <div class="featured-post">
     {% if latest_posts %} {% with post=latest_posts.0 %}
-    <a href="{% url 'blog:post_detail' post.slug %}">
+    <a href="{% url 'blog:post_detail' pk=post.id slug=post.slug %}">
       <img
         src="{{ post.image.url }}"
         alt="{{ post.title }}"
@@ -54,7 +54,7 @@ Home{% endblock %} {% block content %}
   <div class="side-posts">
     {% for post in recently_posted|slice:"1:" %}
     <article class="side-post">
-      <a href="{% url 'blog:post_detail' post.slug %}">
+      <a href="{% url 'blog:post_detail' pk=post.id slug=post.slug %}">
         <img
           src="{{ post.image.url }}"
           alt="{{ post.title }}"
@@ -85,7 +85,7 @@ Home{% endblock %} {% block content %}
   <h2>Most Commented</h2>
   <div class="featured-post">
     {% if most_commented %} {% with post=most_commented.0 %}
-    <a href="{% url 'blog:post_detail' post.slug %}">
+    <a href="{% url 'blog:post_detail' pk=post.id slug=post.slug %}">
       <img
         src="{{ post.image.url }}"
         alt="{{ post.title }}"
@@ -115,7 +115,7 @@ Home{% endblock %} {% block content %}
   <div class="side-posts">
     {% for post in most_commented|slice:"1:" %}
     <article class="side-post">
-      <a href="{% url 'blog:post_detail' post.slug %}">
+      <a href="{% url 'blog:post_detail' pk=post.id slug=post.slug %}">
         <img
           src="{{ post.image.url }}"
           alt="{{ post.title }}"
@@ -147,7 +147,7 @@ Home{% endblock %} {% block content %}
   <div class="grid-recommended">
     {% for post in recommended_posts %}
     <article class="recom-card card">
-      <a href="{% url 'blog:post_detail' post.slug %}">
+      <a href="{% url 'blog:post_detail' pk=post.id slug=post.slug %}">
         <img
           src="{{ post.image.url }}"
           alt="{{ post.title }}"

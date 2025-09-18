@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Delete Post - Tech Bloggers{% endblock %}
+
+{% block content %}
+<div class="delete-confirmation">
+  <div class="confirmation-card">
+    <h1 class="confirmation-title">Delete Post</h1>
+    
+    <div class="post-preview">
+      {% if object.image %}
+      <div class="post-image">
+        <img src="{{ object.image.url }}" alt="{{ object.title }}" />
+      </div>
+      {% endif %}
+      
+      <div class="post-details">
+        <h2 class="post-title">{{ object.title }}</h2>
+        <p class="post-summary">{{ object.summary|truncatewords:30 }}</p>
+        <div class="post-meta">
+          <span class="post-date">Created: {{ object.created_at|date:"F j, Y" }}</span>
+          <span class="post-status status-{{ object.status }}">{{ object.status|title }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="warning-message">
+      <div class="warning-icon">⚠️</div>
+      <div class="warning-text">
+        <h3>Are you sure you want to delete this post?</h3>
+        <p>This action cannot be undone. The post and all its comments will be permanently removed.</p>
+      </div>
+    </div>
+
+    <form method="post" class="confirmation-form">
+      {% csrf_token %}
+      <div class="form-actions">
+        <button type="submit" class="btn btn--danger">
+          Yes, Delete Post
+        </button>
+        <a href="{% url 'blog:post_manage' %}" class="btn btn--outline">
+          Cancel
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
