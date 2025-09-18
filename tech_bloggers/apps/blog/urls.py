@@ -13,6 +13,7 @@ urlpatterns = [
     path('create/', views.PostCreateView.as_view(), name='post_create'),
     path('manage/', views.PostManageView.as_view(), name='post_manage'),
     path('manage/<int:pk>-<slug:slug>/edit/', views.PostUpdateView.as_view(), name='post_edit'),
+    path('manage/<int:pk>-<slug:slug>/publish/', views.PostPublishView.as_view(), name='post_publish'),
     path('manage/<int:pk>-<slug:slug>/delete/', views.PostDeleteView.as_view(), name='post_delete'),
     
     # Tags

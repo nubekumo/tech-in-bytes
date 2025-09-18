@@ -1,21 +1,20 @@
 {% extends 'base.html' %} 
 {% load static %} 
-{% block title %}Create Post - Tech Bloggers{% endblock %} 
+{% block title %}Edit Post - Tech Bloggers{% endblock %} 
 
 {% block content %}
-<!-- Create Post Section -->
+<!-- Edit Post Section -->
 <div class="container create-post-container">
   <form
     class="create-post-form"
     method="post"
     enctype="multipart/form-data"
-    action="{% url 'blog:post_create' %}"
   >
     {% csrf_token %}
 
     <!-- Post Section -->
     <div class="form-section">
-      <h1 class="form-heading">Write an Awesome Post</h1>
+      <h1 class="form-heading">Edit Your Post</h1>
 
       {% if form.non_field_errors %}
       <div class="alert alert-error">
@@ -84,9 +83,11 @@
       <label for="image">Post Image</label>
       <div class="image-container">
         <div class="image-placeholder" id="imagePreview">
-          {% if form.image.value %}
-          <img src="{{ form.image.value.url }}" alt="Post image preview" />
-          {% else %} Image Preview {% endif %}
+          {% if form.instance.image %}
+          <img src="{{ form.instance.image.url }}" alt="Current post image" />
+          {% else %}
+          Image Preview
+          {% endif %}
         </div>
       </div>
       <div class="image-actions">
@@ -96,10 +97,9 @@
           name="image"
           accept="image/*"
           class="hidden-file-input"
-          {% if form.image.field.required %}required{% endif %}
         />
         <button type="button" class="btn btn--outline" id="uploadImage">
-          Upload Image
+          {% if form.instance.image %}Change Image{% else %}Upload Image{% endif %}
         </button>
         {% if form.image.errors %}
         <div class="form-error">{{ form.image.errors }}</div>
@@ -111,24 +111,14 @@
       </div>
     </div>
 
-    <!-- Save Post -->
+    <!-- Update Post -->
     <div class="form-actions">
-      <button
-        type="submit"
-        name="action"
-        value="draft"
-        class="btn btn--outline"
-      >
-        Save as Draft
+      <button type="submit" class="btn btn--primary">
+        Update Post
       </button>
-      <button
-        type="submit"
-        name="action"
-        value="publish"
-        class="btn btn--primary"
-      >
-        Publish Post
-      </button>
+      <a href="{% url 'blog:post_manage' %}" class="btn btn--outline">
+        Cancel
+      </a>
     </div>
   </form>
 </div>

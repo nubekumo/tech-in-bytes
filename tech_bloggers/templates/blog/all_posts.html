@@ -63,7 +63,7 @@
       <div class="grid-recommended">
         {% for post in posts %}
           <article class="card recom-card">
-            <a href="{% url 'blog:post_detail' post.slug %}">
+            <a href="{% url 'blog:post_detail' pk=post.id slug=post.slug %}">
               <img 
                 src="{{ post.image.url }}" 
                 alt="{{ post.title }}" 

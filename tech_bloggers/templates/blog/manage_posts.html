@@ -59,23 +59,15 @@
             </div>
           </div>
           <div class="post-actions">
-            <a href="{% url 'blog:post_edit' post.id %}" class="btn-icon" title="Edit">
+            <a href="{% url 'blog:post_edit' pk=post.id slug=post.slug %}" class="btn-icon" title="Edit">
               <i class="fas fa-pen"></i>
             </a>
-            {% if post.status == 'draft' %}
-              <form method="post" action="{% url 'blog:post_publish' post.id %}" class="d-inline">
-                {% csrf_token %}
-                <button type="submit" class="btn-icon" title="Publish">
-                  <i class="fas fa-paper-plane"></i>
-                </button>
-              </form>
-            {% endif %}
-            <form method="post" action="{% url 'blog:post_delete' post.id %}" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this post?');">
-              {% csrf_token %}
-              <button type="submit" class="btn-icon" title="Delete">
-                <i class="fas fa-trash"></i>
-              </button>
-            </form>
+            <a href="{% url 'blog:post_publish' pk=post.id slug=post.slug %}" class="btn-icon" title="{% if post.status == 'draft' %}Publish{% else %}Unpublish{% endif %}">
+              <i class="fas fa-paper-plane"></i>
+            </a>
+            <a href="{% url 'blog:post_delete' pk=post.id slug=post.slug %}" class="btn-icon" title="Delete">
+              <i class="fas fa-trash"></i>
+            </a>
           </div>
         </div>
       {% empty %}

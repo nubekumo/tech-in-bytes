@@ -48,7 +48,7 @@ Tech Bloggers{% endblock %} {% block content %}
         {% if user.is_authenticated %}
         <form
           method="post"
-          action="{% url 'blog:like_post' post.id %}"
+          action="{% url 'blog:post_like' pk=post.id slug=post.slug %}"
           class="d-inline"
         >
           {% csrf_token %}
@@ -70,8 +70,8 @@ Tech Bloggers{% endblock %} {% block content %}
   <!-- Featured Image -->
   {% if post.image %}
   <div class="post-featured-image">
-    <img src="{{ post.image.url }}" alt="{{ post.title }}" onerror="this.src='{%
-    static "images/default-post.jpg" %}'">
+    <img src="{{ post.image.url }}" alt="{{ post.title }}" 
+    onerror="this.src='{% static "images/default-post.jpg" %}'">
   </div>
   {% endif %}
 
@@ -136,7 +136,7 @@ Tech Bloggers{% endblock %} {% block content %}
   {% if user.is_authenticated %}
   <div class="add-comment">
     <h3>Leave a Comment</h3>
-    <form method="post" action="{% url 'blog:add_comment' post.id %}">
+    <form method="post" action="{% url 'blog:comment_create' pk=post.id slug=post.slug %}">
       {% csrf_token %}
       <textarea
         name="content"
