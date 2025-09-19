@@ -4,7 +4,7 @@ Home{% endblock %} {% block content %}
 <section class="hero">
   <h1>Stay Ahead with Tech Insights</h1>
   <p>A place to share IT, AI, and Cybersecurity news and thoughts</p>
-  <div class="search-container">
+  <!-- <div class="search-container">
     <form
       action="{% url 'blog:post_list' %}"
       method="get"
@@ -20,39 +20,45 @@ Home{% endblock %} {% block content %}
         <i class="fas fa-search"></i>
       </button>
     </form>
-  </div>
+  </div> -->
 </section>
 
 <!-- Recent Posts Section -->
 <section class="recent-grid">
   <h2>Latest Posts</h2>
-  <div class="featured-post">
-    {% if latest_posts %} {% with post=latest_posts.0 %}
-    <a href="{% url 'blog:post_detail' pk=post.id slug=post.slug %}">
-      <img
-        src="{{ post.image.url }}"
-        alt="{{ post.title }}"
-        onerror="this.src='{% static 'images/default-post.jpg' %}'"
-      />
-      <h3>{{ post.title }}</h3>
-      <p>{{ post.summary|truncatewords:30 }}</p>
-      <div class="meta">
-        <span
-          ><i class="fas fa-user"></i> {{
-          post.author.get_full_name|default:post.author.username }}</span
-        >
-        <span
-          ><i class="fas fa-calendar"></i> {{ post.created_at|date:"M d, Y"
-          }}</span
-        >
-      </div>
-    </a>
-    {% endwith %} {% endif %}
+  <div class="grid-latest">
+    {% for post in latest_posts|slice:":4" %}
+    <article class="card">
+      <a href="{% url 'blog:post_detail' pk=post.id slug=post.slug %}">
+        <img
+          src="{{ post.image.url }}"
+          alt="{{ post.title }}"
+          onerror="this.src='{% static 'images/default-post.jpg' %}'"
+        />
+        <div class="card-body">
+          <h4>{{ post.title }}</h4>
+          <div class="meta">
+            <span><i class="fas fa-user"></i>
+              {% if post.author.first_name or post.author.last_name %}
+                {{ post.author.first_name }} {{ post.author.last_name }}
+              {% else %}
+                {{ post.author.username }}
+              {% endif %}
+            </span>
+            <span
+              ><i class="fas fa-calendar"></i> {{ post.created_at|date:"M d, Y" }}</span
+            >
+          </div>
+          <p>{{ post.summary|truncatewords:12 }}</p>
+        </div>
+      </a>
+    </article>
+    {% endfor %}
   </div>
 
   <h2 class="side-post-title">Recently Posted</h2>
   <div class="side-posts">
-    {% for post in recently_posted|slice:"1:" %}
+    {% for post in recently_posted %}
     <article class="side-post">
       <a href="{% url 'blog:post_detail' pk=post.id slug=post.slug %}">
         <img
@@ -63,13 +69,15 @@ Home{% endblock %} {% block content %}
         <div class="side-post-text">
           <h4>{{ post.title }}</h4>
           <div class="meta">
+            <span><i class="fas fa-user"></i>
+              {% if post.author.first_name or post.author.last_name %}
+                {{ post.author.first_name }} {{ post.author.last_name }}
+              {% else %}
+                {{ post.author.username }}
+              {% endif %}
+            </span>
             <span
-              ><i class="fas fa-user"></i> {{
-              post.author.get_full_name|default:post.author.username }}</span
-            >
-            <span
-              ><i class="fas fa-calendar"></i> {{ post.created_at|date:"M d, Y"
-              }}</span
+              ><i class="fas fa-calendar"></i> {{ post.created_at|date:"M d, Y" }}</span
             >
           </div>
           <p class="side-post-text">{{ post.summary|truncatewords:20 }}</p>
@@ -78,42 +86,10 @@ Home{% endblock %} {% block content %}
     </article>
     {% endfor %}
   </div>
-</section>
 
-<!-- Most Commented Section -->
-<section class="recent-grid">
-  <h2>Most Commented</h2>
-  <div class="featured-post">
-    {% if most_commented %} {% with post=most_commented.0 %}
-    <a href="{% url 'blog:post_detail' pk=post.id slug=post.slug %}">
-      <img
-        src="{{ post.image.url }}"
-        alt="{{ post.title }}"
-        onerror="this.src='{% static 'images/default-post.jpg' %}'"
-      />
-      <h3>{{ post.title }}</h3>
-      <p>{{ post.summary|truncatewords:30 }}</p>
-      <div class="meta">
-        <span
-          ><i class="fas fa-user"></i> {{
-          post.author.get_full_name|default:post.author.username }}</span
-        >
-        <span
-          ><i class="fas fa-calendar"></i> {{ post.created_at|date:"M d, Y"
-          }}</span
-        >
-        <span
-          ><i class="fas fa-comments"></i> {{ post.comments.count }}
-          comments</span
-        >
-      </div>
-    </a>
-    {% endwith %} {% endif %}
-  </div>
-
-  <h2 class="side-post-title">Most Discussed</h2>
-  <div class="side-posts">
-    {% for post in most_commented|slice:"1:" %}
+  <h2 class="side-post-title most">Most Commented</h2>
+  <div class="side-posts most">
+    {% for post in most_commented %}
     <article class="side-post">
       <a href="{% url 'blog:post_detail' pk=post.id slug=post.slug %}">
         <img
@@ -124,10 +100,13 @@ Home{% endblock %} {% block content %}
         <div class="side-post-text">
           <h4>{{ post.title }}</h4>
           <div class="meta">
-            <span
-              ><i class="fas fa-user"></i> {{
-              post.author.get_full_name|default:post.author.username }}</span
-            >
+            <span><i class="fas fa-user"></i>
+              {% if post.author.first_name or post.author.last_name %}
+                {{ post.author.first_name }} {{ post.author.last_name }}
+              {% else %}
+                {{ post.author.username }}
+              {% endif %}
+            </span>
             <span
               ><i class="fas fa-comments"></i> {{ post.comments.count }}
               comments</span
@@ -140,6 +119,8 @@ Home{% endblock %} {% block content %}
     {% endfor %}
   </div>
 </section>
+
+<!-- (Most Commented moved inside the first recent-grid above) -->
 
 <!-- Recommended Posts Section -->
 <section class="recommended">
@@ -157,12 +138,10 @@ Home{% endblock %} {% block content %}
           <h4>{{ post.title }}</h4>
           <div class="meta">
             <span
-              ><i class="fas fa-user"></i> {{
-              post.author.get_full_name|default:post.author.username }}</span
+              ><i class="fas fa-user"></i> {{ post.author.get_full_name|default:post.author.username }}</span
             >
             <span
-              ><i class="fas fa-calendar"></i> {{ post.created_at|date:"M d, Y"
-              }}</span
+              ><i class="fas fa-calendar"></i> {{ post.created_at|date:"M d, Y" }}</span
             >
           </div>
           <p>{{ post.summary|truncatewords:20 }}</p>
