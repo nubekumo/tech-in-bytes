@@ -2,10 +2,10 @@
 {% load static %}
 
 {% block title %}
-  {% if tag %}
-    {{ tag.name }} Posts - Tech Bloggers
-  {% elif filter == 'liked' %}
-    Liked Posts - Tech Bloggers
+  {% if current_tag %}
+    {{ current_tag.name }} Posts - Tech Bloggers
+  {% elif current_search %}
+    Search Results for "{{ current_search }}" - Tech Bloggers
   {% else %}
     All Posts - Tech Bloggers
   {% endif %}
@@ -16,10 +16,10 @@
   <section class="hero">
     <div class="hero-content">
       <h1>
-        {% if tag %}
-          {{ tag.name }} Posts
-        {% elif filter == 'liked' %}
-          Your Liked Posts
+        {% if current_tag %}
+          {{ current_tag.name }} Posts
+        {% elif current_search %}
+          Search Results for "{{ current_search }}"
         {% else %}
           All Blog Posts
         {% endif %}
@@ -29,12 +29,16 @@
           <input 
             type="text" 
             name="q" 
+            id="search-input"
             class="search-input-fa" 
             placeholder="Search posts..."
-            value="{{ request.GET.q|default:'' }}"
+            value="{{ current_search }}"
           >
-          <button type="submit" class="search-button-fa">
-            <i class="fas fa-search"></i>
+          {% if current_category %}
+            <input type="hidden" name="category" value="{{ current_category }}">
+          {% endif %}
+          <button type="submit" class="search-button-fa" id="search-button">
+            <i class="fas fa-search" id="search-icon"></i>
           </button>
         </form>
       </div>
@@ -46,10 +50,9 @@
     <div class="filter-wrapper">
       <i class="fas fa-filter"></i>
       <select class="filter-select" onchange="window.location.href=this.value">
-        <option value="{% url 'blog:post_list' %}" {% if not tag and not filter %}selected{% endif %}>All Posts</option>
-        <option value="{% url 'blog:post_list' %}?filter=liked" {% if filter == 'liked' %}selected{% endif %}>Liked Posts</option>
+        <option value="{% url 'blog:post_list' %}" {% if not current_category %}selected{% endif %}>All Posts</option>
         {% for available_tag in available_tags %}
-          <option value="{% url 'blog:tag_detail' available_tag.slug %}" {% if tag.id == available_tag.id %}selected{% endif %}>
+          <option value="{% url 'blog:post_list' %}?category={{ available_tag.slug }}" {% if current_category == available_tag.slug %}selected{% endif %}>
             {{ available_tag.name }}
           </option>
         {% endfor %}
@@ -92,31 +95,31 @@
       {% if is_paginated %}
         <div class="pagination">
           {% if page_obj.has_previous %}
-            <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="page-link">&laquo; Previous</a>
+            <a href="?page={{ page_obj.previous_page_number }}{% if current_search %}&q={{ current_search }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}" class="page-link">&laquo; Previous</a>
           {% endif %}
 
           {% for num in page_obj.paginator.page_range %}
             {% if page_obj.number == num %}
-              <a href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="page-link active">{{ num }}</a>
+              <a href="?page={{ num }}{% if current_search %}&q={{ current_search }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}" class="page-link active">{{ num }}</a>
             {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-              <a href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="page-link">{{ num }}</a>
+              <a href="?page={{ num }}{% if current_search %}&q={{ current_search }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}" class="page-link">{{ num }}</a>
             {% endif %}
           {% endfor %}
 
           {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="page-link">Next &raquo;</a>
+            <a href="?page={{ page_obj.next_page_number }}{% if current_search %}&q={{ current_search }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}" class="page-link">Next &raquo;</a>
           {% endif %}
         </div>
       {% endif %}
     {% else %}
       <div class="empty-state">
         <h3>No posts found.</h3>
-        {% if filter == 'liked' %}
-          <p>You haven't liked any posts yet.</p>
-        {% elif tag %}
-          <p>No posts found with the tag "{{ tag.name }}".</p>
-        {% elif request.GET.q %}
-          <p>No posts found matching "{{ request.GET.q }}".</p>
+        {% if current_tag and current_search %}
+          <p>No posts found in "{{ current_tag.name }}" matching "{{ current_search }}".</p>
+        {% elif current_tag %}
+          <p>No posts found with the category "{{ current_tag.name }}".</p>
+        {% elif current_search %}
+          <p>No posts found matching "{{ current_search }}".</p>
         {% else %}
           <p>There are no posts available at the moment.</p>
         {% endif %}

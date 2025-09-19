@@ -32,24 +32,46 @@ class PostListView(ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        return Post.objects.filter(status='published').select_related('author')
+        queryset = Post.objects.filter(status='published').select_related('author')
+        
+        # Handle search query
+        search_query = self.request.GET.get('q')
+        if search_query:
+            queryset = queryset.filter(
+                Q(title__icontains=search_query) |
+                Q(content__icontains=search_query) |
+                Q(summary__icontains=search_query) |
+                Q(tags__name__icontains=search_query)
+            ).distinct()
+        
+        # Handle category filter
+        category = self.request.GET.get('category')
+        if category:
+            queryset = queryset.filter(tags__slug=category)
+        
+        return queryset
 
-class PostSearchView(ListView):
-    model = Post
-    template_name = 'blog/search_results.html'
-    context_object_name = 'posts'
-    paginate_by = 10
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Get available tags for the filter dropdown
+        context['available_tags'] = Tag.objects.all().order_by('name')
+        
+        # Get current search query and category for template
+        context['current_search'] = self.request.GET.get('q', '')
+        context['current_category'] = self.request.GET.get('category', '')
+        
+        # Get current tag if filtering by category
+        if context['current_category']:
+            try:
+                context['current_tag'] = Tag.objects.get(slug=context['current_category'])
+            except Tag.DoesNotExist:
+                context['current_tag'] = None
+        else:
+            context['current_tag'] = None
+            
+        return context
 
-    def get_queryset(self):
-        query = self.request.GET.get('q', '')
-        if query:
-            return Post.objects.filter(
-                Q(title__icontains=query) |
-                Q(content__icontains=query) |
-                Q(tags__name__icontains=query),
-                status='published'
-            ).distinct().select_related('author')
-        return Post.objects.none()
 
 class PostDetailView(SlugRedirectMixin, DetailView):
     model = Post
