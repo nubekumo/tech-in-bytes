@@ -56,6 +56,11 @@ class Post(models.Model):
     def __str__(self):
         return self.title
     
+    @property
+    def top_level_comment_count(self):
+        """Return the count of top-level comments (excluding replies)"""
+        return self.comments.filter(parent__isnull=True).count()
+    
 
 class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comments")
