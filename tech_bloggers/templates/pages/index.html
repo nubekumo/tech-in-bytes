@@ -122,9 +122,9 @@ Home{% endblock %} {% block content %}
 
 <!-- (Most Commented moved inside the first recent-grid above) -->
 
-<!-- Recommended Posts Section -->
+<!-- Most Liked Posts Section -->
 <section class="recommended">
-  <h2>Recommended Posts</h2>
+  <h2>Most Liked Posts</h2>
   <div class="grid-recommended">
     {% for post in recommended_posts %}
     <article class="recom-card card">
@@ -142,6 +142,9 @@ Home{% endblock %} {% block content %}
             >
             <span
               ><i class="fas fa-calendar"></i> {{ post.created_at|date:"M d, Y" }}</span
+            >
+            <span
+              ><i class="fas fa-heart"></i> {{ post.likes.count }} likes</span
             >
           </div>
           <p>{{ post.summary|truncatewords:20 }}</p>

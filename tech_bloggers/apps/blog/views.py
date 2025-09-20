@@ -73,6 +73,46 @@ class PostListView(ListView):
         return context
 
 
+class LikedPostsView(LoginRequiredMixin, ListView):
+    model = Post
+    template_name = 'blog/liked_posts.html'
+    context_object_name = 'posts'
+    paginate_by = 10
+
+    def get_queryset(self):
+        queryset = Post.objects.filter(
+            likes=self.request.user,
+            status='published'
+        ).select_related('author').prefetch_related('tags')
+        
+        # Handle category filter
+        category = self.request.GET.get('category')
+        if category:
+            queryset = queryset.filter(tags__slug=category)
+        
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Get available tags for the filter dropdown
+        context['available_tags'] = Tag.objects.all().order_by('name')
+        
+        # Get current category for template
+        context['current_category'] = self.request.GET.get('category', '')
+        
+        # Get current tag if filtering by category
+        if context['current_category']:
+            try:
+                context['current_tag'] = Tag.objects.get(slug=context['current_category'])
+            except Tag.DoesNotExist:
+                context['current_tag'] = None
+        else:
+            context['current_tag'] = None
+            
+        return context
+
+
 class PostDetailView(SlugRedirectMixin, DetailView):
     model = Post
     template_name = 'blog/single_post.html'
@@ -236,7 +276,13 @@ class PostLikeView(LoginRequiredMixin, View):
         else:
             post.likes.add(request.user)
             liked = True
-        return JsonResponse({'liked': liked, 'count': post.likes.count()})
+        
+        # Return JSON response for AJAX requests
+        return JsonResponse({
+            'liked': liked, 
+            'count': post.likes.count(),
+            'status': 'success'
+        })
 
 class PostRecommendView(LoginRequiredMixin, View):
     def post(self, request, pk, slug):
