@@ -38,6 +38,7 @@ class Post(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="blog_posts")
     tags = models.ManyToManyField(Tag, blank=True)
     image = models.ImageField(upload_to="post_images/", blank=True, null=True, validators=[validate_image])
+    likes = models.ManyToManyField(User, related_name='liked_posts', blank=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="draft")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -75,6 +76,17 @@ class Comment(models.Model):
 class Like(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+
+    class Meta:
+        unique_together = ['user', 'post']
+        indexes = [
+            models.Index(fields=['user', 'post']),
+            models.Index(fields=['created_at'])
+        ]
+
+    def __str__(self):
+        return f"{self.user.username} likes {self.post.title}"
 
 
 @receiver(post_delete, sender=Post)

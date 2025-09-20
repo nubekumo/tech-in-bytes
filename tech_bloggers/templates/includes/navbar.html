@@ -14,7 +14,7 @@
         <a href="{% url 'blog:post_list' %}">Blog</a>
         {% if user.is_authenticated %}
         <a href="{% url 'blog:post_manage' %}">My Posts</a>
-        <a href="{% url 'blog:post_list' %}?filter=liked">Liked</a>
+        <a href="{% url 'blog:liked_posts' %}">Liked</a>
         <a href="{% url 'accounts:settings' %}">Settings</a>
         {% else %}
         <a href="{% url 'pages:about' %}">About</a>

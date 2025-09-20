@@ -35,12 +35,10 @@ class IndexView(TemplateView):
         ).order_by('-comment_count')[:2]
         most_commented_ids = list(context['most_commented'].values_list('id', flat=True))
         
-        # Get 4 recommended posts (next 4 latest posts after 'latest_posts',
-        # excluding most commented)
-        excluded_ids = latest_ids + recently_posted_ids + most_commented_ids
-        context['recommended_posts'] = published_posts.exclude(
-            id__in=excluded_ids
-        ).order_by('-published_at')[:4]
+        # Get 3 most liked posts (with secondary ordering by publish date)
+        context['recommended_posts'] = published_posts.annotate(
+            like_count=models.Count('likes')
+        ).order_by('-like_count', '-published_at')[:3]
         
         # Get popular tags
         context['popular_tags'] = Tag.objects.annotate(
