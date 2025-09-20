@@ -122,7 +122,18 @@ class PostDetailView(SlugRedirectMixin, DetailView):
         return reverse('blog:post_detail', kwargs={'pk': post.pk, 'slug': post.slug})
 
     def get_queryset(self):
-        return super().get_queryset().select_related('author').prefetch_related('tags')
+        return super().get_queryset().select_related('author').prefetch_related(
+            'tags',
+            'comments__author',
+            'comments__replies__author'
+        )
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        post = context['post']
+        # Add top-level comments to context
+        context['top_level_comments'] = post.comments.filter(parent__isnull=True)
+        return context
 
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
@@ -295,7 +306,6 @@ class PostRecommendView(LoginRequiredMixin, View):
 class CommentCreateView(LoginRequiredMixin, CreateView):
     model = Comment
     fields = ['content']
-    template_name = 'blog/add_comment.html'
 
     def form_valid(self, form):
         form.instance.author = self.request.user
@@ -311,7 +321,6 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
 class CommentReplyView(LoginRequiredMixin, CreateView):
     model = Comment
     fields = ['content']
-    template_name = 'blog/add_comment.html'
 
     def form_valid(self, form):
         parent_comment = get_object_or_404(Comment, pk=self.kwargs.get('pk'))

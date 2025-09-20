@@ -55,7 +55,7 @@
                 <div class="meta">
                   <span><i class="fas fa-user"></i> {{ post.author.get_full_name|default:post.author.username }}</span>
                   <span><i class="fas fa-calendar"></i> {{ post.published_at|date:"M d, Y" }}</span>
-                  <span><i class="fas fa-comments"></i> {{ post.comments.count }}</span>
+                  <span><i class="fas fa-comments"></i> {{ post.top_level_comment_count }}</span>
                 </div>
                 <p>{{ post.summary|truncatewords:20 }}</p>
                 <div class="meta">

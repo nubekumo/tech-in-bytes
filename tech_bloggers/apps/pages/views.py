@@ -2,6 +2,7 @@ from django.views.generic import TemplateView, FormView
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.db import models
+from django.db.models import Q
 from apps.blog.models import Post
 from apps.blog.models import Tag
 from .forms import ContactForm
@@ -29,9 +30,9 @@ class IndexView(TemplateView):
         ).order_by('-published_at')[:2]
         recently_posted_ids = list(context['recently_posted'].values_list('id', flat=True))
         
-        # Get 2 most commented posts
+        # Get 2 most commented posts (only top-level comments)
         context['most_commented'] = published_posts.annotate(
-            comment_count=models.Count('comments')
+            comment_count=models.Count('comments', filter=models.Q(comments__parent__isnull=True))
         ).order_by('-comment_count')[:2]
         most_commented_ids = list(context['most_commented'].values_list('id', flat=True))
         
