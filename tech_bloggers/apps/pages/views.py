@@ -58,12 +58,7 @@ class ContactView(FormView):
 
     def form_valid(self, form):
         # For MVP, just print to console
-        print(f"Contact Form Submission:")
-        print(f" First Name: {form.cleaned_data['firstName']}")
-        print(f" Last Name: {form.cleaned_data['lastName']}")
-        print(f"Email: {form.cleaned_data['email']}")
-        print(f"Subject: {form.cleaned_data['subject']}")
-        print(f"Message: {form.cleaned_data['message']}")
+        # Contact form submission logged (can be removed in production)
         
         messages.success(
             self.request,

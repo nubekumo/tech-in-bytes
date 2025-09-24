@@ -1,6 +1,10 @@
 {% extends 'base.html' %} 
 {% load static %} 
-{% block title %}Edit Post - Tech Bloggers{% endblock %} 
+{% block title %}Edit Post - Tech Bloggers{% endblock %}
+
+{% block extra_css %}
+<!-- WYSIWYG Editor CSS will be added here in the future -->
+{% endblock %} 
 
 {% block content %}
 <!-- Edit Post Section -->
@@ -27,23 +31,24 @@
       <!-- Tags Selection -->
       <div class="form-group">
         <label for="tags">Tags</label>
-        <select
-          id="tags"
-          name="tags"
-          class="form-control tag-select"
-          multiple
-        >
-          {% for tag in form.tags.field.queryset %}
-          <option
-            value="{{ tag.id }}"
-            {% if form.tags.value and tag.id in form.tags.value %}selected{% endif %}
-          >
-            {{ tag.name }}
-          </option>
-          {% endfor %}
-        </select>
-        {% if form.tags.errors %}
-        <div class="form-error">{{ form.tags.errors }}</div>
+        <div class="tag-selector">
+          <!-- Tags Selection -->
+          <div class="available-tags-container">
+            <div class="available-tags-label">Choose up to 3 tags:</div>
+            <div class="available-tags-list" id="available-tags-list">
+              {% for tag in form.available_tags.field.queryset %}
+              <span class="available-tag" data-tag-id="{{ tag.id }}" data-tag-name="{{ tag.name }}">
+                {{ tag.name }}
+              </span>
+              {% endfor %}
+            </div>
+          </div>
+          
+          <!-- Hidden input for form submission -->
+          <input type="hidden" name="tags_input" id="tags-hidden-input" value="{% if form.tags_input.value %}{{ form.tags_input.value }}{% endif %}">
+        </div>
+        {% if form.tags_input.errors %}
+        <div class="form-error">{{ form.tags_input.errors }}</div>
         {% endif %}
       </div>
 
@@ -122,4 +127,12 @@
     </div>
   </form>
 </div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/tinymce@7/tinymce.min.js"></script>
+<script>
+  window.__USE_TINYMCE_FOR_CONTENT__ = true;
+</script>
 {% endblock %}

@@ -1,5 +1,9 @@
-{% extends 'base.html' %} {% load static %} {% block title %}Tech Bloggers -
-Home{% endblock %} {% block content %}
+{% extends 'base.html' %} 
+{% load static %} 
+{% load blog_filters %} 
+{% block title %}Tech Bloggers -Home{% endblock %} 
+
+{% block content %}
 <!-- Hero Section -->
 <section class="hero">
   <h1>Stay Ahead with Tech Insights</h1>
@@ -49,7 +53,7 @@ Home{% endblock %} {% block content %}
               ><i class="fas fa-calendar"></i> {{ post.created_at|date:"M d, Y" }}</span
             >
           </div>
-          <p>{{ post.summary|truncatewords:12 }}</p>
+          <p>{{ post.content|safe_truncatewords:12 }}</p>
         </div>
       </a>
     </article>
@@ -80,7 +84,7 @@ Home{% endblock %} {% block content %}
               ><i class="fas fa-calendar"></i> {{ post.created_at|date:"M d, Y" }}</span
             >
           </div>
-          <p class="side-post-text">{{ post.summary|truncatewords:20 }}</p>
+          <p class="side-post-text">{{ post.content|safe_truncatewords:20 }}</p>
         </div>
       </a>
     </article>
@@ -112,7 +116,7 @@ Home{% endblock %} {% block content %}
               comments</span
             >
           </div>
-          <p class="side-post-text">{{ post.summary|truncatewords:20 }}</p>
+          <p class="side-post-text">{{ post.content|safe_truncatewords:20 }}</p>
         </div>
       </a>
     </article>
@@ -147,7 +151,7 @@ Home{% endblock %} {% block content %}
               ><i class="fas fa-heart"></i> {{ post.likes.count }} likes</span
             >
           </div>
-          <p>{{ post.summary|truncatewords:20 }}</p>
+          <p>{{ post.content|safe_truncatewords:20 }}</p>
         </div>
       </a>
     </article>

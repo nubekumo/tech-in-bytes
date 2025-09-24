@@ -78,6 +78,37 @@ class Comment(models.Model):
         return f"Comment by {self.author} on {self.post}."
 
 
+class PostImage(models.Model):
+    """
+    Model for images uploaded within blog post content via TinyMCE
+    """
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='content_images', null=True, blank=True)
+    image = models.ImageField(upload_to='post_images/content/', validators=[validate_image])
+    uploaded_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    alt_text = models.CharField(max_length=200, blank=True, help_text="Alternative text for accessibility")
+    original_filename = models.CharField(max_length=255, blank=True)
+
+    class Meta:
+        ordering = ['-uploaded_at']
+        indexes = [
+            models.Index(fields=['post', 'uploaded_at']),
+            models.Index(fields=['uploaded_by'])
+        ]
+
+    def __str__(self):
+        if self.post:
+            return f"Image for {self.post.title} by {self.uploaded_by.username}"
+        else:
+            return f"Temporary image by {self.uploaded_by.username}"
+
+    def save(self, *args, **kwargs):
+        # Store original filename if not already set
+        if not self.original_filename and self.image:
+            self.original_filename = self.image.name
+        super().save(*args, **kwargs)
+
+
 class Like(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
@@ -106,3 +137,30 @@ def delete_post_image_file(sender, instance, **kwargs):
         except (ValueError, OSError):
             # Handle cases where the file might not exist or path is invalid
             pass
+
+
+@receiver(post_delete, sender=PostImage)
+def delete_post_content_image_file(sender, instance, **kwargs):
+    """
+    Delete the content image file from the filesystem when a PostImage instance is deleted.
+    """
+    if instance.image:
+        try:
+            if os.path.isfile(instance.image.path):
+                os.remove(instance.image.path)
+        except (ValueError, OSError):
+            # Handle cases where the file might not exist or path is invalid
+            pass
+
+
+@receiver(post_delete, sender=Post)
+def delete_orphaned_post_images(sender, instance, **kwargs):
+    """
+    Delete orphaned PostImage records when a Post is deleted.
+    This is a backup cleanup in case the CASCADE doesn't work properly.
+    """
+    from .models import PostImage
+    orphaned_images = PostImage.objects.filter(post=instance)
+    for post_image in orphaned_images:
+        # The PostImage signal will handle file deletion
+        post_image.delete()

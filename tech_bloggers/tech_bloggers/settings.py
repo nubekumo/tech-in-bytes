@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'taggit',
     'easy_thumbnails',
     'image_cropping',
+    'django_bleach',
     'apps.accounts',
     'apps.blog',
     'apps.pages',
@@ -144,6 +145,7 @@ USE_TZ = True
 
 # Static files (CSS, JS, Images)
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 
 # Media files (user uploads)
@@ -214,3 +216,61 @@ LOGGING = {
         },
     },
 }
+
+# WYSIWYG Editor configuration will be added here in the future
+
+# Bleach Configuration
+BLEACH_ALLOWED_TAGS = [
+    "p", "br", "hr", "div",       # paragraphs, line breaks, and divs
+    "b", "i", "u", "em", "strong", "span",  # inline formatting
+    "a",                          # links
+    "ul", "ol", "li",             # lists
+    "blockquote", "code", "pre",  # quotes & code
+    "img",                        # images
+    "h1", "h2", "h3",             # headings
+    "font",                       # font styling (for font-family, font-size)
+    "table", "thead", "tbody", "tr", "th", "td",  # tables
+]
+
+BLEACH_ALLOWED_ATTRIBUTES = {
+    "a": ["href", "title", "rel", "target"],   # safe link attrs
+    "img": ["src", "alt", "title", "width", "height"],  # images with size attributes
+    "span": ["style"],                         # allow inline style for span (colors, etc.)
+    "font": ["face", "size", "color", "style"], # font attributes including style
+    "p": ["style"],                            # paragraph styling (for line-height, text-align)
+    "b": ["style"],                            # bold text with styling
+    "i": ["style"],                            # italic text with styling
+    "u": ["style"],                            # underlined text with styling
+    "em": ["style"],                           # emphasized text with styling
+    "strong": ["style"],                       # strong text with styling
+    "div": ["style"],                          # div styling (for text-align)
+    "table": ["style", "border", "cellpadding", "cellspacing"],  # table attributes
+    "td": ["style", "colspan", "rowspan"],     # table cell attributes
+    "th": ["style", "colspan", "rowspan"],     # table header attributes
+}
+
+# Allow specific CSS styles for formatting
+BLEACH_ALLOWED_STYLES = [
+    'text-decoration',  # for underline
+    'text-align',       # for text alignment
+    'border',           # for table borders
+    'border-collapse',  # for table styling
+    'border-spacing',   # for table spacing
+    'padding',          # for table cell padding
+    'margin',           # for spacing
+    'color',            # for text color
+    'background-color', # for background color
+    'font-family',      # for font styling
+    'font-size',        # for font size
+    'font-weight',      # for bold
+    'font-style',       # for italic
+    'line-height',      # for line spacing
+    'width',            # for element width
+    'height',           # for element height
+]
+
+BLEACH_ALLOWED_PROTOCOLS = ["http", "https", "mailto"]  # disallow javascript:
+
+# Additional Bleach settings
+BLEACH_STRIP_TAGS = False  # Don't strip tags, just escape
+BLEACH_STRIP_COMMENTS = True  # Strip HTML comments

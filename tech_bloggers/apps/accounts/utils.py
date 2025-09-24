@@ -70,7 +70,7 @@ def process_avatar_image(image_field, size=(300, 300)):
 
     except Exception as e:
         # If processing fails, return None to use original image
-        print(f"Avatar processing failed: {e}")
+        # Avatar processing failed (can be logged properly in production)
         return None
 
 

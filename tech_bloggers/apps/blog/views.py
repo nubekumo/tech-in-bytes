@@ -8,7 +8,13 @@ from django.urls import reverse_lazy, reverse
 from django.db.models import Q
 from django.http import JsonResponse
 from django.contrib import messages
-from .models import Post, Comment, Tag
+from django.views.decorators.csrf import csrf_exempt, csrf_protect
+from django.utils.decorators import method_decorator
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
+import json
+import uuid
+from .models import Post, Comment, Tag, PostImage
 from .forms import PostForm
 
 class SlugRedirectMixin:
@@ -148,6 +154,7 @@ class PostCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.author = self.request.user
+        form.user = self.request.user  # Pass user to form for PostImage association
         
         # Check which button was clicked
         action = self.request.POST.get('action')
@@ -199,6 +206,7 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, SlugRedirectMixin,
 
     def form_valid(self, form):
         """Override form_valid to add success message after update."""
+        form.user = self.request.user  # Pass user to form for PostImage association
         messages.success(self.request, 'Your post has been updated successfully')
         return super().form_valid(form)
 
@@ -299,7 +307,7 @@ class PostRecommendView(LoginRequiredMixin, View):
     def post(self, request, pk, slug):
         post = get_object_or_404(Post, pk=pk)
         # In MVP, just log to console
-        print(f"Recommendation: User {request.user} recommends post {post.title}")
+        # Recommendation logged (can be removed in production)
         messages.success(request, "Post recommendation logged (MVP)")
         return JsonResponse({'status': 'success'})
 
@@ -334,3 +342,84 @@ class CommentReplyView(LoginRequiredMixin, CreateView):
             'pk': self.object.post.pk,
             'slug': self.object.post.slug
         })
+
+
+@method_decorator(csrf_protect, name='dispatch')
+class ImageUploadView(LoginRequiredMixin, View):
+    """
+    Handle image uploads from TinyMCE editor
+    """
+    def post(self, request):
+        try:
+            # Get the uploaded file
+            if 'file' not in request.FILES:
+                return JsonResponse({'error': 'No file provided'}, status=400)
+            
+            uploaded_file = request.FILES['file']
+            
+            # Validate file type
+            allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+            if uploaded_file.content_type not in allowed_types:
+                return JsonResponse({'error': 'Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.'}, status=400)
+            
+            # Validate file size (2MB limit)
+            if uploaded_file.size > 2 * 1024 * 1024:
+                return JsonResponse({'error': 'File too large. Maximum size is 2MB.'}, status=400)
+            
+            # Generate unique filename to avoid conflicts
+            file_extension = uploaded_file.name.split('.')[-1].lower()
+            unique_filename = f"{uuid.uuid4().hex}.{file_extension}"
+            
+            # Save file to media/post_images/content/
+            file_path = f"post_images/content/{unique_filename}"
+            saved_path = default_storage.save(file_path, ContentFile(uploaded_file.read()))
+            
+            # Get the full URL for the saved file
+            file_url = request.build_absolute_uri(default_storage.url(saved_path))
+            
+            # Create a PostImage record to track the uploaded image
+            # We'll associate it with a temporary post or handle it in the workflow
+            # For now, we'll create it without a post association (post can be None)
+            post_image = PostImage.objects.create(
+                post=None,  # Will be associated when the post is saved
+                image=saved_path,
+                uploaded_by=request.user,
+                original_filename=uploaded_file.name
+            )
+            
+            # Return the URL in TinyMCE expected format
+            return JsonResponse({
+                'location': file_url
+            })
+            
+        except Exception as e:
+            return JsonResponse({'error': f'Upload failed: {str(e)}'}, status=500)
+
+
+@method_decorator(csrf_protect, name='dispatch')
+class ImageDeleteView(LoginRequiredMixin, View):
+    """
+    Handle image deletion when user cancels TinyMCE dialog
+    """
+    def post(self, request):
+        try:
+            import json
+            data = json.loads(request.body)
+            image_url = data.get('url')
+            
+            if not image_url:
+                return JsonResponse({'error': 'No image URL provided'}, status=400)
+            
+            # Extract filename from URL
+            filename = image_url.split('/')[-1]
+            file_path = f"post_images/content/{filename}"
+            
+            # Delete the file
+            if default_storage.exists(file_path):
+                default_storage.delete(file_path)
+                return JsonResponse({'success': True, 'message': f'Deleted {filename}'})
+            else:
+                return JsonResponse({'error': 'File not found'}, status=404)
+                
+        except Exception as e:
+            return JsonResponse({'error': f'Delete failed: {str(e)}'}, status=500)

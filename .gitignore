@@ -28,8 +28,12 @@ db.sqlite3-journal
 media/
 static/
 logs/
-*/migrations/*.py
-!*/migrations/__init__.py
+# Keep migration files in Git for AWS deployment and database schema history
+# Only ignore auto-generated migration files (if any)
+# */migrations/*.py
+# !*/migrations/__init__.py
+static/test_tinymce.html
+staic/js/tests/
 
 # Virtual Environment
 techblog_env/
