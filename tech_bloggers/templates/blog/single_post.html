@@ -1,4 +1,4 @@
-{% extends 'base.html' %} {% load static %} {% block title %}{{ post.title }} -
+{% extends 'base.html' %} {% load static %} {% load blog_filters %} {% block title %}{{ post.title }} -
 Tech Bloggers{% endblock %} {% block content %}
 <!-- Breadcrumb -->
 <div class="breadcrumb">
@@ -71,8 +71,18 @@ Tech Bloggers{% endblock %} {% block content %}
   </div>
   {% endif %}
 
+  <!-- Summary Section -->
+  {% if post.summary %}
+  <div class="post-summary">
+    <h3>Summary</h3>
+    <div class="summary-content">
+      <p>{{ post.summary|linebreaks }}</p>
+    </div>
+  </div>
+  {% endif %}
+
   <!-- Post Content -->
-  <div class="post-content">{{ post.content|safe|linebreaks }}</div>
+  <div class="post-content">{{ post.content|safe_content }}</div>
 
   <!-- Author Bio -->
   <div class="author-bio">

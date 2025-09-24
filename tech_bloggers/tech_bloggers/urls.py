@@ -23,10 +23,11 @@ urlpatterns = [
     path('blog/', include('apps.blog.urls')),
     path('accounts/', include('apps.accounts.urls')),
     
+    
     # Sitemap
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps},
          name='django.contrib.sitemaps.views.sitemap'),
 ]
 
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# Serve user-uploaded media files
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

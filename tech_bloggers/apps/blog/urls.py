@@ -25,4 +25,8 @@ urlpatterns = [
     path('<int:pk>-<slug:slug>/recommend/', views.PostRecommendView.as_view(), name='post_recommend'),
     path('<int:pk>-<slug:slug>/comment/', views.CommentCreateView.as_view(), name='comment_create'),
     path('comment/<int:pk>/reply/', views.CommentReplyView.as_view(), name='comment_reply'),
+    
+    # Image upload for TinyMCE
+    path('upload-image/', views.ImageUploadView.as_view(), name='image_upload'),
+    path('delete-image/', views.ImageDeleteView.as_view(), name='image_delete'),
 ]
