@@ -50,6 +50,7 @@ def safe_content(value):
     if not value:
         return ""
     
+    # Use normal sanitization (secure)
     sanitized = bleach.clean(
         value,
         tags=settings.BLEACH_ALLOWED_TAGS,
@@ -68,3 +69,4 @@ def safe_content(value):
     sanitized = re.sub(r'<(\w+)[^>]*>\s*</\1>', '', sanitized)
     
     return mark_safe(sanitized)
+

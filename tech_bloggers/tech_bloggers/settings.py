@@ -235,7 +235,7 @@ BLEACH_ALLOWED_TAGS = [
 BLEACH_ALLOWED_ATTRIBUTES = {
     "a": ["href", "title", "rel", "target"],   # safe link attrs
     "img": ["src", "alt", "title", "width", "height"],  # images with size attributes
-    "span": ["style"],                         # allow inline style for span (colors, etc.)
+    "span": ["style"],                         # allow inline style for span
     "font": ["face", "size", "color", "style"], # font attributes including style
     "p": ["style"],                            # paragraph styling (for line-height, text-align)
     "b": ["style"],                            # bold text with styling
@@ -247,6 +247,8 @@ BLEACH_ALLOWED_ATTRIBUTES = {
     "table": ["style", "border", "cellpadding", "cellspacing"],  # table attributes
     "td": ["style", "colspan", "rowspan"],     # table cell attributes
     "th": ["style", "colspan", "rowspan"],     # table header attributes
+    "code": ["class"],                          # code tags
+    "pre": ["class"],                           # pre tags for code blocks
 }
 
 # Allow specific CSS styles for formatting
