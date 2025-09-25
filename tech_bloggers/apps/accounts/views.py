@@ -2,8 +2,12 @@ from django.views.generic import CreateView, UpdateView, DeleteView, TemplateVie
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.contrib.auth import login, update_session_auth_hash, authenticate, logout
-from django.contrib.auth.views import LoginView
-from django.contrib.auth.views import PasswordChangeView
+from django.contrib.auth.views import LoginView, PasswordResetView, PasswordChangeView, PasswordResetView, PasswordResetConfirmView
+from django.core.mail import EmailMessage
+from django.contrib.sites.shortcuts import get_current_site
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.contrib.auth.tokens import default_token_generator
 from .forms import CustomAuthenticationForm
 from django.urls import reverse_lazy
 from django.shortcuts import get_object_or_404, redirect, render
@@ -42,47 +46,21 @@ class LogoutView(View):
         messages.success(request, "You have been successfully logged out.")
         return redirect('pages:index')
 
-class CustomLoginView(View):
+class CustomLoginView(LoginView):
     template_name = 'accounts/login.html'
-
-    def get(self, request):
-        form = CustomAuthenticationForm()
-        return render(request, self.template_name, {'form': form})
-
-    def post(self, request):
-        form = CustomAuthenticationForm(data=request.POST)
-        
-        # Get credentials from the form
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        
-        logger.info(f"Login attempt for username: {username}")
-        
-        try:
-            # First check if user exists
-            user = User.objects.get(username=username)
-            logger.debug(f"User found. Active status: {user.is_active}")
-            
-            if not user.is_active:
-                logger.info(f"Login attempt for inactive user: {username}")
-                messages.error(request, "This account is inactive. Please check your email for the activation link.")
-                return render(request, self.template_name, {'form': form})
-            
-            # Now try to authenticate
-            user = authenticate(username=username, password=password)
-            if user is not None:
-                logger.info(f"Successful login for user: {username}")
-                login(request, user)
-                return redirect('pages:index')
-            else:
-                logger.info(f"Failed login attempt for user: {username} (invalid password)")
-                messages.error(request, "Please enter a correct username and password. Note that both fields may be case-sensitive.")
-                
-        except User.DoesNotExist:
-            logger.info(f"Login attempt for non-existent user: {username}")
-            messages.error(request, "Please enter a correct username and password. Note that both fields may be case-sensitive.")
-        
-        return render(request, self.template_name, {'form': form})
+    form_class = CustomAuthenticationForm
+    
+    def form_valid(self, form):
+        """Override form_valid to add logging."""
+        username = form.cleaned_data.get('username')
+        logger.info(f"Successful login for user: {username}")
+        return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        """Override form_invalid to add logging."""
+        username = form.cleaned_data.get('username')
+        logger.info(f"Failed login attempt for user: {username}")
+        return super().form_invalid(form)
 
 class SignUpView(CreateView):
     form_class = SignUpForm
@@ -148,6 +126,86 @@ class SignUpView(CreateView):
         except Exception as e:
             logger.error(f"Error sending activation email: {str(e)}")
             raise
+
+class CustomPasswordResetView(PasswordResetView):
+    template_name = 'accounts/password_reset.html'
+    email_template_name = 'accounts/password_reset_email.html'
+    subject_template_name = 'accounts/password_reset_subject.txt'
+    success_url = reverse_lazy('accounts:password_reset_done')
+    
+    def form_valid(self, form):
+        """Override form_valid to use EmailMessage for HTML emails."""
+        logger.debug("Password reset form submitted")
+        
+        # Get the email
+        email = form.cleaned_data["email"]
+        logger.debug(f"Processing password reset for email: {email}")
+        
+        # Get active users (built-in PasswordResetView has get_users helper)
+        active_users = list(self.get_users(email)) if hasattr(self, 'get_users') else list(User.objects.filter(email__iexact=email, is_active=True))
+        logger.debug(f"Found {len(active_users)} active users with this email")
+        
+        # If no users matched, render the same page with a friendly info
+        if not active_users:
+            logger.info("No account found for submitted email; showing inline info message")
+            context = self.get_context_data(form=form, email_not_found=True)
+            return self.render_to_response(context)
+
+        try:
+            for user in active_users:
+                # Generate token
+                current_site = get_current_site(self.request)
+                uid = urlsafe_base64_encode(force_bytes(user.pk))
+                token = default_token_generator.make_token(user)
+                logger.debug(f"Generated reset token for user: {user.username}")
+                
+                # Create context
+                context = {
+                    'user': user,
+                    'domain': current_site.domain,
+                    'uid': uid,
+                    'token': token,
+                    'protocol': 'http',  # or 'https' for production
+                }
+                
+                # Render email content
+                subject = render_to_string(self.subject_template_name, context).strip()
+                message = render_to_string(self.email_template_name, context)
+                logger.debug("Email templates rendered successfully")
+                
+                # Send email using EmailMessage
+                email = EmailMessage(
+                    subject=subject,
+                    body=message,
+                    to=[user.email],
+                )
+                email.content_subtype = 'html' 
+                email.send()
+                
+                logger.info(f"Password reset email sent to {user.email}")
+                
+        except Exception as e:
+            logger.error(f"Error sending password reset email: {str(e)}")
+            raise
+        
+        logger.info("Password reset process completed successfully")
+        # Avoid calling super().form_valid which would send a second email.
+        return redirect(self.get_success_url())
+
+
+class CustomPasswordResetConfirmView(PasswordResetConfirmView):
+    template_name = 'accounts/password_reset_confirm.html'
+    success_url = reverse_lazy('accounts:password_reset_complete')
+
+    def form_valid(self, form):
+        try:
+            # The view sets self.user to the user whose password is being reset
+            target_username = getattr(self, 'user', None).get_username() if getattr(self, 'user', None) else '(unknown)'
+            logger.info(f"Setting new password for user: {target_username}")
+        except Exception:
+            logger.info("Setting new password for user: (unavailable)")
+        return super().form_valid(form)
+
 
 class SignUpDoneView(TemplateView):
     template_name = 'accounts/signup_done.html'
