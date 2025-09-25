@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.core import mail
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
+from django.contrib.auth.tokens import default_token_generator
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.conf import settings
 from PIL import Image
@@ -240,6 +241,59 @@ class LogoutTests(TestCase):
         
         # Check user is logged out
         self.assertFalse(response.wsgi_request.user.is_authenticated)
+
+
+class PasswordResetFlowTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(
+            username='resetuser',
+            email='resetuser@example.com',
+            password='OldPassw0rd!',
+            is_active=True,
+        )
+
+    def test_password_reset_page_renders(self):
+        url = reverse('accounts:password_reset')
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'Reset Your Password')
+
+    def test_password_reset_post_unknown_email_shows_inline_message(self):
+        url = reverse('accounts:password_reset')
+        resp = self.client.post(url, {'email': 'doesnotexist@example.com'})
+        # Custom view keeps user on the same page with inline message
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'Please check the email address and try again.')
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_password_reset_sends_email_and_redirects(self):
+        url = reverse('accounts:password_reset')
+        resp = self.client.post(url, {'email': self.user.email})
+        self.assertRedirects(resp, reverse('accounts:password_reset_done'))
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn('Password Reset Request', mail.outbox[0].subject)
+
+    def test_password_reset_confirm_sets_new_password(self):
+        uidb64 = urlsafe_base64_encode(force_bytes(self.user.pk))
+        token = default_token_generator.make_token(self.user)
+        confirm_url = reverse('accounts:password_reset_confirm', args=[uidb64, token])
+
+        # Load confirm page (may redirect to '/set-password/') and capture final URL
+        resp_get = self.client.get(confirm_url, follow=True)
+        self.assertEqual(resp_get.status_code, 200)
+        set_password_url = resp_get.request.get('PATH_INFO', confirm_url)
+
+        # Submit new password to the final set-password URL
+        resp_post = self.client.post(set_password_url, {
+            'new_password1': 'NewPassw0rd!',
+            'new_password2': 'NewPassw0rd!'
+        })
+        self.assertRedirects(resp_post, reverse('accounts:password_reset_complete'))
+
+        # Can login with new password
+        logged_in = self.client.login(username='resetuser', password='NewPassw0rd!')
+        self.assertTrue(logged_in)
 
 class PasswordChangeTests(TestCase):
     def setUp(self):
