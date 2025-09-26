@@ -45,6 +45,13 @@ Tech Bloggers{% endblock %} {% block content %}
         <span>{{ post.published_at|date:"F d, Y" }}</span>
       </div>
       <div class="post-actions">
+        <a
+          href="{% url 'blog:post_share' pk=post.pk slug=post.slug %}"
+          class="action-btn share-btn"
+        >
+          <i class="fa-regular fa-envelope"></i>
+          <span>Share</span>
+        </a>
         {% if user.is_authenticated %}
         <button
           type="button"

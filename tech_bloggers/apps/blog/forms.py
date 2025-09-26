@@ -126,3 +126,23 @@ class PostForm(forms.ModelForm):
                 orphaned_images.update(post=instance)
             
         return instance
+
+
+class EmailPostForm(forms.Form):
+    name = forms.CharField(max_length=25, widget=forms.TextInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'Your name'
+    }))
+    email = forms.EmailField(widget=forms.EmailInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'Your email address'
+    }))
+    to = forms.EmailField(widget=forms.EmailInput(attrs={
+        'class': 'form-control',
+        'placeholder': "Recipient's email address"
+    }))
+    comments = forms.CharField(required=False, widget=forms.Textarea(attrs={
+        'class': 'form-control',
+        'placeholder': 'Add a personal message (optional)',
+        'rows': 4
+    }))
