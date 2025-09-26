@@ -12,10 +12,12 @@ from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.utils.decorators import method_decorator
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
+from django.core.mail import EmailMessage
+from django.template.loader import render_to_string
 import json
 import uuid
 from .models import Post, Comment, Tag, PostImage
-from .forms import PostForm
+from .forms import PostForm, EmailPostForm
 
 class SlugRedirectMixin:
     """Mixin to handle slug redirects when slug in URL doesn't match current slug."""
@@ -423,3 +425,59 @@ class ImageDeleteView(LoginRequiredMixin, View):
                 
         except Exception as e:
             return JsonResponse({'error': f'Delete failed: {str(e)}'}, status=500)
+
+
+class PostShareView(View):
+    template_name = 'blog/share_post.html'
+
+    def get(self, request, pk, slug):
+        post = get_object_or_404(Post, pk=pk)
+        # Ensure correct slug in URL
+        if post.slug != slug:
+            return redirect(reverse('blog:post_share', kwargs={'pk': post.pk, 'slug': post.slug}))
+
+        form = EmailPostForm()
+        return render(request, self.template_name, {
+            'post': post,
+            'form': form,
+            'sent': False,
+        })
+
+    def post(self, request, pk, slug):
+        post = get_object_or_404(Post, pk=pk)
+        # Ensure correct slug in URL
+        if post.slug != slug:
+            return redirect(reverse('blog:post_share', kwargs={'pk': post.pk, 'slug': post.slug}))
+
+        form = EmailPostForm(request.POST)
+        sent = False
+
+        if form.is_valid():
+            cd = form.cleaned_data
+            post_url = request.build_absolute_uri(
+                reverse('blog:post_detail', kwargs={'pk': post.pk, 'slug': post.slug})
+            )
+
+            subject = f"{cd['name']} recommends you read: {post.title}"
+            message = (
+                f"Hello,\n\n"
+                f"{cd['name']} ({cd['email']}) thought you might be interested in this post:\n"
+                f"{post.title}\n{post_url}\n\n"
+                f"Comments by {cd['name']}: {cd.get('comments') or '—'}\n\n"
+                f"Sent from Tech Bloggers"
+            )
+
+            email = EmailMessage(
+                subject=subject,
+                body=message,
+                to=[cd['to']],
+            )
+            email.send()
+            sent = True
+            messages.success(request, 'E-mail successfully sent')
+
+        return render(request, self.template_name, {
+            'post': post,
+            'form': form,
+            'sent': sent,
+        })

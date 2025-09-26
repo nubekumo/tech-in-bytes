@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Share a post{% endblock %}
+
+{% block content %}
+<div class="container create-post-container">
+  {% if sent %}
+    <div class="auth-card">
+      <div class="auth-header">
+        <div class="auth-icon success"><i class="fa-solid fa-check"></i></div>
+        <h1>E-mail successfully sent</h1>
+        <p>"{{ post.title }}" was successfully sent to {{ form.cleaned_data.to }}.</p>
+      </div>
+      <div class="auth-actions">
+        <a href="{% url 'blog:post_detail' pk=post.pk slug=post.slug %}" class="btn btn--primary">Back to post</a>
+      </div>
+    </div>
+  {% else %}
+    <div class="create-post-form">
+      <h1 class="form-heading">Share "{{ post.title }}" by e-mail</h1>
+      <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="id_name">Your Name</label>
+          {{ form.name }}
+        </div>
+        <div class="form-group">
+          <label for="id_email">Your Email</label>
+          {{ form.email }}
+        </div>
+        <div class="form-group">
+          <label for="id_to">Recipient Email</label>
+          {{ form.to }}
+        </div>
+        <div class="form-group full-width">
+          <label for="id_comments">Message (optional)</label>
+          {{ form.comments }}
+        </div>
+        <div class="form-actions">
+          <input type="submit" class="btn btn--primary" value="Send e-mail" />
+          <a href="{% url 'blog:post_detail' pk=post.pk slug=post.slug %}" class="btn btn--outline">Cancel</a>
+        </div>
+      </form>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+

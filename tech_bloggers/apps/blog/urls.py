@@ -8,6 +8,7 @@ urlpatterns = [
     path('', views.PostListView.as_view(), name='post_list'),
     path('liked/', views.LikedPostsView.as_view(), name='liked_posts'),
     path('<int:pk>-<slug:slug>/', views.PostDetailView.as_view(), name='post_detail'),
+    path('<int:pk>-<slug:slug>/share/', views.PostShareView.as_view(), name='post_share'),
     
     # Post management
     path('create/', views.PostCreateView.as_view(), name='post_create'),
