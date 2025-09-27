@@ -19,6 +19,9 @@
         {% else %}
         <a href="{% url 'pages:about' %}">About</a>
         <a href="{% url 'pages:contact' %}">Contact</a>
+        <a href="{% url 'blog:post_feed' %}" title="Subscribe to our RSS feed">
+          <i class="fas fa-rss"></i> RSS
+        </a>
         {% endif %}
       </div>
 
