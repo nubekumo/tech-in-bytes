@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+from datetime import timedelta
 
 # Load environment variables from .env file
 load_dotenv()
@@ -48,6 +49,7 @@ INSTALLED_APPS = [
     'easy_thumbnails',
     'image_cropping',
     'django_bleach',
+    'axes',
     'apps.accounts',
     'apps.blog',
     'apps.pages',
@@ -74,6 +76,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'axes.middleware.AxesMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -176,6 +179,21 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Authentication settings
 LOGIN_REDIRECT_URL = 'pages:index'
 LOGIN_URL = 'accounts:login'
+
+AUTHENTICATION_BACKENDS = [
+    'axes.backends.AxesStandaloneBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+# Axes configuration: lock after 5 failures for 1 hour, keyed by username+IP
+AXES_ENABLED = True
+AXES_FAILURE_LIMIT = 5
+AXES_COOLOFF_TIME = timedelta(hours=1)
+AXES_LOCK_OUT_BY_COMBINATION_USER_AND_IP = True
+AXES_RESET_ON_SUCCESS = True
+# Optional: friendly lockout URL or template
+AXES_LOCKOUT_TEMPLATE = 'accounts/lockout.html'
+# AXES_LOCKOUT_URL = 'accounts:login'
 
 # Sites framework
 SITE_ID = 1
