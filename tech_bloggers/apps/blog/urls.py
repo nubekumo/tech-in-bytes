@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from .feeds import LatestPostsFeed, LatestPostsAtomFeed
 
 app_name = 'blog'
 
@@ -30,4 +31,8 @@ urlpatterns = [
     # Image upload for TinyMCE
     path('upload-image/', views.ImageUploadView.as_view(), name='image_upload'),
     path('delete-image/', views.ImageDeleteView.as_view(), name='image_delete'),
+    
+    # RSS and Atom feeds
+    path('rss/', LatestPostsFeed(), name='post_feed'),
+    path('atom/', LatestPostsAtomFeed(), name='post_atom_feed'),
 ]

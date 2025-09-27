@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'django.contrib.sitemaps',
     'taggit',
     'easy_thumbnails',
@@ -175,6 +176,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Authentication settings
 LOGIN_REDIRECT_URL = 'pages:index'
 LOGIN_URL = 'accounts:login'
+
+# Sites framework
+SITE_ID = 1
 
 # Logging Configuration
 DEV_LOGGING_ENABLED = os.getenv('DEV_LOGGING_ENABLED', 'False').lower() == 'true'
