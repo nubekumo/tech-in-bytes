@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Account Locked - Tech Bloggers{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+  <div class="auth-card danger">
+    <div class="auth-header">
+      <div class="auth-icon error">
+        <i class="fas fa-lock"></i>
+      </div>
+      <h1>Account temporarily locked</h1>
+      <p>Too many failed login attempts. Please try again later.</p>
+    </div>
+
+    <div class="warning-box">
+      <h2>What you can do</h2>
+      <ul>
+        <li>
+          <i class="fas fa-clock"></i>
+          Wait and try again after the cool‑off period.
+        </li>
+        <li>
+          <i class="fas fa-key"></i>
+          Reset your password if you’ve forgotten it.
+        </li>
+        <li>
+          <i class="fas fa-shield-alt"></i>
+          If this wasn’t you, consider changing your password once you regain access.
+        </li>
+      </ul>
+    </div>
+
+    <div class="auth-actions">
+      <a href="{% url 'accounts:password_reset' %}" class="btn btn--outline">
+        <i class="fas fa-key"></i>
+        Reset password
+      </a>
+      <a href="{% url 'accounts:login' %}" class="btn btn--outline">
+        <i class="fas fa-sign-in-alt"></i>
+        Back to login
+      </a>
+      <a href="{% url 'pages:index' %}" class="btn btn--outline">
+        <i class="fas fa-home"></i>
+        Go to homepage
+      </a>
+      <a href="{% url 'pages:contact' %}" class="btn btn--action">
+        <i class="fas fa-envelope"></i>
+        Contact support
+      </a>
+    </div>
+
+    <div class="auth-message">
+      <p>
+        If you believe this is an error, please reach out via our contact page.
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+
