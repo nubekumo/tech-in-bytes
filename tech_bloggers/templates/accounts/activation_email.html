@@ -22,7 +22,7 @@
       <!-- Header -->
       <div style="text-align: center; margin-bottom: 30px">
         <img
-          src="{{ domain }}{% static 'images/logo.png' %}"
+          src="{{ protocol }}://{{ domain }}{% static 'images/logo.png' %}"
           alt="Tech Bloggers Logo"
           style="max-width: 200px; height: auto; margin-bottom: 20px"
         />
@@ -62,7 +62,7 @@
         <!-- Button -->
         <div style="text-align: center; margin: 25px 0">
           <a
-            href="http://127.0.0.1:8000{% url 'accounts:activate' uidb64=uid token=token %}"
+            href="{{ activation_url }}"
             style="
               display: inline-block;
               background: #0366d6;
@@ -81,8 +81,7 @@
           Or copy and paste this link into your browser:
         </p>
         <p style="word-break: break-all; color: #0366d6; margin: 0 0 15px">
-          http://127.0.0.1:8000{% url 'accounts:activate' uidb64=uid token=token
-          %}
+          {{ activation_url }}
         </p>
 
         <p style="font-size: 14px; color: #6a737d; margin: 20px 0 0">

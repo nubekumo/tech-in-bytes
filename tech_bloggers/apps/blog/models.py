@@ -4,21 +4,50 @@ from django.utils.text import slugify
 from django.core.exceptions import ValidationError
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
+from django.conf import settings
 import os
 
 def validate_image(image):
-    # Check file size (2MB limit)
-    if image.size > 2 * 1024 * 1024:  # 2MB
-        raise ValidationError("Image too large. Max size is 2MB.")
+    # Size in bytes
+    max_bytes = getattr(settings, 'IMAGE_MAX_UPLOAD_MB', 2) * 1024 * 1024
+    if image.size and image.size > max_bytes:
+        raise ValidationError(f"Image too large. Max size is {getattr(settings, 'IMAGE_MAX_UPLOAD_MB', 2)}MB.")
 
-    # Check image format (only JPEG, PNG, WebP allowed)
+    allowed_formats = {"JPEG", "JPG", "PNG", "WEBP"}
+    max_width = getattr(settings, 'IMAGE_MAX_WIDTH', 2048)
+    max_height = getattr(settings, 'IMAGE_MAX_HEIGHT', 2048)
+    max_pixels = getattr(settings, 'IMAGE_MAX_PIXELS', 12000000)
+
     try:
         with Image.open(image) as img:
-            if img.format not in ["JPEG", "JPG", "PNG", "WEBP"]:
+            # Verify basic image integrity by accessing size/format
+            fmt = (img.format or '').upper()
+            if fmt not in allowed_formats:
                 raise ValidationError("Unsupported image format. Use JPEG, PNG, or WebP.")
-    except Exception:
+
+            width, height = img.size
+            if width <= 0 or height <= 0:
+                raise ValidationError("Invalid image dimensions.")
+
+            # Pixel bomb protection
+            if (width * height) > max_pixels:
+                raise ValidationError("Image resolution too large.")
+
+            # Dimension limits
+            if width > max_width or height > max_height:
+                raise ValidationError("Image dimensions exceed allowed maximum.")
+    except UnidentifiedImageError:
         raise ValidationError("Invalid image file.")
+    except OSError:
+        raise ValidationError("Invalid or corrupted image file.")
+    finally:
+        try:
+            # Reset file pointer for subsequent consumers
+            if hasattr(image, 'seek'):
+                image.seek(0)
+        except Exception:
+            pass
     
 
 class Tag(models.Model):

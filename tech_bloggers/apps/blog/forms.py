@@ -1,5 +1,4 @@
 from django import forms
-from django_summernote.widgets import SummernoteInplaceWidget
 import bleach
 import re
 from django.conf import settings

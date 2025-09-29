@@ -43,6 +43,12 @@ class SignUpForm(UserCreationForm):
             Profile.objects.create(user=user)
         return user
 
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if email and User.objects.filter(email__iexact=email).exists():
+            raise forms.ValidationError('An account with this email already exists.')
+        return email
+
 class AccountSettingsForm(forms.ModelForm):
     bio = forms.CharField(widget=forms.Textarea(attrs={'rows': 4}), required=False)
     
