@@ -32,6 +32,9 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 DEBUG = os.getenv('DJANGO_DEBUG', 'False').lower() == 'true'
 
 ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '').split(',') if os.getenv('DJANGO_ALLOWED_HOSTS') else []
+# Add testserver for Django test client
+if 'testserver' not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append('testserver')
 
 
 # Application definition
@@ -45,6 +48,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.sites',
     'django.contrib.sitemaps',
+    'csp',
     'taggit',
     'easy_thumbnails',
     'image_cropping',
@@ -70,7 +74,17 @@ IMAGE_CROPPING_SIZE_WARNING = True
 IMAGE_CROPPING_THUMB_SIZE = (300, 300)
 IMAGE_CROPPING_MIN_SIZE = [20, 20]
 
+# Image upload security limits
+# Max upload size in megabytes
+IMAGE_MAX_UPLOAD_MB = int(os.getenv('IMAGE_MAX_UPLOAD_MB', '2'))
+# Maximum allowed dimensions
+IMAGE_MAX_WIDTH = int(os.getenv('IMAGE_MAX_WIDTH', '2048'))
+IMAGE_MAX_HEIGHT = int(os.getenv('IMAGE_MAX_HEIGHT', '2048'))
+# Maximum total pixels to mitigate decompression bombs
+IMAGE_MAX_PIXELS = int(os.getenv('IMAGE_MAX_PIXELS', '12000000'))  # 12 MP
+
 MIDDLEWARE = [
+    'csp.middleware.CSPMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -108,6 +122,13 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
+
+# Cache configuration for rate limiting
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
     }
 }
 
@@ -189,7 +210,7 @@ AUTHENTICATION_BACKENDS = [
 AXES_ENABLED = True
 AXES_FAILURE_LIMIT = 5
 AXES_COOLOFF_TIME = timedelta(hours=1)
-AXES_LOCK_OUT_BY_COMBINATION_USER_AND_IP = True
+AXES_LOCKOUT_PARAMETERS = ['ip_address', 'username']
 AXES_RESET_ON_SUCCESS = True
 # Optional: friendly lockout URL or template
 AXES_LOCKOUT_TEMPLATE = 'accounts/lockout.html'
@@ -305,3 +326,18 @@ BLEACH_ALLOWED_PROTOCOLS = ["http", "https", "mailto"]  # disallow javascript:
 # Additional Bleach settings
 BLEACH_STRIP_TAGS = False  # Don't strip tags, just escape
 BLEACH_STRIP_COMMENTS = True  # Strip HTML comments
+
+# Content Security Policy (CSP) - django-csp 4.0+ configuration
+CONTENT_SECURITY_POLICY_REPORT_ONLY = {
+    'DIRECTIVES': {
+        'default-src': ("'self'",),
+        'style-src': ("'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"),
+        'script-src': ("'self'", "https://cdn.jsdelivr.net"),
+        'img-src': ("'self'", "data:", "https:"),
+        'font-src': ("'self'", "https://cdnjs.cloudflare.com"),
+        'connect-src': ("'self'",),
+        'frame-ancestors': ("'none'",),
+        'base-uri': ("'self'",),
+        'form-action': ("'self'",),
+    }
+}

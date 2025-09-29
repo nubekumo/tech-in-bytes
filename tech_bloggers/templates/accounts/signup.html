@@ -28,13 +28,20 @@ Bloggers{% endblock %} {% block content %}
           type="text"
           name="username"
           id="id_username"
-          class="form-control"
+          class="form-control {% if form.username.errors %}error{% endif %}"
           required
           autocomplete="username"
           minlength="5"
           maxlength="30"
+          value="{{ form.username.value|default:'' }}"
         />
-        <div class="form-feedback"></div>
+        {% if form.username.errors %}
+        <div class="form-feedback error">
+          {% for error in form.username.errors %}
+            {{ error }}
+          {% endfor %}
+        </div>
+        {% endif %}
       </div>
 
       <div class="form-group">
@@ -43,11 +50,18 @@ Bloggers{% endblock %} {% block content %}
           type="email"
           name="email"
           id="id_email"
-          class="form-control"
+          class="form-control {% if form.email.errors %}error{% endif %}"
           required
           autocomplete="email"
+          value="{{ form.email.value|default:'' }}"
         />
-        <div class="form-feedback"></div>
+        {% if form.email.errors %}
+        <div class="form-feedback error">
+          {% for error in form.email.errors %}
+            {{ error }}
+          {% endfor %}
+        </div>
+        {% endif %}
       </div>
 
       <div class="form-group">
@@ -92,7 +106,13 @@ Bloggers{% endblock %} {% block content %}
             <span>Contains special character</span>
           </div>
         </div>
-        <div class="form-feedback"></div>
+        {% if form.password1.errors %}
+        <div class="form-feedback error">
+          {% for error in form.password1.errors %}
+            {{ error }}
+          {% endfor %}
+        </div>
+        {% endif %}
       </div>
 
       <div class="form-group">
@@ -114,7 +134,13 @@ Bloggers{% endblock %} {% block content %}
             <i class="far fa-eye"></i>
           </button>
         </div>
-        <div class="form-feedback"></div>
+        {% if form.password2.errors %}
+        <div class="form-feedback error">
+          {% for error in form.password2.errors %}
+            {{ error }}
+          {% endfor %}
+        </div>
+        {% endif %}
       </div>
 
       <div class="form-actions">

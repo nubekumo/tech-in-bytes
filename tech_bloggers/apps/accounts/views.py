@@ -1,4 +1,6 @@
 from django.views.generic import CreateView, UpdateView, DeleteView, TemplateView, View
+from django.utils.decorators import method_decorator
+from django_ratelimit.decorators import ratelimit
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.contrib.auth import login, update_session_auth_hash, authenticate, logout
@@ -46,6 +48,7 @@ class LogoutView(View):
         messages.success(request, "You have been successfully logged out.")
         return redirect('pages:index')
 
+@method_decorator(ratelimit(key='ip', rate='10/m', method='POST', block=True), name='dispatch')
 class CustomLoginView(LoginView):
     template_name = 'accounts/login.html'
     form_class = CustomAuthenticationForm
@@ -62,15 +65,15 @@ class CustomLoginView(LoginView):
         logger.info(f"Failed login attempt for user: {username}")
         return super().form_invalid(form)
 
+@method_decorator(ratelimit(key='ip', rate='5/m', method='POST', block=True), name='dispatch')
 class SignUpView(CreateView):
     form_class = SignUpForm
     template_name = 'accounts/signup.html'
     success_url = reverse_lazy('accounts:signup_done')
 
     def post(self, request, *args, **kwargs):
-        # Track if the form submission is successful
+        # Track if the form submission is successful without logging sensitive data
         logger.debug("Processing signup form submission")
-        logger.debug(f"POST data: {request.POST}")
         return super().post(request, *args, **kwargs)
 
     def form_valid(self, form):
@@ -104,22 +107,26 @@ class SignUpView(CreateView):
             
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             token = account_activation_token.make_token(user)
-            logger.debug(f"Generated UID: {uid}")
-            logger.debug(f"Generated token: {token}")
+            # Do not log UID/token values
             
+            # Build absolute activation URL
+            from django.urls import reverse
+            activation_path = reverse('accounts:activate', kwargs={'uidb64': uid, 'token': token})
+            activation_url = self.request.build_absolute_uri(activation_path)
+
             mail_subject = 'Activate your Tech Bloggers account'
             message = render_to_string('accounts/activation_email.html', {
                 'user': user,
                 'domain': current_site.domain,
-                'uid': uid,
-                'token': token,
+                'protocol': 'https' if self.request.is_secure() else 'http',
+                'activation_url': activation_url,
             })
             
             email = EmailMessage(
                 mail_subject, message, to=[user.email]
             )
             email.content_subtype = 'html'
-            logger.debug("Attempting to send email...")
+            logger.debug("Attempting to send activation email...")
             email.send()
             logger.info("Activation email sent successfully!")
             
@@ -127,6 +134,7 @@ class SignUpView(CreateView):
             logger.error(f"Error sending activation email: {str(e)}")
             raise
 
+@method_decorator(ratelimit(key='ip', rate='5/m', method='POST', block=True), name='dispatch')
 class CustomPasswordResetView(PasswordResetView):
     template_name = 'accounts/password_reset.html'
     email_template_name = 'accounts/password_reset_email.html'
@@ -213,26 +221,32 @@ class SignUpDoneView(TemplateView):
 class ActivateAccountView(View):
     def get(self, request, uidb64, token):
         try:
-            # Track if the activation attempt is successful
-            logger.debug(f"Activation attempt - uidb64: {uidb64}, token: {token}")
+            # Track activation attempt without logging sensitive token/uid
+            logger.debug("Activation attempt received")
             
             uid = force_str(urlsafe_base64_decode(uidb64))
-            logger.debug(f"Decoded UID: {uid}")
+            # Do not log decoded UID value
             
             user = User.objects.get(pk=uid)
             logger.debug(f"Found user: {user.username} (active: {user.is_active})")
             
             token_valid = account_activation_token.check_token(user, token)
-            logger.debug(f"Token valid: {token_valid}")
+            logger.debug("Token validity checked")
 
             if token_valid:
                 user.is_active = True
                 user.save()
-                login(request, user)
+                login(request, user, backend='django.contrib.auth.backends.ModelBackend')
                 logger.info(f"Account activated successfully for user: {user.username}")
                 messages.success(request, 'Your account has been activated. Welcome to Tech Bloggers!')
                 return redirect('pages:index')
             else:
+                # If account is already active, treat as success to avoid confusing UX
+                if user.is_active:
+                    logger.info(f"Activation link used for already activated user: {user.username}")
+                    login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+                    messages.info(request, 'Your account is already activated. Welcome back!')
+                    return redirect('pages:index')
                 logger.warning(f"Invalid or expired activation token for user: {user.username}")
                 messages.error(request, 'Activation link is invalid or has expired!')
                 return redirect('accounts:activation_failed')

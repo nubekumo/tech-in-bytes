@@ -10,6 +10,10 @@ from django.http import JsonResponse
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.utils.decorators import method_decorator
+from django_ratelimit.decorators import ratelimit
+from django.conf import settings
+from io import BytesIO
+from PIL import Image, UnidentifiedImageError
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from django.core.mail import EmailMessage
@@ -37,7 +41,7 @@ class PostListView(ListView):
     model = Post
     template_name = 'blog/all_posts.html'
     context_object_name = 'posts'
-    paginate_by = 10
+    paginate_by = 9
 
     def get_queryset(self):
         queryset = Post.objects.filter(status='published').select_related('author')
@@ -143,6 +147,7 @@ class PostDetailView(SlugRedirectMixin, DetailView):
         context['top_level_comments'] = post.comments.filter(parent__isnull=True)
         return context
 
+@method_decorator(ratelimit(key='user', rate='2/m', method='POST', block=True), name='dispatch')
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
     form_class = PostForm
@@ -185,6 +190,7 @@ class PostManageView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         return Post.objects.filter(author=self.request.user).order_by('-created_at')
 
+@method_decorator(ratelimit(key='user', rate='10/m', method='POST', block=True), name='dispatch')
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, SlugRedirectMixin, UpdateView):
     model = Post
     form_class = PostForm
@@ -212,6 +218,7 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, SlugRedirectMixin,
         messages.success(self.request, 'Your post has been updated successfully')
         return super().form_valid(form)
 
+@method_decorator(ratelimit(key='user', rate='2/m', method='POST', block=True), name='dispatch')
 class PostPublishView(LoginRequiredMixin, UserPassesTestMixin, SlugRedirectMixin, UpdateView):
     model = Post
     template_name = 'blog/publish_post.html'
@@ -246,6 +253,7 @@ class PostPublishView(LoginRequiredMixin, UserPassesTestMixin, SlugRedirectMixin
         
         return redirect(self.get_success_url())
 
+@method_decorator(ratelimit(key='user', rate='2/m', method='POST', block=True), name='dispatch')
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, SlugRedirectMixin, DeleteView):
     model = Post
     template_name = 'blog/delete_post.html'
@@ -288,6 +296,7 @@ class TaggedPostListView(ListView):
         context['tag'] = get_object_or_404(Tag, slug=self.kwargs.get('tag_slug'))
         return context
 
+@method_decorator(ratelimit(key='user', rate='10/m', method='POST', block=True), name='dispatch')
 class PostLikeView(LoginRequiredMixin, View):
     def post(self, request, pk, slug):
         post = get_object_or_404(Post, pk=pk)
@@ -305,6 +314,7 @@ class PostLikeView(LoginRequiredMixin, View):
             'status': 'success'
         })
 
+@method_decorator(ratelimit(key='user', rate='10/m', method='POST', block=True), name='dispatch')
 class PostRecommendView(LoginRequiredMixin, View):
     def post(self, request, pk, slug):
         post = get_object_or_404(Post, pk=pk)
@@ -313,6 +323,7 @@ class PostRecommendView(LoginRequiredMixin, View):
         messages.success(request, "Post recommendation logged (MVP)")
         return JsonResponse({'status': 'success'})
 
+@method_decorator(ratelimit(key='user', rate='3/m', method='POST', block=True), name='dispatch')
 class CommentCreateView(LoginRequiredMixin, CreateView):
     model = Comment
     fields = ['content']
@@ -328,6 +339,7 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
             'slug': self.kwargs.get('slug')
         })
 
+@method_decorator(ratelimit(key='user', rate='3/m', method='POST', block=True), name='dispatch')
 class CommentReplyView(LoginRequiredMixin, CreateView):
     model = Comment
     fields = ['content']
@@ -347,6 +359,7 @@ class CommentReplyView(LoginRequiredMixin, CreateView):
 
 
 @method_decorator(csrf_protect, name='dispatch')
+@method_decorator(ratelimit(key='user', rate='10/m', method='POST', block=True), name='dispatch')
 class ImageUploadView(LoginRequiredMixin, View):
     """
     Handle image uploads from TinyMCE editor
@@ -358,24 +371,59 @@ class ImageUploadView(LoginRequiredMixin, View):
                 return JsonResponse({'error': 'No file provided'}, status=400)
             
             uploaded_file = request.FILES['file']
-            
-            # Validate file type
-            allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
-            if uploaded_file.content_type not in allowed_types:
-                return JsonResponse({'error': 'Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.'}, status=400)
-            
-            # Validate file size (2MB limit)
-            if uploaded_file.size > 2 * 1024 * 1024:
-                return JsonResponse({'error': 'File too large. Maximum size is 2MB.'}, status=400)
-            
-            # Generate unique filename to avoid conflicts
-            file_extension = uploaded_file.name.split('.')[-1].lower()
-            unique_filename = f"{uuid.uuid4().hex}.{file_extension}"
-            
+
+            # Enforce size limit
+            max_bytes = getattr(settings, 'IMAGE_MAX_UPLOAD_MB', 2) * 1024 * 1024
+            if uploaded_file.size and uploaded_file.size > max_bytes:
+                return JsonResponse({'error': f'File too large. Maximum size is {getattr(settings, "IMAGE_MAX_UPLOAD_MB", 2)}MB.'}, status=400)
+
+            # Process and sanitize image: validate, resize, strip EXIF, re-encode
+            try:
+                Image.MAX_IMAGE_PIXELS = getattr(settings, 'IMAGE_MAX_PIXELS', 12000000)
+                with Image.open(uploaded_file) as img:
+                    original_format = (img.format or '').upper()
+                    allowed_formats = {"JPEG", "JPG", "PNG", "WEBP"}
+                    target_format = original_format if original_format in allowed_formats else "PNG"
+
+                    # Convert mode for JPEG (no alpha)
+                    if target_format in {"JPEG", "JPG"} and img.mode in ("RGBA", "P"):
+                        img = img.convert("RGB")
+
+                    # Enforce dimension limits by downscaling if necessary
+                    max_w = getattr(settings, 'IMAGE_MAX_WIDTH', 2048)
+                    max_h = getattr(settings, 'IMAGE_MAX_HEIGHT', 2048)
+                    width, height = img.size
+                    if width > max_w or height > max_h:
+                        img.thumbnail((max_w, max_h))
+
+                    # Re-encode without EXIF/metadata
+                    buffer = BytesIO()
+                    save_kwargs = {}
+                    if target_format in {"JPEG", "JPG"}:
+                        target_format = "JPEG"
+                        save_kwargs.update({"quality": 85, "optimize": True})
+                    elif target_format == "PNG":
+                        save_kwargs.update({"optimize": True})
+                    elif target_format == "WEBP":
+                        save_kwargs.update({"quality": 85, "method": 6})
+
+                    img.save(buffer, format=target_format, **save_kwargs)
+                    buffer.seek(0)
+
+            except UnidentifiedImageError:
+                return JsonResponse({'error': 'Invalid image file.'}, status=400)
+            except Exception as e:
+                return JsonResponse({'error': f'Image processing failed: {str(e)}'}, status=400)
+
+            # Choose extension based on target format
+            ext_map = {"JPEG": "jpg", "JPG": "jpg", "PNG": "png", "WEBP": "webp"}
+            extension = ext_map.get(target_format, 'png')
+            unique_filename = f"{uuid.uuid4().hex}.{extension}"
+
             # Save file to media/post_images/content/
             file_path = f"post_images/content/{unique_filename}"
-            saved_path = default_storage.save(file_path, ContentFile(uploaded_file.read()))
-            
+            saved_path = default_storage.save(file_path, ContentFile(buffer.getvalue()))
+
             # Get the full URL for the saved file
             file_url = request.build_absolute_uri(default_storage.url(saved_path))
             
