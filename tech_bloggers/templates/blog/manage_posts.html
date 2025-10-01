@@ -15,6 +15,7 @@
           placeholder="Search your posts..." 
           class="search-bar"
           value="{{ request.GET.q|default:'' }}"
+          maxlength="100"
         >
         <select name="status" class="filter-select" onchange="this.form.submit()">
           <option value="" {% if not request.GET.status %}selected{% endif %}>All Posts</option>

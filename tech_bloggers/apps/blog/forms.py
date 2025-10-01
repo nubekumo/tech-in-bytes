@@ -9,6 +9,7 @@ class PostForm(forms.ModelForm):
     # Custom tags field to handle the string input from our custom interface
     tags_input = forms.CharField(
         required=False,
+        max_length=50,  # Reasonable limit for comma-separated tag IDs
         widget=forms.HiddenInput(),
         help_text="Comma-separated tag IDs"
     )
@@ -132,15 +133,15 @@ class EmailPostForm(forms.Form):
         'class': 'form-control',
         'placeholder': 'Your name'
     }))
-    email = forms.EmailField(widget=forms.EmailInput(attrs={
+    email = forms.EmailField(max_length=254, widget=forms.EmailInput(attrs={
         'class': 'form-control',
         'placeholder': 'Your email address'
     }))
-    to = forms.EmailField(widget=forms.EmailInput(attrs={
+    to = forms.EmailField(max_length=254, widget=forms.EmailInput(attrs={
         'class': 'form-control',
         'placeholder': "Recipient's email address"
     }))
-    comments = forms.CharField(required=False, widget=forms.Textarea(attrs={
+    comments = forms.CharField(required=False, max_length=500, widget=forms.Textarea(attrs={
         'class': 'form-control',
         'placeholder': 'Add a personal message (optional)',
         'rows': 4

@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm, AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm, AuthenticationForm, PasswordResetForm, SetPasswordForm
 from django.contrib.auth.models import User
 from .models import Profile
 
@@ -11,6 +11,9 @@ class CustomAuthenticationForm(AuthenticationForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # Set max_length for username and password fields
+        self.fields['username'].max_length = 150  # Django's default User model username max_length
+        self.fields['password'].max_length = 128  # Reasonable limit for password input
         for field in self.fields:
             self.fields[field].widget.attrs.update({'class': 'form-control'})
 
@@ -23,7 +26,7 @@ class CustomAuthenticationForm(AuthenticationForm):
         return super().confirm_login_allowed(user)
 
 class SignUpForm(UserCreationForm):
-    email = forms.EmailField(required=True)
+    email = forms.EmailField(required=True, max_length=254)
 
     class Meta:
         model = User
@@ -31,6 +34,10 @@ class SignUpForm(UserCreationForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # Set max_length for username and password fields
+        self.fields['username'].max_length = 150  # Django's default User model username max_length
+        self.fields['password1'].max_length = 128  # Reasonable limit for password input
+        self.fields['password2'].max_length = 128  # Reasonable limit for password confirmation
         for field in self.fields:
             self.fields[field].widget.attrs.update({'class': 'form-control'})
 
@@ -50,7 +57,7 @@ class SignUpForm(UserCreationForm):
         return email
 
 class AccountSettingsForm(forms.ModelForm):
-    bio = forms.CharField(widget=forms.Textarea(attrs={'rows': 4}), required=False)
+    bio = forms.CharField(widget=forms.Textarea(attrs={'rows': 4}), required=False, max_length=500)
     
     class Meta:
         model = Profile
@@ -73,7 +80,7 @@ class AccountSettingsForm(forms.ModelForm):
         return profile
 
 class EmailUpdateForm(forms.Form):
-    email = forms.EmailField(required=True)
+    email = forms.EmailField(required=True, max_length=254)
     
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
@@ -91,5 +98,25 @@ class EmailUpdateForm(forms.Form):
 class CustomPasswordChangeForm(PasswordChangeForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # Set max_length for password fields
+        self.fields['old_password'].max_length = 128
+        self.fields['new_password1'].max_length = 128
+        self.fields['new_password2'].max_length = 128
+        for field in self.fields:
+            self.fields[field].widget.attrs.update({'class': 'form-control'})
+
+class CustomPasswordResetForm(PasswordResetForm):
+    email = forms.EmailField(max_length=254)
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['email'].widget.attrs.update({'class': 'form-control'})
+
+class CustomSetPasswordForm(SetPasswordForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Set max_length for password fields
+        self.fields['new_password1'].max_length = 128
+        self.fields['new_password2'].max_length = 128
         for field in self.fields:
             self.fields[field].widget.attrs.update({'class': 'form-control'})
