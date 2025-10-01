@@ -33,6 +33,7 @@
             class="search-input-fa" 
             placeholder="Search posts..."
             value="{{ current_search }}"
+            maxlength="100"
           >
           {% if current_category %}
             <input type="hidden" name="category" value="{{ current_category }}">

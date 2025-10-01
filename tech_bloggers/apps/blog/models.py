@@ -62,8 +62,8 @@ class Post(models.Model):
     STATUS_CHOICES = [("draft", "Draft"), ("published", "Published")]
     title = models.CharField(max_length=200)
     slug = models.SlugField(unique=True, blank=True)
-    content = models.TextField()
-    summary = models.TextField(blank=True)
+    content = models.TextField(max_length=50000)  # Reasonable limit for blog content
+    summary = models.TextField(blank=True, max_length=1000)  # Reasonable limit for summary
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="blog_posts")
     tags = models.ManyToManyField(Tag, blank=True)
     image = models.ImageField(upload_to="post_images/", blank=True, null=True, validators=[validate_image])
@@ -94,7 +94,7 @@ class Post(models.Model):
 class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comments")
     author = models.ForeignKey(User, on_delete=models.CASCADE)
-    content = models.TextField()
+    content = models.TextField(max_length=2000)  # Reasonable limit for comments
     parent = models.ForeignKey("self", null=True, blank=True, on_delete=models.CASCADE, related_name="replies")
     created_at = models.DateTimeField(auto_now_add=True)
     active = models.BooleanField(default=True)

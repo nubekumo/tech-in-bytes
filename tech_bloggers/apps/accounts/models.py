@@ -8,7 +8,7 @@ import os
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     avatar = models.ImageField(upload_to="avatars/", blank=True, null=True)
-    bio = models.TextField(blank=True, null=True, help_text="Tell us about yourself")
+    bio = models.TextField(blank=True, null=True, max_length=500, help_text="Tell us about yourself")
 
     def __str__(self):
         return self.user.username

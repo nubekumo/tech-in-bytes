@@ -3,9 +3,9 @@ from django import forms
 class ContactForm(forms.Form):
     firstName = forms.CharField(max_length=50)
     lastName = forms.CharField(max_length=50)
-    email = forms.EmailField()
+    email = forms.EmailField(max_length=254)
     subject = forms.CharField(max_length=200)
-    message = forms.CharField(widget=forms.Textarea)
+    message = forms.CharField(widget=forms.Textarea, max_length=2000)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
