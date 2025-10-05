@@ -27,10 +27,12 @@ class CustomAuthenticationForm(AuthenticationForm):
 
 class SignUpForm(UserCreationForm):
     email = forms.EmailField(required=True, max_length=254)
+    first_name = forms.CharField(required=True, max_length=30, label='First Name')
+    last_name = forms.CharField(required=True, max_length=30, label='Last Name')
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'password1', 'password2')
+        fields = ('first_name', 'last_name', 'username', 'email', 'password1', 'password2')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -44,6 +46,8 @@ class SignUpForm(UserCreationForm):
     def save(self, commit=True):
         user = super().save(commit=False)
         user.email = self.cleaned_data['email']
+        user.first_name = self.cleaned_data['first_name']
+        user.last_name = self.cleaned_data['last_name']
         if commit:
             user.save()
             # Create associated profile
