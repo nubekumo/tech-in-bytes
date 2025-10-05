@@ -65,3 +65,9 @@ class ContactView(FormView):
             "Thank you for your message! We'll get back to you soon. (MVP: Message logged to console)"
         )
         return super().form_valid(form)
+
+class PrivacyPolicyView(TemplateView):
+    template_name = "pages/privacy_policy.html"
+
+class TermsOfUseView(TemplateView):
+    template_name = "pages/terms_of_use.html"
