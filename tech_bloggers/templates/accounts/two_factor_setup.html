@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Setup Two-Factor Authentication - Tech Bloggers{% endblock %}
+
+{% block content %}
+<div class="settings-container">
+  <!-- Header -->
+  <div class="settings-header">
+    <h1>Setup Two-Factor Authentication</h1>
+    <p>Add an extra layer of security to your account</p>
+  </div>
+
+  <!-- Content -->
+  <div class="settings-content">
+    <div class="two-factor-setup">
+      <!-- Step 1: Install Authenticator App -->
+      <div class="setup-step">
+        <h3><span class="step-number">1</span>Install an Authenticator App</h3>
+        <p>Download and install an authenticator app on your mobile device. We recommend:</p>
+        <div class="authenticator-apps">
+          <div class="app-option">
+            <strong>Google Authenticator</strong>
+            <p>Available for iOS and Android</p>
+          </div>
+          <div class="app-option">
+            <strong>Microsoft Authenticator</strong>
+            <p>Available for iOS and Android</p>
+          </div>
+          <div class="app-option">
+            <strong>Authy</strong>
+            <p>Available for iOS, Android, and Desktop</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Scan QR Code -->
+      <div class="setup-step">
+        <h3><span class="step-number">2</span>Scan QR Code</h3>
+        <p>Open your authenticator app and scan this QR code:</p>
+        
+        <div class="qr-code-container">
+          <div class="qr-code">
+            {% if qr_code %}
+              <img src="{{ qr_code }}" alt="QR Code for 2FA Setup" />
+            {% else %}
+              <div class="qr-placeholder">
+                <i class="fas fa-qrcode"></i>
+                <p>QR Code will appear here</p>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="qr-info">
+          <p><i class="fas fa-info-circle"></i> Can't scan the QR code? <a href="#" id="show-manual-key">Enter the key manually</a></p>
+        </div>
+
+        <!-- Manual Key Entry (Hidden by default) -->
+        <div id="manual-key-section" class="manual-key-section" style="display: none;">
+          <h4>Manual Key Entry</h4>
+          <div class="manual-key">
+            <label>Secret Key:</label>
+            <div class="key-display">
+              <code id="secret-key">{{ device.key }}</code>
+              <button type="button" class="btn btn--secondary btn-sm" onclick="copyToClipboard('secret-key')">
+                <i class="fas fa-copy"></i> Copy
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Verify Code -->
+      <div class="setup-step">
+        <h3><span class="step-number">3</span>Verify Setup</h3>
+        <p>Enter the 6-digit code from your authenticator app to complete the setup:</p>
+        
+        <form method="post" class="verification-form">
+          {% csrf_token %}
+          <div class="form-group">
+            <label for="token">Verification Code</label>
+            <input
+              type="text"
+              name="token"
+              id="token"
+              class="form-control"
+              placeholder="000000"
+              maxlength="6"
+              pattern="[0-9]{6}"
+              required
+              autocomplete="off"
+            />
+            <div class="form-feedback"></div>
+          </div>
+          
+          <div class="form-actions">
+            <a href="{% url 'accounts:settings' %}" class="btn btn--secondary">
+              <i class="fas fa-arrow-left"></i> Cancel
+            </a>
+            <button type="submit" class="btn btn--primary">
+              <i class="fas fa-check"></i> Verify & Enable 2FA
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Help Section -->
+      <div class="setup-help">
+        <h4><i class="fas fa-question-circle"></i> Need Help?</h4>
+        <ul>
+          <li>Make sure your device's time is synchronized</li>
+          <li>The code refreshes every 30 seconds</li>
+          <li>If you lose your device, you can use backup codes</li>
+          <li>Contact support if you're having trouble</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

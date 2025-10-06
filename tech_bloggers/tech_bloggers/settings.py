@@ -54,6 +54,11 @@ INSTALLED_APPS = [
     'image_cropping',
     'django_bleach',
     'axes',
+    # 2FA apps
+    'django_otp',
+    'django_otp.plugins.otp_totp',
+    'django_otp.plugins.otp_static',
+    'two_factor',
     'apps.accounts',
     'apps.blog',
     'apps.pages',
@@ -90,7 +95,9 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django_otp.middleware.OTPMiddleware',
     'axes.middleware.AxesMiddleware',
+    'apps.accounts.middleware.SecureSessionMiddleware', # Added for secure session handling
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -197,14 +204,28 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER or 'no-reply@tech-bloggers.local'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Django Admin Site Configuration
+ADMIN_SITE_HEADER = "Tech Bloggers Administration"
+ADMIN_SITE_TITLE = "Tech Bloggers Admin"
+ADMIN_INDEX_TITLE = "Welcome to Tech Bloggers Administration"
+
 # Authentication settings
 LOGIN_REDIRECT_URL = 'pages:index'
-LOGIN_URL = 'accounts:login'
+LOGIN_URL = 'login'
+LOGOUT_URL = 'accounts:logout'
 
 AUTHENTICATION_BACKENDS = [
     'axes.backends.AxesStandaloneBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
+
+# 2FA Configuration
+TWO_FACTOR_CALL_GATEWAY = None  # We're not using phone calls
+TWO_FACTOR_SMS_GATEWAY = None   # We're not using SMS
+TWO_FACTOR_LOGIN_URL = 'accounts:login'
+TWO_FACTOR_SETUP_URL = 'accounts:two_factor:setup' # Users would navigate to this URL to configure 2FA on their account (typically by scanning a QR code with an authenticator app).
+TWO_FACTOR_BACKUP_TOKENS_URL = 'accounts:two_factor:backup_tokens' # This defines the URL name for managing backup tokens. 
+TWO_FACTOR_REMOVE_URL = 'accounts:two_factor:disable'
 
 # Axes configuration: lock after 5 failures for 1 hour, keyed by username+IP
 AXES_ENABLED = True
@@ -215,6 +236,15 @@ AXES_RESET_ON_SUCCESS = True
 # Optional: friendly lockout URL or template
 AXES_LOCKOUT_TEMPLATE = 'accounts/lockout.html'
 # AXES_LOCKOUT_URL = 'accounts:login'
+
+# Exclude 2FA URLs from Axes rate limiting to avoid conflicts
+AXES_EXCLUDE_URLS = [
+    '/accounts/two_factor/',
+    '/accounts/two_factor/setup/',
+    '/accounts/two_factor/backup_tokens/',
+    '/accounts/two_factor/disable/',
+    '/accounts/two_factor/qr/',
+]
 
 # Sites framework
 SITE_ID = 1

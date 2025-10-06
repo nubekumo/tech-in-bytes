@@ -64,117 +64,193 @@
 
     <!-- Account Tab -->
     <div class="tab-panel" id="account-panel">
-      <form
-        method="post"
-        action="{% url 'accounts:update_email' %}"
-        id="email-form"
-      >
-        {% csrf_token %}
-        <div class="form-group">
-          <label for="id_email">Email Address</label>
-          {{ email_form.email }} {% if email_form.email.errors %}
-          <div class="form-feedback error">{{ email_form.email.errors.0 }}</div>
+      <!-- Email Update Section -->
+      <div class="account-section">
+        <h3>Email Address</h3>
+        <form
+          method="post"
+          action="{% url 'accounts:update_email' %}"
+          id="email-form"
+        >
+          {% csrf_token %}
+          <div class="form-group">
+            <label for="id_email">Email Address</label>
+            {{ email_form.email }} {% if email_form.email.errors %}
+            <div class="form-feedback error">{{ email_form.email.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <button type="submit" class="btn btn--primary">Update Email</button>
+        </form>
+      </div>
+
+      <!-- Two-Factor Authentication Section -->
+      <div class="account-section">
+        <h3>Two-Factor Authentication</h3>
+        <div class="two-factor-status">
+          {% if has_2fa %}
+            <div class="status-enabled">
+              <i class="fas fa-shield-alt"></i>
+              <span>Two-factor authentication is <strong>enabled</strong></span>
+            </div>
+            <div class="two-factor-actions">
+              <a href="{% url 'accounts:two_factor_backup_tokens' %}" class="btn btn--secondary">
+                <i class="fas fa-key"></i> View Backup Tokens
+              </a>
+              <button type="button" class="btn btn--danger" onclick="showDisable2FA()">
+                <i class="fas fa-times"></i> Disable 2FA
+              </button>
+            </div>
+          {% else %}
+            <div class="status-disabled">
+              <i class="fas fa-shield-alt"></i>
+              <span>Two-factor authentication is <strong>disabled</strong></span>
+            </div>
+            <div class="two-factor-actions">
+              <a href="{% url 'accounts:two_factor_setup' %}" class="btn btn--primary">
+                <i class="fas fa-plus"></i> Enable 2FA
+              </a>
+            </div>
           {% endif %}
         </div>
+        
+        <div class="two-factor-info">
+          <p>
+            <i class="fas fa-info-circle"></i>
+            Two-factor authentication adds an extra layer of security to your account by requiring a verification code from your authenticator app in addition to your password.
+          </p>
+        </div>
+      </div>
 
-        <button type="submit" class="btn btn--primary">Update Email</button>
-      </form>
+      <!-- Disable 2FA Modal -->
+      <div id="disable-2fa-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3>Disable Two-Factor Authentication</h3>
+            <button type="button" class="modal-close" onclick="hideDisable2FA()">&times;</button>
+          </div>
+          <div class="modal-body">
+            <p>Are you sure you want to disable two-factor authentication? This will make your account less secure.</p>
+            <form method="post" action="{% url 'accounts:two_factor_disable' %}">
+              {% csrf_token %}
+              <div class="form-group">
+                <label for="disable_password">Enter your password to confirm:</label>
+                <input
+                  type="password"
+                  name="password"
+                  id="disable_password"
+                  class="form-control"
+                  required
+                />
+              </div>
+              <div class="modal-actions">
+                <button type="button" class="btn btn--secondary" onclick="hideDisable2FA()">Cancel</button>
+                <button type="submit" class="btn btn--danger">Disable 2FA</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Security Tab -->
     <div class="tab-panel" id="security-panel">
-      <form
-        method="post"
-        action="{% url 'accounts:update_password' %}"
-        id="password-form"
-      >
-        {% csrf_token %}
+      <!-- Password Change Section -->
+      <div class="security-section">
+        <h3>Change Password</h3>
+        <form
+          method="post"
+          action="{% url 'accounts:update_password' %}"
+          id="password-form"
+        >
+          {% csrf_token %}
 
-        <div class="form-group">
-          <label for="old_password">Current Password</label>
-          <div class="password-field">
-            <input
-              type="password"
-              name="old_password"
-              id="old_password"
-              class="form-control"
-              required
-            />
-            <button
-              type="button"
-              class="password-toggle"
-              data-target="old_password"
-            >
-              <i class="far fa-eye"></i>
-            </button>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="new_password1">New Password</label>
-          <div class="password-field">
-            <input
-              type="password"
-              name="new_password1"
-              id="new_password1"
-              class="form-control"
-              required
-            />
-            <button
-              type="button"
-              class="password-toggle"
-              data-target="new_password1"
-            >
-              <i class="far fa-eye"></i>
-            </button>
-          </div>
-
-          <div class="password-requirements">
-            <div class="requirement-item" data-requirement="length">
-              <i class="fas fa-circle"></i>
-              <span>At least 8 characters long</span>
-            </div>
-            <div class="requirement-item" data-requirement="uppercase">
-              <i class="fas fa-circle"></i>
-              <span>Contains uppercase letter</span>
-            </div>
-            <div class="requirement-item" data-requirement="lowercase">
-              <i class="fas fa-circle"></i>
-              <span>Contains lowercase letter</span>
-            </div>
-            <div class="requirement-item" data-requirement="number">
-              <i class="fas fa-circle"></i>
-              <span>Contains number</span>
-            </div>
-            <div class="requirement-item" data-requirement="special">
-              <i class="fas fa-circle"></i>
-              <span>Contains special character</span>
+          <div class="form-group">
+            <label for="old_password">Current Password</label>
+            <div class="password-field">
+              <input
+                type="password"
+                name="old_password"
+                id="old_password"
+                class="form-control"
+                required
+              />
+              <button
+                type="button"
+                class="password-toggle"
+                data-target="old_password"
+              >
+                <i class="far fa-eye"></i>
+              </button>
             </div>
           </div>
-        </div>
 
-        <div class="form-group">
-          <label for="new_password2">Confirm New Password</label>
-          <div class="password-field">
-            <input
-              type="password"
-              name="new_password2"
-              id="new_password2"
-              class="form-control"
-              required
-            />
-            <button
-              type="button"
-              class="password-toggle"
-              data-target="new_password2"
-            >
-              <i class="far fa-eye"></i>
-            </button>
+          <div class="form-group">
+            <label for="new_password1">New Password</label>
+            <div class="password-field">
+              <input
+                type="password"
+                name="new_password1"
+                id="new_password1"
+                class="form-control"
+                required
+              />
+              <button
+                type="button"
+                class="password-toggle"
+                data-target="new_password1"
+              >
+                <i class="far fa-eye"></i>
+              </button>
+            </div>
+
+            <div class="password-requirements">
+              <div class="requirement-item" data-requirement="length">
+                <i class="fas fa-circle"></i>
+                <span>At least 8 characters long</span>
+              </div>
+              <div class="requirement-item" data-requirement="uppercase">
+                <i class="fas fa-circle"></i>
+                <span>Contains uppercase letter</span>
+              </div>
+              <div class="requirement-item" data-requirement="lowercase">
+                <i class="fas fa-circle"></i>
+                <span>Contains lowercase letter</span>
+              </div>
+              <div class="requirement-item" data-requirement="number">
+                <i class="fas fa-circle"></i>
+                <span>Contains number</span>
+              </div>
+              <div class="requirement-item" data-requirement="special">
+                <i class="fas fa-circle"></i>
+                <span>Contains special character</span>
+              </div>
+            </div>
           </div>
-        </div>
 
-        <button type="submit" class="btn btn--primary">Change Password</button>
-      </form>
+          <div class="form-group">
+            <label for="new_password2">Confirm New Password</label>
+            <div class="password-field">
+              <input
+                type="password"
+                name="new_password2"
+                id="new_password2"
+                class="form-control"
+                required
+              />
+              <button
+                type="button"
+                class="password-toggle"
+                data-target="new_password2"
+              >
+                <i class="far fa-eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn--primary">Change Password</button>
+        </form>
+      </div>
     </div>
 
     <!-- Danger Zone Tab -->
