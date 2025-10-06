@@ -21,6 +21,17 @@ from .models import Profile
 from .forms import SignUpForm, AccountSettingsForm, EmailUpdateForm, CustomPasswordChangeForm
 from .utils import process_avatar_image
 
+# 2FA imports
+from django_otp.decorators import otp_required
+from django_otp.plugins.otp_totp.models import TOTPDevice
+from django_otp.plugins.otp_static.models import StaticDevice
+from django_otp.util import random_hex
+from django.http import JsonResponse
+import qrcode
+import qrcode.image.svg
+from io import BytesIO
+import base64
+
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
 
@@ -44,7 +55,13 @@ from django.utils.encoding import force_bytes
 class LogoutView(View):
     def post(self, request):
         logger.info(f"Logout request for user: {request.user.username}")
+        
+        # Clear all session data to ensure complete logout
+        request.session.flush()
+        
+        # Perform Django logout
         logout(request)
+        
         messages.success(request, "You have been successfully logged out.")
         return redirect('pages:index')
 
@@ -54,10 +71,32 @@ class CustomLoginView(LoginView):
     form_class = CustomAuthenticationForm
     
     def form_valid(self, form):
-        """Override form_valid to add logging."""
+        """Override form_valid to handle 2FA verification."""
         username = form.cleaned_data.get('username')
-        logger.info(f"Successful login for user: {username}")
-        return super().form_valid(form)
+        password = form.cleaned_data.get('password')
+        
+        # Authenticate the user (pass request for AxesBackend compatibility)
+        user = authenticate(request=self.request, username=username, password=password)
+        
+        if user is not None:
+            # Check if user has 2FA enabled
+            if TOTPDevice.objects.filter(user=user, confirmed=True).exists():
+                # User has 2FA enabled, redirect to 2FA verification
+                logger.info(f"User {username} has 2FA enabled, redirecting to verification")
+                
+                # Store user ID in session for 2FA verification
+                self.request.session['2fa_user_id'] = user.id
+                
+                # Redirect to 2FA verification page
+                return redirect('accounts:two_factor_verify')
+            else:
+                # No 2FA, proceed with normal login
+                logger.info(f"Successful login for user: {username} (no 2FA)")
+                login(self.request, user, backend='django.contrib.auth.backends.ModelBackend')
+                return redirect(self.get_success_url())
+        else:
+            logger.info(f"Failed login attempt for user: {username}")
+            return self.form_invalid(form)
     
     def form_invalid(self, form):
         """Override form_invalid to add logging."""
@@ -270,11 +309,16 @@ class AccountSettingsBaseView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         profile, created = Profile.objects.get_or_create(user=self.request.user)
         settings_form = AccountSettingsForm(instance=profile)
+        
+        # Check 2FA status
+        has_2fa = TOTPDevice.objects.filter(user=self.request.user, confirmed=True).exists()
+        
         context.update({
             'profile': profile,
             'form': settings_form,
             'email_form': EmailUpdateForm(user=self.request.user),
             'password_form': CustomPasswordChangeForm(self.request.user),
+            'has_2fa': has_2fa,
         })
         return context
 
@@ -398,3 +442,253 @@ def preview_activation_email(request):
         'token': account_activation_token.make_token(request.user),
     }
     return render(request, 'accounts/activation_email.html', context)
+
+
+# 2FA Views
+class TwoFactorSetupView(LoginRequiredMixin, View):
+    """View to setup 2FA for a user"""
+    template_name = 'accounts/two_factor_setup.html'
+    
+    def get(self, request):
+        # Check if user already has 2FA enabled
+        if TOTPDevice.objects.filter(user=request.user, confirmed=True).exists():
+            messages.info(request, 'Two-factor authentication is already enabled for your account.')
+            return redirect('accounts:settings')
+        
+        # Get or create TOTP device
+        device, created = TOTPDevice.objects.get_or_create(
+            user=request.user,
+            defaults={'name': 'default', 'confirmed': False}
+        )
+        
+        if not device.key:
+            device.key = device.generate_key()
+            device.save()
+        
+        # Generate QR code
+        qr_code = self.generate_qr_code(request, device)
+        
+        context = {
+            'device': device,
+            'qr_code': qr_code,
+        }
+        return render(request, self.template_name, context)
+    
+    def post(self, request):
+        """Verify the TOTP token and enable 2FA"""
+        token = request.POST.get('token', '').strip()
+        
+        if not token:
+            messages.error(request, 'Please enter a verification code.')
+            return redirect('accounts:two_factor_setup')
+        
+        # Get the device
+        device = TOTPDevice.objects.filter(user=request.user, confirmed=False).first()
+        if not device:
+            messages.error(request, 'No pending 2FA setup found.')
+            return redirect('accounts:settings')
+        
+        # Verify the token
+        if device.verify_token(token):
+            device.confirmed = True
+            device.save()
+            
+            # Generate backup tokens
+            self.generate_backup_tokens(request.user)
+            
+            messages.success(request, 'Two-factor authentication has been enabled successfully!')
+            logger.info(f"2FA enabled for user: {request.user.username}")
+            return redirect('accounts:two_factor_backup_tokens')
+        else:
+            messages.error(request, 'Invalid verification code. Please try again.')
+            return redirect('accounts:two_factor_setup')
+    
+    def generate_qr_code(self, request, device):
+        """Generate QR code for TOTP setup"""
+        # Create the TOTP URI
+        totp_uri = device.config_url
+        
+        # Generate QR code
+        qr = qrcode.QRCode(version=1, box_size=10, border=5)
+        qr.add_data(totp_uri)
+        qr.make(fit=True)
+        
+        # Create SVG image
+        img = qr.make_image(image_factory=qrcode.image.svg.SvgPathImage)
+        
+        # Convert to base64
+        buffer = BytesIO()
+        img.save(buffer)
+        qr_code_data = buffer.getvalue()
+        qr_code_base64 = base64.b64encode(qr_code_data).decode()
+        
+        return f"data:image/svg+xml;base64,{qr_code_base64}"
+    
+    def generate_backup_tokens(self, user):
+        """Generate backup tokens for the user"""
+        # Delete existing backup tokens
+        StaticDevice.objects.filter(user=user, name='backup').delete()
+        
+        # Create new backup tokens
+        device = StaticDevice.objects.create(user=user, name='backup')
+        device.token_set.create(token=random_hex(8))
+        device.token_set.create(token=random_hex(8))
+        device.token_set.create(token=random_hex(8))
+        device.token_set.create(token=random_hex(8))
+        device.token_set.create(token=random_hex(8))
+
+
+class TwoFactorQRView(LoginRequiredMixin, View):
+    """View to display QR code for 2FA setup"""
+    
+    def get(self, request):
+        device = TOTPDevice.objects.filter(user=request.user, confirmed=False).first()
+        if not device:
+            return JsonResponse({'error': 'No pending 2FA setup'}, status=400)
+        
+        # Generate QR code
+        qr_code = self.generate_qr_code(request, device)
+        return JsonResponse({'qr_code': qr_code})
+    
+    def generate_qr_code(self, request, device):
+        """Generate QR code for TOTP setup"""
+        totp_uri = device.config_url
+        
+        qr = qrcode.QRCode(version=1, box_size=10, border=5)
+        qr.add_data(totp_uri)
+        qr.make(fit=True)
+        
+        img = qr.make_image(image_factory=qrcode.image.svg.SvgPathImage)
+        
+        buffer = BytesIO()
+        img.save(buffer)
+        qr_code_data = buffer.getvalue()
+        qr_code_base64 = base64.b64encode(qr_code_data).decode()
+        
+        return f"data:image/svg+xml;base64,{qr_code_base64}"
+
+
+class TwoFactorBackupTokensView(LoginRequiredMixin, View):
+    """View to display backup tokens"""
+    template_name = 'accounts/two_factor_backup_tokens.html'
+    
+    def get(self, request):
+        # Get backup tokens
+        device = StaticDevice.objects.filter(user=request.user, name='backup').first()
+        if not device:
+            messages.error(request, 'No backup tokens found.')
+            return redirect('accounts:settings')
+        
+        tokens = list(device.token_set.values_list('token', flat=True))
+        
+        context = {
+            'tokens': tokens,
+        }
+        return render(request, self.template_name, context)
+
+
+class TwoFactorDisableView(LoginRequiredMixin, View):
+    """View to disable 2FA"""
+    
+    def post(self, request):
+        # Verify password before disabling
+        password = request.POST.get('password', '')
+        if not request.user.check_password(password):
+            messages.error(request, 'Invalid password. Please try again.')
+            return redirect('accounts:settings')
+        
+        # Delete TOTP devices
+        TOTPDevice.objects.filter(user=request.user).delete()
+        
+        # Delete backup tokens
+        StaticDevice.objects.filter(user=request.user, name='backup').delete()
+        
+        messages.success(request, 'Two-factor authentication has been disabled.')
+        logger.info(f"2FA disabled for user: {request.user.username}")
+        return redirect('accounts:settings')
+
+
+class TwoFactorVerifyView(View):
+    """View to verify 2FA token during login"""
+    template_name = 'accounts/two_factor_verify.html'
+    
+    def get(self, request):
+        # Check if user ID is in session
+        user_id = request.session.get('2fa_user_id')
+        if not user_id:
+            messages.error(request, 'Please log in first.')
+            return redirect('accounts:login')
+        
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            messages.error(request, 'Invalid session. Please log in again.')
+            request.session.pop('2fa_user_id', None)
+            return redirect('accounts:login')
+        
+        # Check if user still has 2FA enabled
+        if not TOTPDevice.objects.filter(user=user, confirmed=True).exists():
+            messages.info(request, '2FA is no longer enabled for your account.')
+            request.session.pop('2fa_user_id', None)
+            return redirect('accounts:login')
+        
+        return render(request, self.template_name)
+    
+    def post(self, request):
+        # Check if user ID is in session
+        user_id = request.session.get('2fa_user_id')
+        if not user_id:
+            messages.error(request, 'Please log in first.')
+            return redirect('accounts:login')
+        
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            messages.error(request, 'Invalid session. Please log in again.')
+            request.session.pop('2fa_user_id', None)
+            return redirect('accounts:login')
+        
+        # Get the token from the form
+        token = request.POST.get('token', '').strip()
+        
+        if not token:
+            messages.error(request, 'Please enter a verification code.')
+            return render(request, self.template_name)
+        
+        # Get the user's TOTP device
+        device = TOTPDevice.objects.filter(user=user, confirmed=True).first()
+        if not device:
+            messages.error(request, '2FA device not found. Please contact support.')
+            request.session.pop('2fa_user_id', None)
+            return redirect('accounts:login')
+        
+        # Verify the token
+        if device.verify_token(token):
+            # Token is valid, log the user in
+            # Use the ModelBackend specifically to avoid backend conflicts
+            from django.contrib.auth.backends import ModelBackend
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+            request.session.pop('2fa_user_id', None)
+            
+            messages.success(request, 'Login successful!')
+            logger.info(f"2FA verification successful for user: {user.username}")
+            return redirect('pages:index')
+        else:
+            # Token is invalid
+            messages.error(request, 'Invalid verification code. Please try again.')
+            logger.warning(f"Invalid 2FA token for user: {user.username}")
+            return render(request, self.template_name)
+
+
+class AdminLogoutView(View):
+    """Custom admin logout view to ensure complete session clearing"""
+    
+    def get(self, request):
+        # Clear all session data to ensure complete logout
+        request.session.flush()
+        
+        # Perform Django logout
+        logout(request)
+        
+        # Redirect to admin login page
+        return redirect('admin:login')

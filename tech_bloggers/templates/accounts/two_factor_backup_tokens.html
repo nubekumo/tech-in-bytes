@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Backup Tokens - Tech Bloggers{% endblock %}
+
+{% block content %}
+<div class="settings-container">
+  <!-- Header -->
+  <div class="settings-header">
+    <h1>Backup Tokens</h1>
+    <p>Save these backup tokens in a secure location</p>
+  </div>
+
+  <!-- Content -->
+  <div class="settings-content">
+    <div class="backup-tokens">
+      <!-- Warning -->
+      <div class="backup-warning">
+        <div class="warning-icon">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div class="warning-content">
+          <h3>Important Security Information</h3>
+          <p>These backup tokens can be used to access your account if you lose your authenticator device. Each token can only be used once.</p>
+        </div>
+      </div>
+
+      <!-- Tokens List -->
+      <div class="tokens-section">
+        <h3>Your Backup Tokens</h3>
+        <p>Copy and store these tokens in a secure location (like a password manager):</p>
+        
+        <div class="tokens-list">
+          {% for token in tokens %}
+            <div class="token-item">
+              <code class="token-code">{{ token }}</code>
+              <button type="button" class="btn btn--secondary btn-sm copy-token" data-token="{{ token }}">
+                <i class="fas fa-copy"></i> Copy
+              </button>
+            </div>
+          {% endfor %}
+        </div>
+
+        <!-- Copy All Button -->
+        <div class="copy-all-section">
+          <button type="button" class="btn btn--primary" id="copy-all-tokens">
+            <i class="fas fa-copy"></i> Copy All Tokens
+          </button>
+        </div>
+      </div>
+
+      <!-- Instructions -->
+      <div class="backup-instructions">
+        <h3>How to Use Backup Tokens</h3>
+        <ol>
+          <li>When logging in, if you can't access your authenticator app, click "Use backup token"</li>
+          <li>Enter one of the backup tokens from this list</li>
+          <li>Each token can only be used once</li>
+          <li>After using a token, it will be removed from your account</li>
+          <li>Generate new backup tokens if you run low</li>
+        </ol>
+      </div>
+
+      <!-- Actions -->
+      <div class="backup-actions">
+        <a href="{% url 'accounts:settings' %}" class="btn btn--secondary">
+          <i class="fas fa-arrow-left"></i> Back to Settings
+        </a>
+        <button type="button" class="btn btn--primary" onclick="printTokens()">
+          <i class="fas fa-print"></i> Print Tokens
+        </button>
+      </div>
+
+      <!-- Security Tips -->
+      <div class="security-tips">
+        <h3><i class="fas fa-shield-alt"></i> Security Tips</h3>
+        <ul>
+          <li>Store these tokens in a secure password manager</li>
+          <li>Don't store them in plain text files or emails</li>
+          <li>Consider printing them and storing in a safe physical location</li>
+          <li>Don't share these tokens with anyone</li>
+          <li>Regenerate tokens if you suspect they've been compromised</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

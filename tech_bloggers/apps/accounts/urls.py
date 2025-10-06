@@ -33,6 +33,14 @@ urlpatterns = [
     path('settings/update-password/', views.UpdatePasswordView.as_view(), name='update_password'),
     path('settings/delete-account/', views.DeleteAccountView.as_view(), name='delete_account'),
     
+    # 2FA URLs - include individual patterns
+    path('two_factor/setup/', views.TwoFactorSetupView.as_view(), name='two_factor_setup'),
+    path('two_factor/qr/', views.TwoFactorQRView.as_view(), name='two_factor_qr'),
+    path('two_factor/backup_tokens/', views.TwoFactorBackupTokensView.as_view(), name='two_factor_backup_tokens'),
+    path('two_factor/disable/', views.TwoFactorDisableView.as_view(), name='two_factor_disable'),
+    path('two_factor/verify/', views.TwoFactorVerifyView.as_view(), name='two_factor_verify'),
+    path('admin-logout/', views.AdminLogoutView.as_view(), name='admin_logout'),
+    
     # Temporary URL for email preview (remove in production)
     path('preview-activation-email/', views.preview_activation_email, name='preview_activation_email'),
 ]

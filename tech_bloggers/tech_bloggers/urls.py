@@ -9,6 +9,10 @@ from django.contrib.sitemaps.views import sitemap
 from django.contrib.sitemaps import GenericSitemap
 from apps.blog.models import Post
 from apps.blog.sitemaps import PostSitemap, TagSitemap, StaticViewSitemap
+from two_factor.urls import urlpatterns as two_factor_urlpatterns
+
+# Import admin configuration to apply custom branding
+from . import admin_config
 
 # Sitemap configuration
 sitemaps = {
@@ -23,6 +27,8 @@ urlpatterns = [
     path('blog/', include('apps.blog.urls')),
     path('accounts/', include('apps.accounts.urls')),
     
+    # Include django-two-factor-auth URLs for admin login
+    *two_factor_urlpatterns[0],  # Extract just the URL patterns from the tuple
     
     # Sitemap
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps},
