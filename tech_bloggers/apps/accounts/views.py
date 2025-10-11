@@ -341,9 +341,19 @@ class UpdateProfileSettingsView(LoginRequiredMixin, UpdateView):
         avatar_file = self.request.FILES.get('avatar')
 
         if avatar_file:
+            # Get drag offset values from POST data
+            try:
+                offset_x = float(self.request.POST.get('avatar_offset_x', 0))
+                offset_y = float(self.request.POST.get('avatar_offset_y', 0))
+            except (ValueError, TypeError):
+                offset_x = 0
+                offset_y = 0
+            
             processed = process_avatar_image(
                 avatar_file,
                 size=(300, 300),
+                offset_x=offset_x,
+                offset_y=offset_y,
             )
             if processed is not None:
                 # Use the processed file's own name to keep correct extension/mimetype

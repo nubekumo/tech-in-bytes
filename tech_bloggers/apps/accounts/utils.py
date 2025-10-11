@@ -4,13 +4,15 @@ from django.core.files.base import ContentFile
 from io import BytesIO
 
 
-def process_avatar_image(image_field, size=(300, 300)):
+def process_avatar_image(image_field, size=(300, 300), offset_x=0, offset_y=0):
     """
     Process and center crop the avatar image to ensure it fits properly in a circular container.
     
     Args:
         image_field: The uploaded image file
         size: Tuple of (width, height) for the final image size
+        offset_x: Horizontal offset in pixels for user-defined centering
+        offset_y: Vertical offset in pixels for user-defined centering
     
     Returns:
         ContentFile: Processed image ready to be saved
@@ -37,19 +39,46 @@ def process_avatar_image(image_field, size=(300, 300)):
         # Get the current dimensions
         width, height = img.size
 
-        # Center square crop
-        if width > height:
-            left = (width - height) // 2
-            right = left + height
-            top = 0
-            bottom = height
-        else:
-            top = (height - width) // 2
-            bottom = top + width
-            left = 0
-            right = width
+        # Calculate the square crop size (use the smaller dimension)
+        crop_size = min(width, height)
+        
+        # Calculate scale factor for offsetting
+        # offset values come from 250px preview, scale to actual image resolution
+        scale_factor = crop_size / 250.0
+        
+        # Apply offset to center point (negate because drag right = crop left)
+        scaled_offset_x = -int(offset_x * scale_factor)
+        scaled_offset_y = -int(offset_y * scale_factor)
 
+        # Calculate center point (middle of image + user offset)
+        center_x = width // 2 + scaled_offset_x
+        center_y = height // 2 + scaled_offset_y
+
+        # Calculate square crop box
+        half_crop = crop_size // 2
+        left = center_x - half_crop
+        top = center_y - half_crop
+        right = left + crop_size
+        bottom = top + crop_size
+
+        # Ensure crop box stays within image bounds
+        if left < 0:
+            left = 0
+            right = crop_size
+        if top < 0:
+            top = 0
+            bottom = crop_size
+        if right > width:
+            right = width
+            left = width - crop_size
+        if bottom > height:
+            bottom = height
+            top = height - crop_size
+
+        # Perform the crop
         img = img.crop((left, top, right, bottom))
+        
+        # Resize to final size
         img = img.resize(size, Image.Resampling.LANCZOS)
 
         # Choose output format based on alpha
