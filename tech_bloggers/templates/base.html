@@ -6,7 +6,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="csrf-token" content="{{ csrf_token }}" />
     <title>{% block title %}Tech Bloggers{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=3.3" />
+    
+    <!-- Core CSS - loaded on all pages -->
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=4.0" />
+    <link rel="stylesheet" href="{% static 'css/components.css' %}?v=4.0" />
+    
+    <!-- Page-specific CSS - injected per template -->
+    {% block page_css %}{% endblock %}
+    
+    <!-- Responsive CSS - always loaded last -->
+    <link rel="stylesheet" href="{% static 'css/responsive.css' %}?v=4.0" />
+    
+    <!-- External CSS -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
@@ -30,7 +41,7 @@
 
     {% include 'includes/footer.html' %}
 
-    <script src="{% static 'js/script.js' %}?v=3.1" defer></script>
+    <script src="{% static 'js/script.js' %}?v=4.0" defer></script>
     {% block extra_js %}{% endblock %}
   </body>
 </html>

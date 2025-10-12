@@ -4,7 +4,11 @@
   <title>{% block title %}Django Administration{% endblock %}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   {% load static %}
-  <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+  <!-- Core CSS -->
+  <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}?v=4.0">
+  <link rel="stylesheet" type="text/css" href="{% static 'css/components.css' %}?v=4.0">
+  <link rel="stylesheet" type="text/css" href="{% static 'css/pages/auth.css' %}?v=4.0">
+  <link rel="stylesheet" type="text/css" href="{% static 'css/responsive.css' %}?v=4.0">
   {% block extra_media %}{% endblock %}
 </head>
 <body class="login">

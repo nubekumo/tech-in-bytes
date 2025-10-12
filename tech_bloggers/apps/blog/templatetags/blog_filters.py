@@ -65,8 +65,9 @@ def safe_content(value):
     sanitized = re.sub(r'<font[^>]*>\s*</font>', '', sanitized)
     # Remove font tags that only contain whitespace or other empty font tags
     sanitized = re.sub(r'<font[^>]*>\s*(<font[^>]*>\s*</font>\s*)*</font>', '', sanitized)
-    # Clean up any remaining empty tags
-    sanitized = re.sub(r'<(\w+)[^>]*>\s*</\1>', '', sanitized)
+    # Clean up empty tags but preserve empty paragraphs (needed for table spacing)
+    # Remove empty spans, divs, strongs, ems, but keep empty <p> tags
+    sanitized = re.sub(r'<(span|div|strong|em|b|i|u)[^>]*>\s*</\1>', '', sanitized)
     
     return mark_safe(sanitized)
 

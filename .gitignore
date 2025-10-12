@@ -34,6 +34,7 @@ logs/
 # !*/migrations/__init__.py
 static/test_tinymce.html
 staic/js/tests/
+staticfiles/
 
 # Virtual Environment
 techblog_env/

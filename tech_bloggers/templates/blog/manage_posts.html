@@ -1,6 +1,10 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/pages/blog.css' %}?v=4.0" />
+{% endblock %}
+
 {% block title %}Manage Posts - Tech Bloggers{% endblock %}
 
 {% block content %}
@@ -62,12 +66,15 @@
           <div class="post-actions">
             <a href="{% url 'blog:post_edit' pk=post.id slug=post.slug %}" class="btn-icon" title="Edit">
               <i class="fas fa-pen"></i>
+              <span class="btn-label">Edit</span>
             </a>
             <a href="{% url 'blog:post_publish' pk=post.id slug=post.slug %}" class="btn-icon" title="{% if post.status == 'draft' %}Publish{% else %}Unpublish{% endif %}">
               <i class="fas fa-paper-plane"></i>
+              <span class="btn-label">{% if post.status == 'draft' %}Publish{% else %}Unpublish{% endif %}</span>
             </a>
             <a href="{% url 'blog:post_delete' pk=post.id slug=post.slug %}" class="btn-icon" title="Delete">
               <i class="fas fa-trash"></i>
+              <span class="btn-label">Delete</span>
             </a>
           </div>
         </div>

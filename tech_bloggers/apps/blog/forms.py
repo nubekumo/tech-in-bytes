@@ -94,8 +94,9 @@ class PostForm(forms.ModelForm):
             sanitized_content = re.sub(r'<font[^>]*>\s*</font>', '', sanitized_content)
             # Remove font tags that only contain whitespace or other empty font tags
             sanitized_content = re.sub(r'<font[^>]*>\s*(<font[^>]*>\s*</font>\s*)*</font>', '', sanitized_content)
-            # Clean up any remaining empty tags
-            sanitized_content = re.sub(r'<(\w+)[^>]*>\s*</\1>', '', sanitized_content)
+            # Clean up empty tags but preserve empty paragraphs (needed for table spacing)
+            # Remove empty spans, divs, strongs, ems, but keep empty <p> tags
+            sanitized_content = re.sub(r'<(span|div|strong|em|b|i|u)[^>]*>\s*</\1>', '', sanitized_content)
             
             return sanitized_content
         return content

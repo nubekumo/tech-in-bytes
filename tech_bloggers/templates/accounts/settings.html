@@ -1,5 +1,10 @@
 {% extends "base.html" %} 
-{% load static %} {% block title %}Account Settings - Tech Bloggers {% endblock %} 
+{% load static %} {% block title %}Account Settings - Tech Bloggers {% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/pages/auth.css' %}?v=4.0" />
+{% endblock %}
+
 {% block extra_head %}{% endblock %} {% block content %}
 
 <div class="settings-container">
@@ -103,7 +108,7 @@
               <a href="{% url 'accounts:two_factor_backup_tokens' %}" class="btn btn--secondary">
                 <i class="fas fa-key"></i> View Backup Tokens
               </a>
-              <button type="button" class="btn btn--danger" onclick="showDisable2FA()">
+              <button type="button" class="btn btn--danger" data-action="show-disable-2fa">
                 <i class="fas fa-times"></i> Disable 2FA
               </button>
             </div>
@@ -133,7 +138,7 @@
         <div class="modal-content">
           <div class="modal-header">
             <h3>Disable Two-Factor Authentication</h3>
-            <button type="button" class="modal-close" onclick="hideDisable2FA()">&times;</button>
+            <button type="button" class="modal-close" data-action="hide-disable-2fa">&times;</button>
           </div>
           <div class="modal-body">
             <p>Are you sure you want to disable two-factor authentication? This will make your account less secure.</p>
@@ -141,16 +146,25 @@
               {% csrf_token %}
               <div class="form-group">
                 <label for="disable_password">Enter your password to confirm:</label>
-                <input
-                  type="password"
-                  name="password"
-                  id="disable_password"
-                  class="form-control"
-                  required
-                />
+                <div class="password-field">
+                  <input
+                    type="password"
+                    name="password"
+                    id="disable_password"
+                    class="form-control"
+                    required
+                  />
+                  <button
+                    type="button"
+                    class="password-toggle"
+                    data-target="disable_password"
+                  >
+                    <i class="far fa-eye"></i>
+                  </button>
+                </div>
               </div>
               <div class="modal-actions">
-                <button type="button" class="btn btn--secondary" onclick="hideDisable2FA()">Cancel</button>
+                <button type="button" class="btn btn--secondary" data-action="hide-disable-2fa">Cancel</button>
                 <button type="submit" class="btn btn--danger">Disable 2FA</button>
               </div>
             </form>

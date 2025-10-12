@@ -1,6 +1,11 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/pages/home.css' %}?v=4.0" />
+<link rel="stylesheet" href="{% static 'css/pages/blog.css' %}?v=4.0" />
+{% endblock %}
+
 {% block title %}
   {% if current_tag %}
     {{ current_tag.name }} Liked Posts - Tech Bloggers
@@ -103,7 +108,7 @@
 
   <!-- Back to Top Button -->
   <div class="go-to-all-btn-container">
-    <a href="#" class="btn btn--primary" onclick="window.scrollTo({top: 0, behavior: 'smooth'}); return false;">
+    <a href="#" class="btn btn--primary" data-action="scroll-to-top">
       Back to Top
     </a>
   </div>

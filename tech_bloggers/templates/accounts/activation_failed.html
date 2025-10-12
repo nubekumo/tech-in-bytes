@@ -1,5 +1,11 @@
 {% extends "base.html" %} {% load static %} {% block title %}Activation Failed -
-Tech Bloggers{% endblock %} {% block content %}
+Tech Bloggers{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/pages/auth.css' %}?v=4.0" />
+{% endblock %}
+
+{% block content %}
 <div class="auth-container">
   <div class="auth-card">
     <div class="auth-header">

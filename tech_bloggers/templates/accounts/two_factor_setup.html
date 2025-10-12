@@ -3,6 +3,10 @@
 
 {% block title %}Setup Two-Factor Authentication - Tech Bloggers{% endblock %}
 
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/pages/auth.css' %}?v=4.0" />
+{% endblock %}
+
 {% block content %}
 <div class="settings-container">
   <!-- Header -->
@@ -63,7 +67,7 @@
             <label>Secret Key:</label>
             <div class="key-display">
               <code id="secret-key">{{ device.key }}</code>
-              <button type="button" class="btn btn--secondary btn-sm" onclick="copyToClipboard('secret-key')">
+              <button type="button" class="btn btn--secondary btn-sm" data-action="copy-to-clipboard" data-target="secret-key">
                 <i class="fas fa-copy"></i> Copy
               </button>
             </div>

@@ -1,7 +1,11 @@
 {% extends 'base.html' %} 
 {% load static %} 
 {% load blog_filters %} 
-{% block title %}Tech Bloggers -Home{% endblock %} 
+{% block title %}Tech Bloggers -Home{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/pages/home.css' %}?v=4.0" />
+{% endblock %}
 
 {% block content %}
 <!-- Hero Section -->

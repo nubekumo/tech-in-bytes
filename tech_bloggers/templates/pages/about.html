@@ -1,5 +1,11 @@
 {% extends 'base.html' %} {% load static %} {% block title %}About Us - Tech
-Bloggers{% endblock %} {% block content %}
+Bloggers{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/pages/content.css' %}?v=4.0" />
+{% endblock %}
+
+{% block content %}
 <!-- Hero / Intro -->
 <section class="about-hero">
   <div class="container">
