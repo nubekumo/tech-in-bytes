@@ -340,6 +340,11 @@ BLEACH_ALLOWED_STYLES = [
     'border-spacing',   # for table spacing
     'padding',          # for table cell padding
     'margin',           # for spacing
+    'margin-left',      # for table alignment
+    'margin-right',     # for table alignment
+    'margin-top',       # for vertical spacing
+    'margin-bottom',    # for vertical spacing
+    'float',            # for table left/right alignment
     'color',            # for text color
     'background-color', # for background color
     'font-family',      # for font styling
@@ -358,10 +363,13 @@ BLEACH_STRIP_TAGS = False  # Don't strip tags, just escape
 BLEACH_STRIP_COMMENTS = True  # Strip HTML comments
 
 # Content Security Policy (CSP) - django-csp 4.0+ configuration
+# Note: TinyMCE (third-party library) uses inline scripts that cannot be avoided.
+# These are reported but don't affect functionality in report-only mode.
+# For production, consider self-hosting TinyMCE or using CSP hashes.
 CONTENT_SECURITY_POLICY_REPORT_ONLY = {
     'DIRECTIVES': {
         'default-src': ("'self'",),
-        'style-src': ("'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"),
+        'style-src': ("'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://cdn.jsdelivr.net"),
         'script-src': ("'self'", "https://cdn.jsdelivr.net"),
         'img-src': ("'self'", "data:", "https:"),
         'font-src': ("'self'", "https://cdnjs.cloudflare.com"),

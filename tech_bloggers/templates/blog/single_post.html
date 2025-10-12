@@ -1,14 +1,11 @@
 {% extends 'base.html' %} {% load static %} {% load blog_filters %} {% block title %}{{ post.title }} -
-Tech Bloggers{% endblock %} {% block content %}
-<!-- Breadcrumb -->
-<div class="breadcrumb">
-  <a href="{% url 'pages:index' %}">Home</a>
-  <span>></span>
-  <a href="{% url 'blog:post_list' %}">Blog</a>
-  <span>></span>
-  <span>{{ post.title }}</span>
-</div>
+Tech Bloggers{% endblock %}
 
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/pages/blog.css' %}?v=4.0" />
+{% endblock %}
+
+{% block content %}
 <!-- Single Post -->
 <article class="single-post">
   <!-- Post Header -->

@@ -1,6 +1,12 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Share a post{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/pages/blog.css' %}?v=4.0" />
+<link rel="stylesheet" href="{% static 'css/pages/auth.css' %}?v=4.0" />
+{% endblock %}
 
 {% block content %}
 <div class="container create-post-container">

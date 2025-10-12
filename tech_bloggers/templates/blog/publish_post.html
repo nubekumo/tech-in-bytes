@@ -2,6 +2,10 @@
 {% load static %}
 {% block title %}{% if object.status == 'draft' %}Publish{% else %}Unpublish{% endif %} Post - Tech Bloggers{% endblock %}
 
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/pages/blog.css' %}?v=4.0" />
+{% endblock %}
+
 {% block content %}
 <div class="delete-confirmation">
   <div class="confirmation-card">

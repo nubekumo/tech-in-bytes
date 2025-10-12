@@ -1,5 +1,11 @@
 {% extends 'base.html' %} {% load static %} {% block title %}Contact Us - Tech
-Bloggers{% endblock %} {% block content %}
+Bloggers{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/pages/content.css' %}?v=4.0" %}
+{% endblock %}
+
+{% block content %}
 <!-- Hero Section -->
 <section class="hero contact-us-hero">
   <div class="hero-content">

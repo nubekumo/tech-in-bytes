@@ -2,6 +2,11 @@
 {% load static %} 
 {% block title %}Create Post - Tech Bloggers{% endblock %}
 
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/pages/blog.css' %}?v=4.0" />
+<link rel="stylesheet" href="{% static 'css/vendors/tinymce.css' %}?v=4.0" />
+{% endblock %}
+
 {% block extra_css %}
 <!-- WYSIWYG Editor CSS will be added here in the future -->
 {% endblock %} 

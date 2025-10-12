@@ -3,6 +3,10 @@
 
 {% block title %}Backup Tokens - Tech Bloggers{% endblock %}
 
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/pages/auth.css' %}?v=4.0" />
+{% endblock %}
+
 {% block content %}
 <div class="settings-container">
   <!-- Header -->
@@ -66,7 +70,7 @@
         <a href="{% url 'accounts:settings' %}" class="btn btn--secondary">
           <i class="fas fa-arrow-left"></i> Back to Settings
         </a>
-        <button type="button" class="btn btn--primary" onclick="printTokens()">
+        <button type="button" class="btn btn--primary" data-action="print-tokens">
           <i class="fas fa-print"></i> Print Tokens
         </button>
       </div>
