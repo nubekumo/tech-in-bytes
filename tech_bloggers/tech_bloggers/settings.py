@@ -227,11 +227,11 @@ TWO_FACTOR_SETUP_URL = 'accounts:two_factor:setup' # Users would navigate to thi
 TWO_FACTOR_BACKUP_TOKENS_URL = 'accounts:two_factor:backup_tokens' # This defines the URL name for managing backup tokens. 
 TWO_FACTOR_REMOVE_URL = 'accounts:two_factor:disable'
 
-# Axes configuration: lock after 5 failures for 1 hour, keyed by username+IP
+# Axes configuration: lock after 5 failures for 1 hour, keyed by username only
 AXES_ENABLED = True
 AXES_FAILURE_LIMIT = 5
 AXES_COOLOFF_TIME = timedelta(hours=1)
-AXES_LOCKOUT_PARAMETERS = ['ip_address', 'username']
+AXES_LOCKOUT_PARAMETERS = [['username']]  # Lock by username only, not IP
 AXES_RESET_ON_SUCCESS = True
 # Optional: friendly lockout URL or template
 AXES_LOCKOUT_TEMPLATE = 'accounts/lockout.html'

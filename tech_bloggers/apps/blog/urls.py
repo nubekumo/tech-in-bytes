@@ -18,10 +18,6 @@ urlpatterns = [
     path('manage/<int:pk>-<slug:slug>/publish/', views.PostPublishView.as_view(), name='post_publish'),
     path('manage/<int:pk>-<slug:slug>/delete/', views.PostDeleteView.as_view(), name='post_delete'),
     
-    # Tags
-    path('tags/', views.TagListView.as_view(), name='tag_list'),
-    path('tags/<slug:tag_slug>/', views.TaggedPostListView.as_view(), name='tag_detail'),
-    
     # Post interactions
     path('<int:pk>-<slug:slug>/like/', views.PostLikeView.as_view(), name='post_like'),
     path('<int:pk>-<slug:slug>/recommend/', views.PostRecommendView.as_view(), name='post_recommend'),

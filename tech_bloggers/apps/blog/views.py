@@ -273,29 +273,6 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, SlugRedirectMixin,
         messages.success(request, 'Your post has been deleted')
         return super().post(request, *args, **kwargs)
 
-class TagListView(ListView):
-    model = Tag
-    template_name = 'blog/tag_list.html'
-    context_object_name = 'tags'
-
-class TaggedPostListView(ListView):
-    model = Post
-    template_name = 'blog/tagged_posts.html'
-    context_object_name = 'posts'
-    paginate_by = 10
-
-    def get_queryset(self):
-        tag_slug = self.kwargs.get('tag_slug')
-        return Post.objects.filter(
-            tags__slug=tag_slug,
-            status='published'
-        ).select_related('author')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['tag'] = get_object_or_404(Tag, slug=self.kwargs.get('tag_slug'))
-        return context
-
 @method_decorator(ratelimit(key='user', rate='10/m', method='POST', block=True), name='dispatch')
 class PostLikeView(LoginRequiredMixin, View):
     def post(self, request, pk, slug):
