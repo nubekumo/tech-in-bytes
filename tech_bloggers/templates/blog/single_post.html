@@ -12,9 +12,7 @@ Tech Bloggers{% endblock %}
   <header class="post-header">
     <div class="post-category">
       {% for tag in post.tags.all %}
-      <a href="{% url 'blog:tag_detail' tag.slug %}" class="category-tag"
-        >{{ tag.name }}</a
-      >
+      <span class="category-tag">{{ tag.name }}</span>
       {% endfor %}
     </div>
     <h1 class="post-title">{{ post.title }}</h1>
@@ -27,11 +25,9 @@ Tech Bloggers{% endblock %}
           class="author-avatar"
         />
         {% else %}
-        <img
-          src="{% static 'images/default-avatar.jpg' %}"
-          alt="{{ post.author.get_full_name }}"
-          class="author-avatar"
-        />
+        <div class="author-avatar author-avatar--default">
+          <i class="fas fa-user"></i>
+        </div>
         {% endif %}
         <span class="author-name"
           >By {{ post.author.get_full_name|default:post.author.username }}</span
@@ -68,12 +64,15 @@ Tech Bloggers{% endblock %}
   </header>
 
   <!-- Featured Image -->
-  {% if post.image %}
   <div class="post-featured-image">
-    <img src="{{ post.image.url }}" alt="{{ post.title }}" 
-    onerror="this.src='{% static 'images/default-post.jpg' %}'" />
+    {% if post.image %}
+    <img src="{{ post.image.url }}" alt="{{ post.title }}" class="featured-post-img" />
+    {% else %}
+    <div class="default-post-image">
+      <span class="logo-text">Tech Bloggers</span>
+    </div>
+    {% endif %}
   </div>
-  {% endif %}
 
   <!-- Summary Section -->
   {% if post.summary %}
@@ -99,11 +98,9 @@ Tech Bloggers{% endblock %}
         class="author-image"
       />
       {% else %}
-      <img
-        src="{% static 'images/default-avatar.jpg' %}"
-        alt="{{ post.author.get_full_name }}"
-        class="author-image"
-      />
+      <div class="author-image author-image--default">
+        <i class="fas fa-user"></i>
+      </div>
       {% endif %}
       <div class="author-details">
         <h4>{{ post.author.get_full_name|default:post.author.username }}</h4>
