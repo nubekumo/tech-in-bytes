@@ -2,7 +2,7 @@ from django import forms
 import bleach
 import re
 from django.conf import settings
-from .models import Post, Tag
+from .models import Post, Tag, PostImage
 
 
 class PostForm(forms.ModelForm):
@@ -13,6 +13,10 @@ class PostForm(forms.ModelForm):
         widget=forms.HiddenInput(),
         help_text="Comma-separated tag IDs"
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user = None
 
     class Meta:
         model = Post
@@ -75,8 +79,9 @@ class PostForm(forms.ModelForm):
         else:
             return []
 
+
     def clean_content(self):
-        """Sanitize content using bleach"""
+        """Sanitize content using bleach and check image limits"""
         content = self.cleaned_data.get('content', '')
         if content:
             # Sanitize the HTML content
@@ -98,6 +103,25 @@ class PostForm(forms.ModelForm):
             # Remove empty spans, divs, strongs, ems, but keep empty <p> tags
             sanitized_content = re.sub(r'<(span|div|strong|em|b|i|u)[^>]*>\s*</\1>', '', sanitized_content)
             
+            # Check per-post image limit if user is provided
+            if self.user:
+                from .models import PostImage
+                
+                # Count images in the content (look for img tags)
+                img_tags = re.findall(r'<img[^>]*>', sanitized_content, re.IGNORECASE)
+                content_image_count = len(img_tags)
+                
+                # Check image limits - only count what's actually in the content
+                max_images_per_post = getattr(settings, 'MAX_IMAGES_PER_POST', 15)
+                
+                if content_image_count > max_images_per_post:
+                    # Add as non-field error for general display
+                    self.add_error(None, 
+                        f'Image limit exceeded. You have {content_image_count} images in your post content. '
+                        f'Maximum {max_images_per_post} images allowed per post. '
+                        f'Please reduce the number of images to {max_images_per_post} or fewer.'
+                    )
+            
             return sanitized_content
         return content
 
@@ -110,21 +134,20 @@ class PostForm(forms.ModelForm):
             instance.content = self.cleaned_data['content']
         
         if commit:
+            # Save the post
             instance.save()
+            
             # Set the tags using the cleaned tags_input data
             tags = self.cleaned_data.get('tags_input', [])
             instance.tags.set(tags)
             
-            # Associate any orphaned PostImage records with this post
-            from .models import PostImage
-            if hasattr(self, 'user') and self.user:
-                # Find PostImage records uploaded by this user that don't have a post
-                orphaned_images = PostImage.objects.filter(
+            # Associate orphaned PostImage records with this post
+            if self.user:
+                from .models import PostImage
+                PostImage.objects.filter(
                     uploaded_by=self.user,
                     post__isnull=True
-                )
-                # Associate them with this post
-                orphaned_images.update(post=instance)
+                ).update(post=instance)
             
         return instance
 

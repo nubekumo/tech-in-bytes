@@ -11,14 +11,14 @@
     <link rel="icon" type="image/svg+xml" href="{% static 'images/favicon.svg' %}" />
     
     <!-- Core CSS - loaded on all pages -->
-    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=4.0" />
-    <link rel="stylesheet" href="{% static 'css/components.css' %}?v=4.0" />
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v={{ STATIC_VERSION }}" />
+    <link rel="stylesheet" href="{% static 'css/components.css' %}?v={{ STATIC_VERSION }}" />
     
     <!-- Page-specific CSS - injected per template -->
     {% block page_css %}{% endblock %}
     
     <!-- Responsive CSS - always loaded last -->
-    <link rel="stylesheet" href="{% static 'css/responsive.css' %}?v=4.0" />
+    <link rel="stylesheet" href="{% static 'css/responsive.css' %}?v={{ STATIC_VERSION }}" />
     
     <!-- External CSS -->
     <link
@@ -44,7 +44,7 @@
 
     {% include 'includes/footer.html' %}
 
-    <script src="{% static 'js/script.js' %}?v=4.0" defer></script>
+    <script src="{% static 'js/script.js' %}?v={{ STATIC_VERSION }}" defer></script>
     {% block extra_js %}{% endblock %}
   </body>
 </html>

@@ -136,6 +136,58 @@ class PostImage(models.Model):
         if not self.original_filename and self.image:
             self.original_filename = self.image.name
         super().save(*args, **kwargs)
+    
+    def get_file_size_mb(self):
+        """Get file size in megabytes"""
+        try:
+            if self.image and hasattr(self.image, 'size'):
+                return round(self.image.size / (1024 * 1024), 2)
+            return 0
+        except (ValueError, OSError):
+            return 0
+    
+    @classmethod
+    def get_user_image_count(cls, user):
+        """Get total number of images uploaded by a user"""
+        return cls.objects.filter(uploaded_by=user).count()
+    
+    @classmethod
+    def get_user_storage_mb(cls, user):
+        """Get total storage used by a user in megabytes"""
+        images = cls.objects.filter(uploaded_by=user)
+        total_size = 0
+        for img in images:
+            try:
+                if img.image and hasattr(img.image, 'size'):
+                    total_size += img.image.size
+            except (ValueError, OSError):
+                continue
+        return round(total_size / (1024 * 1024), 2)
+    
+    @classmethod
+    def get_post_image_count(cls, post):
+        """Get number of images in a specific post"""
+        return cls.objects.filter(post=post).count()
+    
+    @classmethod
+    def get_orphaned_images(cls, hours_threshold=24):
+        """Get images that are orphaned (no post association) older than threshold"""
+        from django.utils import timezone
+        from datetime import timedelta
+        cutoff_time = timezone.now() - timedelta(hours=hours_threshold)
+        return cls.objects.filter(post__isnull=True, uploaded_at__lt=cutoff_time)
+    
+    @classmethod
+    def cleanup_orphaned_images(cls, hours_threshold=None):
+        """Delete orphaned images older than threshold"""
+        from django.conf import settings
+        if hours_threshold is None:
+            hours_threshold = getattr(settings, 'ORPHANED_IMAGE_CLEANUP_HOURS', 24)
+        
+        orphaned_images = cls.get_orphaned_images(hours_threshold)
+        count = orphaned_images.count()
+        orphaned_images.delete()
+        return count
 
 
 class Like(models.Model):

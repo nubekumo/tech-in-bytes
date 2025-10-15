@@ -70,6 +70,13 @@ class CustomLoginView(LoginView):
     template_name = 'accounts/login.html'
     form_class = CustomAuthenticationForm
     
+    def get_success_url(self):
+        """Override to handle admin redirects properly."""
+        next_url = self.request.GET.get('next')
+        if next_url and '/admin/' in next_url:
+            return next_url
+        return super().get_success_url()
+    
     def form_valid(self, form):
         """Override form_valid to handle 2FA verification."""
         username = form.cleaned_data.get('username')
@@ -84,8 +91,11 @@ class CustomLoginView(LoginView):
                 # User has 2FA enabled, redirect to 2FA verification
                 logger.info(f"User {username} has 2FA enabled, redirecting to verification")
                 
-                # Store user ID in session for 2FA verification
+                # Store user ID and next URL in session for 2FA verification
                 self.request.session['2fa_user_id'] = user.id
+                next_url = self.request.GET.get('next')
+                if next_url:
+                    self.request.session['2fa_next_url'] = next_url
                 
                 # Redirect to 2FA verification page
                 return redirect('accounts:two_factor_verify')
@@ -680,9 +690,16 @@ class TwoFactorVerifyView(View):
             login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             request.session.pop('2fa_user_id', None)
             
+            # Check if there's a stored next URL for admin redirects
+            next_url = request.session.pop('2fa_next_url', None)
+            if next_url and '/admin/' in next_url:
+                redirect_url = next_url
+            else:
+                redirect_url = 'pages:index'
+            
             messages.success(request, 'Login successful!')
             logger.info(f"2FA verification successful for user: {user.username}")
-            return redirect('pages:index')
+            return redirect(redirect_url)
         else:
             # Token is invalid
             messages.error(request, 'Invalid verification code. Please try again.')

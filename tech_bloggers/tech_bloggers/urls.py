@@ -3,6 +3,9 @@ URL configuration for tech_bloggers project.
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.views.generic import RedirectView
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.sitemaps.views import sitemap
@@ -23,6 +26,8 @@ sitemaps = {
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    # Redirect django-two-factor's /account/login/ to our styled login
+    path('account/login/', RedirectView.as_view(pattern_name='accounts:login', permanent=False)),
     path('', include('apps.pages.urls')),
     path('blog/', include('apps.blog.urls')),
     path('accounts/', include('apps.accounts.urls')),

@@ -1,0 +1,24 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{{ site_title }} | {{ title }}{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<!-- Custom Tech Bloggers styles - loaded after admin styles for higher specificity -->
+<link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}?v={{ STATIC_VERSION }}">
+<link rel="stylesheet" type="text/css" href="{% static 'css/components.css' %}?v={{ STATIC_VERSION }}">
+<link rel="stylesheet" type="text/css" href="{% static 'css/pages/auth.css' %}?v={{ STATIC_VERSION }}">
+<link rel="stylesheet" type="text/css" href="{% static 'css/pages/admin.css' %}?v={{ STATIC_VERSION }}">
+<link rel="stylesheet" type="text/css" href="{% static 'css/responsive.css' %}?v={{ STATIC_VERSION }}">
+{% endblock %}
+
+{% block extrahead %}
+<meta name="viewport" content="width=device-width, initial-scale=1">
+{% endblock %}
+
+{% block branding %}
+<h1 id="site-name"><a href="{% url 'admin:index' %}">{{ site_header|default:_('Django administration') }}</a></h1>
+{% endblock %}
+
+
