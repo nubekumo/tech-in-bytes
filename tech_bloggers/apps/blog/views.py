@@ -156,8 +156,11 @@ class PostCreateView(LoginRequiredMixin, CreateView):
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
-    def post(self, request, *args, **kwargs):
-        return super().post(request, *args, **kwargs)
+    def get_form(self, form_class=None):
+        """Override to set user on form after creation"""
+        form = super().get_form(form_class)
+        form.user = self.request.user
+        return form
 
     def form_valid(self, form):
         form.instance.author = self.request.user
@@ -188,7 +191,31 @@ class PostManageView(LoginRequiredMixin, ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        return Post.objects.filter(author=self.request.user).order_by('-created_at')
+        queryset = Post.objects.filter(author=self.request.user).select_related('author')
+        
+        # Handle search query
+        search_query = self.request.GET.get('q')
+        if search_query:
+            queryset = queryset.filter(
+                Q(title__icontains=search_query) |
+                Q(content__icontains=search_query)
+            ).distinct()
+        
+        # Handle status filter
+        status = self.request.GET.get('status')
+        if status in ['published', 'draft']:
+            queryset = queryset.filter(status=status)
+        
+        return queryset.order_by('-created_at')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Get current search query and status for template
+        context['current_search'] = self.request.GET.get('q', '')
+        context['current_status'] = self.request.GET.get('status', '')
+        
+        return context
 
 @method_decorator(ratelimit(key='user', rate='10/m', method='POST', block=True), name='dispatch')
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, SlugRedirectMixin, UpdateView):
@@ -211,6 +238,12 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, SlugRedirectMixin,
 
     def get_success_url(self):
         return reverse('blog:post_manage')
+
+    def get_form(self, form_class=None):
+        """Override to set user on form after creation"""
+        form = super().get_form(form_class)
+        form.user = self.request.user
+        return form
 
     def form_valid(self, form):
         """Override form_valid to add success message after update."""
@@ -349,10 +382,33 @@ class ImageUploadView(LoginRequiredMixin, View):
             
             uploaded_file = request.FILES['file']
 
-            # Enforce size limit
+            # Check user's image quota limits
+            user_image_count = PostImage.get_user_image_count(request.user)
+            max_images_per_user = getattr(settings, 'MAX_IMAGES_PER_USER', 200)
+            if user_image_count >= max_images_per_user:
+                return JsonResponse({
+                    'error': f'Image limit reached. You can upload a maximum of {max_images_per_user} images.'
+                }, status=400)
+
+            # Check user's storage quota
+            user_storage_mb = PostImage.get_user_storage_mb(request.user)
+            max_storage_mb = getattr(settings, 'MAX_STORAGE_PER_USER_MB', 400)
+            if user_storage_mb >= max_storage_mb:
+                return JsonResponse({
+                    'error': f'Storage limit reached. You have used {user_storage_mb}MB of {max_storage_mb}MB allowed.'
+                }, status=400)
+
+            # Check if this upload would exceed storage limit
             max_bytes = getattr(settings, 'IMAGE_MAX_UPLOAD_MB', 2) * 1024 * 1024
             if uploaded_file.size and uploaded_file.size > max_bytes:
                 return JsonResponse({'error': f'File too large. Maximum size is {getattr(settings, "IMAGE_MAX_UPLOAD_MB", 2)}MB.'}, status=400)
+            
+            # Check if this upload would exceed user's storage quota
+            file_size_mb = uploaded_file.size / (1024 * 1024) if uploaded_file.size else 0
+            if user_storage_mb + file_size_mb > max_storage_mb:
+                return JsonResponse({
+                    'error': f'Upload would exceed storage limit. You have {max_storage_mb - user_storage_mb:.1f}MB remaining.'
+                }, status=400)
 
             # Process and sanitize image: validate, resize, strip EXIF, re-encode
             try:
@@ -407,6 +463,7 @@ class ImageUploadView(LoginRequiredMixin, View):
             # Create a PostImage record to track the uploaded image
             # We'll associate it with a temporary post or handle it in the workflow
             # For now, we'll create it without a post association (post can be None)
+            # Per-post image limit will be enforced in the form validation
             post_image = PostImage.objects.create(
                 post=None,  # Will be associated when the post is saved
                 image=saved_path,

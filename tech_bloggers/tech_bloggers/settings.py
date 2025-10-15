@@ -88,6 +88,12 @@ IMAGE_MAX_HEIGHT = int(os.getenv('IMAGE_MAX_HEIGHT', '2048'))
 # Maximum total pixels to mitigate decompression bombs
 IMAGE_MAX_PIXELS = int(os.getenv('IMAGE_MAX_PIXELS', '12000000'))  # 12 MP
 
+# Image upload quantity and storage limits
+MAX_IMAGES_PER_POST = int(os.getenv('MAX_IMAGES_PER_POST', '15'))  # Max images per blog post
+MAX_IMAGES_PER_USER = int(os.getenv('MAX_IMAGES_PER_USER', '50'))  # Max total images per user
+MAX_STORAGE_PER_USER_MB = int(os.getenv('MAX_STORAGE_PER_USER_MB', '400'))  # Max storage per user in MB
+ORPHANED_IMAGE_CLEANUP_HOURS = int(os.getenv('ORPHANED_IMAGE_CLEANUP_HOURS', '12'))  # Hours before orphaned images are cleaned up
+
 MIDDLEWARE = [
     'csp.middleware.CSPMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -176,7 +182,7 @@ USE_TZ = True
 
 
 # Static files (CSS, JS, Images)
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 
@@ -211,7 +217,7 @@ ADMIN_INDEX_TITLE = "Welcome to Tech Bloggers Administration"
 
 # Authentication settings
 LOGIN_REDIRECT_URL = 'pages:index'
-LOGIN_URL = 'login'
+LOGIN_URL = 'accounts:login'
 LOGOUT_URL = 'accounts:logout'
 
 AUTHENTICATION_BACKENDS = [
@@ -248,6 +254,9 @@ AXES_EXCLUDE_URLS = [
 
 # Sites framework
 SITE_ID = 1
+
+# Static assets version for cache busting
+STATIC_VERSION = '4.2'
 
 # Logging Configuration
 DEV_LOGGING_ENABLED = os.getenv('DEV_LOGGING_ENABLED', 'False').lower() == 'true'

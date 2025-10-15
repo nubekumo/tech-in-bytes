@@ -4,8 +4,8 @@
 {% block title %}Tech Bloggers -Home{% endblock %}
 
 {% block page_css %}
-<link rel="stylesheet" href="{% static 'css/pages/home.css' %}?v=4.0" />
-<link rel="stylesheet" href="{% static 'css/pages/blog.css' %}?v=4.0" />
+<link rel="stylesheet" href="{% static 'css/pages/home.css' %}?v={{ STATIC_VERSION }}" />
+<link rel="stylesheet" href="{% static 'css/pages/blog.css' %}?v={{ STATIC_VERSION }}" />
 {% endblock %}
 
 {% block content %}

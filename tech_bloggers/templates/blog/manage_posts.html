@@ -2,41 +2,62 @@
 {% load static %}
 
 {% block page_css %}
-<link rel="stylesheet" href="{% static 'css/pages/blog.css' %}?v=4.0" />
+<link rel="stylesheet" href="{% static 'css/pages/home.css' %}?v={{ STATIC_VERSION }}" />
+<link rel="stylesheet" href="{% static 'css/pages/blog.css' %}?v={{ STATIC_VERSION }}" />
 {% endblock %}
 
 {% block title %}Manage Posts - Tech Bloggers{% endblock %}
 
 {% block content %}
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1>My Posts</h1>
+      <div class="search-container">
+        <form method="get" class="search-form-fa">
+          <input 
+            type="text" 
+            name="q" 
+            id="manage-search-input"
+            class="search-input-fa" 
+            placeholder="Search your posts..."
+            value="{{ request.GET.q|default:'' }}"
+            maxlength="100"
+          >
+          {% if request.GET.status %}
+            <input type="hidden" name="status" value="{{ request.GET.status }}">
+          {% endif %}
+          <button type="submit" class="search-button-fa" id="manage-search-button">
+            <i class="fas fa-search"></i>
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+
   <!-- Manage Posts Section -->
   <div class="container">
-    <!-- Search + Filter -->
-    <div class="manage-posts-controls">
-      <form method="get" class="search-form">
-        <input 
-          type="text" 
-          name="q" 
-          placeholder="Search your posts..." 
-          class="search-bar"
-          value="{{ request.GET.q|default:'' }}"
-          maxlength="100"
-        >
-        <select name="status" class="filter-select" onchange="this.form.submit()">
-          <option value="" {% if not request.GET.status %}selected{% endif %}>All Posts</option>
-          <option value="published" {% if request.GET.status == 'published' %}selected{% endif %}>Published</option>
-          <option value="draft" {% if request.GET.status == 'draft' %}selected{% endif %}>Drafts</option>
-        </select>
-      </form>
-    </div>
+    <!-- Actions Bar: Filter & New Post Button -->
+    <div class="manage-posts-actions">
+      <div class="filter-wrapper">
+        <i class="fas fa-filter"></i>
+        <form method="get" style="display: inline;">
+          {% if request.GET.q %}
+            <input type="hidden" name="q" value="{{ request.GET.q }}">
+          {% endif %}
+          <select name="status" class="filter-select" onchange="this.form.submit()">
+            <option value="" {% if not request.GET.status %}selected{% endif %}>All Posts</option>
+            <option value="published" {% if request.GET.status == 'published' %}selected{% endif %}>Published</option>
+            <option value="draft" {% if request.GET.status == 'draft' %}selected{% endif %}>Drafts</option>
+          </select>
+        </form>
+      </div>
 
-    <!-- Heading -->
-    <h1 class="manage-posts-heading">My Posts</h1>
-
-    <!-- New Post Button -->
-    <div class="new-post-wrapper">
-      <a href="{% url 'blog:post_create' %}" class="btn btn--primary">
-        <i class="fas fa-plus"></i> New Post
-      </a>
+        <div class="new-post-wrapper">
+        <a href="{% url 'blog:post_create' %}" class="btn btn--primary">
+          <i class="fas fa-plus"></i> New Post
+        </a>
+      </div>
     </div>
 
     <!-- Posts List -->
@@ -49,7 +70,11 @@
             {% endif %}
           </div>
           <div class="post-card-content">
-            <h2 class="post-title">{{ post.title }}</h2>
+            <h2 class="post-title">
+              <a href="{% url 'blog:post_detail' pk=post.id slug=post.slug %}" class="post-title-link">
+                {{ post.title }}
+              </a>
+            </h2>
             <p class="post-excerpt">{{ post.summary|truncatewords:30 }}</p>
             <div class="post-meta">
               <span class="post-status {{ post.status }}">{{ post.get_status_display }}</span>

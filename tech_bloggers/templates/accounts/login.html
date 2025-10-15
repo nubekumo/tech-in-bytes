@@ -1,16 +1,20 @@
-{% extends "base.html" %} {% load static %} {% block title %}Log In - Tech
-Bloggers{% endblock %}
+{% extends "base.html" %} {% load static %} {% block title %}{% if request.GET.next and '/admin/' in request.GET.next %}Admin Login{% else %}Log In - Tech Bloggers{% endif %}{% endblock %}
 
 {% block page_css %}
-<link rel="stylesheet" href="{% static 'css/pages/auth.css' %}?v=4.0" />
+<link rel="stylesheet" href="{% static 'css/pages/auth.css' %}?v={{ STATIC_VERSION }}" />
 {% endblock %}
 
 {% block content %}
 <div class="auth-container">
   <div class="auth-card">
     <div class="auth-header">
-      <h1>Welcome Back</h1>
-      <p>Log in to your Tech Bloggers account</p>
+      {% if request.GET.next and '/admin/' in request.GET.next %}
+        <h1>Admin Login</h1>
+        <p>Enter your credentials to access the Tech Bloggers Administration</p>
+      {% else %}
+        <h1>Welcome Back</h1>
+        <p>Log in to your Tech Bloggers account</p>
+      {% endif %}
     </div>
 
     <form method="post" id="login-form">
