@@ -8,11 +8,11 @@
 
 {% block title %}
   {% if current_tag %}
-    {{ current_tag.name }} Posts - Tech Bloggers
+    {{ current_tag.name }} Posts - Tech-In-Bytes
   {% elif current_search %}
-    Search Results for "{{ current_search }}" - Tech Bloggers
+    Search Results for "{{ current_search }}" - Tech-In-Bytes
   {% else %}
-    All Posts - Tech Bloggers
+    All Posts - Tech-In-Bytes
   {% endif %}
 {% endblock %}
 
@@ -80,7 +80,7 @@
               >
               {% else %}
               <div class="default-post-image">
-                <span class="logo-text">Tech Bloggers</span>
+                <span class="logo-text">Tech-In-Bytes</span>
               </div>
               {% endif %}
               <div class="card-body">

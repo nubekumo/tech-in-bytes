@@ -5,7 +5,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Activate Your Tech Bloggers Account</title>
+    <title>Activate Your Tech-In-Bytes Account</title>
   </head>
   <body
     style="
@@ -23,7 +23,7 @@
       <div style="text-align: center; margin-bottom: 30px">
         <img
           src="{{ protocol }}://{{ domain }}{% static 'images/logo.png' %}"
-          alt="Tech Bloggers Logo"
+          alt="Tech-In-Bytes Logo"
           style="max-width: 200px; height: auto; margin-bottom: 20px"
         />
         <h1
@@ -34,7 +34,7 @@
             margin: 0 0 10px;
           "
         >
-          Welcome to Tech Bloggers!
+          Welcome to Tech-In-Bytes!
         </h1>
       </div>
 
@@ -51,7 +51,7 @@
         <p style="margin: 0 0 15px">Hi {{ user.username }},</p>
 
         <p style="margin: 0 0 15px">
-          Thanks for signing up for Tech Bloggers! We're excited to have you
+          Thanks for signing up for Tech-In-Bytes! We're excited to have you
           join our community.
         </p>
 
@@ -86,7 +86,7 @@
 
         <p style="font-size: 14px; color: #6a737d; margin: 20px 0 0">
           This link will expire in 24 hours. If you didn't create an account
-          with Tech Bloggers, you can safely ignore this email.
+          with Tech-In-Bytes, you can safely ignore this email.
         </p>
       </div>
 
@@ -100,7 +100,7 @@
         "
       >
         <p style="margin: 0">
-          Tech Bloggers - Share your tech knowledge with the world<br />
+          Tech-In-Bytes - Share your tech knowledge with the world<br />
           Questions? Email us at support@techbloggers.com
         </p>
       </div>
@@ -109,9 +109,9 @@
 </html>
 
 {% comment %} Plain text version (used as fallback): Hi {{ user.username }},
-Thanks for signing up for Tech Bloggers! We're excited to have you join our
+Thanks for signing up for Tech-In-Bytes! We're excited to have you join our
 community. To activate your account, please visit this link: http://{{ domain
 }}{% url 'accounts:activate' uidb64=uid token=token %} This link will expire in
-24 hours. If you didn't create an account with Tech Bloggers, you can safely
-ignore this email. Questions? Email us at support@techbloggers.com Tech Bloggers
+24 hours. If you didn't create an account with Tech-In-Bytes, you can safely
+ignore this email. Questions? Email us at support@techbloggers.com Tech-In-Bytes
 - Share your tech knowledge with the world {% endcomment %}

@@ -1,4 +1,4 @@
-{% extends "base.html" %} {% load static %} {% block title %}{% if request.GET.next and '/admin/' in request.GET.next %}Admin Login{% else %}Log In - Tech Bloggers{% endif %}{% endblock %}
+{% extends "base.html" %} {% load static %} {% block title %}{% if request.GET.next and '/admin/' in request.GET.next %}Admin Login{% else %}Log In - Tech-In-Bytes{% endif %}{% endblock %}
 
 {% block page_css %}
 <link rel="stylesheet" href="{% static 'css/pages/auth.css' %}?v={{ STATIC_VERSION }}" />
@@ -10,10 +10,10 @@
     <div class="auth-header">
       {% if request.GET.next and '/admin/' in request.GET.next %}
         <h1>Admin Login</h1>
-        <p>Enter your credentials to access the Tech Bloggers Administration</p>
+        <p>Enter your credentials to access the Tech-In-Bytes Administration</p>
       {% else %}
         <h1>Welcome Back</h1>
-        <p>Log in to your Tech Bloggers account</p>
+        <p>Log in to your Tech-In-Bytes account</p>
       {% endif %}
     </div>
 

@@ -1,7 +1,7 @@
 {% extends 'base.html' %} 
 {% load static %} 
 {% load blog_filters %} 
-{% block title %}Tech Bloggers -Home{% endblock %}
+{% block title %}Tech-In-Bytes -Home{% endblock %}
 
 {% block page_css %}
 <link rel="stylesheet" href="{% static 'css/pages/home.css' %}?v={{ STATIC_VERSION }}" />
@@ -12,25 +12,7 @@
 <!-- Hero Section -->
 <section class="hero">
   <h1>Stay Ahead with Tech Insights</h1>
-  <p>A place to share IT, AI, and Cybersecurity news and thoughts</p>
-  <!-- <div class="search-container">
-    <form
-      action="{% url 'blog:post_list' %}"
-      method="get"
-      class="search-form-fa"
-    >
-      <input
-        type="text"
-        name="q"
-        class="search-input-fa"
-        placeholder="Search articles..."
-        maxlength="100"
-      />
-      <button type="submit" class="search-button-fa">
-        <i class="fas fa-search"></i>
-      </button>
-    </form>
-  </div> -->
+  <p>A place to share Web Development, AI, and Cybersecurity posts</p>
 </section>
 
 <!-- Recent Posts Section -->
@@ -47,7 +29,7 @@
         />
         {% else %}
         <div class="default-post-image">
-          <span class="logo-text">Tech Bloggers</span>
+          <span class="logo-text">Tech-In-Bytes</span>
         </div>
         {% endif %}
         <div class="card-body">
@@ -88,7 +70,7 @@
         />
         {% else %}
         <div class="default-post-image">
-          <span class="logo-text">Tech Bloggers</span>
+          <span class="logo-text">Tech-In-Bytes</span>
         </div>
         {% endif %}
         <div class="side-post-text">
@@ -124,7 +106,7 @@
         />
         {% else %}
         <div class="default-post-image">
-          <span class="logo-text">Tech Bloggers</span>
+          <span class="logo-text">Tech-In-Bytes</span>
         </div>
         {% endif %}
         <div class="side-post-text">
@@ -166,7 +148,7 @@
         />
         {% else %}
         <div class="default-post-image">
-          <span class="logo-text">Tech Bloggers</span>
+          <span class="logo-text">Tech-In-Bytes</span>
         </div>
         {% endif %}
         <div class="card-body">

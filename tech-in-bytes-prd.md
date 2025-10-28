@@ -1,12 +1,12 @@
-# Tech Bloggers – Product Requirements Document (PRD)
+# Tech-In-Bytes – Product Requirements Document (PRD)
 
 ## Note for Cursor IDE:
 
-The Tech Bloggers Django project has already been created manually. The apps, project structure, admin site, and some HTML/CSS/JS basic files are already in place. Do not regenerate the scaffold from scratch. Instead, extend the existing codebase by implementing the features gradually step by step while asking me from 9.Milestones section point 6.Define URLs below in this file. Use the existing HTML/CSS files to base on and create the Django templates. Follow the app organization as already set up.
+The Tech-In-Bytes Django project has already been created manually. The apps, project structure, admin site, and some HTML/CSS/JS basic files are already in place. Do not regenerate the scaffold from scratch. Instead, extend the existing codebase by implementing the features gradually step by step while asking me from 9.Milestones section point 6.Define URLs below in this file. Use the existing HTML/CSS files to base on and create the Django templates. Follow the app organization as already set up.
 
 ## 1\. Introduction
 
-Tech Bloggers is a modern blogging platform for developers, IT professionals, and tech enthusiasts.
+Tech-In-Bytes is a modern blogging platform for developers, IT professionals, and tech enthusiasts.
 The goal of the MVP is to provide a minimal yet functional blogging application that allows users to create, read, update, and delete posts, interact with posts (likes, comments, tags), and manage their profiles — while remaining accessible to anonymous readers.
 
 ## 2\. Goals

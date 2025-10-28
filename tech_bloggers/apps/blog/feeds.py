@@ -10,8 +10,8 @@ class LatestPostsFeed(Feed):
     RSS feed for the latest published blog posts.
     Returns the 5 most recent published posts.
     """
-    title = "Tech Bloggers - Latest Posts"
-    description = "Latest posts from Tech Bloggers community"
+    title = "Tech-In-Bytes - Latest Posts"
+    description = "Latest posts from Tech-In-Bytes community"
     
     def link(self):
         return "/blog/"
