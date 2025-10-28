@@ -1,6 +1,6 @@
 {% extends 'base.html' %} 
 {% load static %} 
-{% block title %}Create Post - Tech Bloggers{% endblock %}
+{% block title %}Create Post - Tech-In-Bytes{% endblock %}
 
 {% block page_css %}
 <link rel="stylesheet" href="{% static 'css/pages/blog.css' %}?v={{ STATIC_VERSION }}" />
@@ -86,9 +86,6 @@
         <div class="form-error">{{ form.summary.errors }}</div>
         {% endif %}
       </div>
-      <button type="button" class="btn btn--primary" id="generateSummary">
-        Generate Summary with AI
-      </button>
     </div>
 
     <!-- Post Image Section -->
@@ -116,10 +113,6 @@
         {% if form.image.errors %}
         <div class="form-error">{{ form.image.errors }}</div>
         {% endif %}
-        <span class="or">or</span>
-        <button type="button" class="btn btn--primary" id="generateImage">
-          Generate with AI
-        </button>
       </div>
     </div>
 

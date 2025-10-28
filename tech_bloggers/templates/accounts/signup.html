@@ -1,5 +1,8 @@
-{% extends "base.html" %} {% load static %} {% block title %}Sign Up - Tech
-Bloggers{% endblock %}
+{% extends "base.html" %} 
+{% load static %} 
+{% block title %}
+Sign Up - Tech-In-Bytes
+{% endblock %}
 
 {% block page_css %}
 <link rel="stylesheet" href="{% static 'css/pages/auth.css' %}?v={{ STATIC_VERSION }}" />
@@ -10,7 +13,7 @@ Bloggers{% endblock %}
   <div class="auth-card">
     <div class="auth-header">
       <h1>Create Account</h1>
-      <p>Join Tech Bloggers and start sharing your knowledge</p>
+      <p>Join Tech-In-Bytes and start sharing your knowledge</p>
     </div>
 
     {% if messages %}

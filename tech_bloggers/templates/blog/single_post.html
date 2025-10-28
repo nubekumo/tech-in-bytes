@@ -1,5 +1,9 @@
-{% extends 'base.html' %} {% load static %} {% load blog_filters %} {% block title %}{{ post.title }} -
-Tech Bloggers{% endblock %}
+{% extends 'base.html' %} 
+{% load static %} 
+{% load blog_filters %} 
+{% block title %}
+{{ post.title }} - Tech-In-Bytes
+{% endblock %}
 
 {% block page_css %}
 <link rel="stylesheet" href="{% static 'css/pages/blog.css' %}?v={{ STATIC_VERSION }}" />
@@ -69,7 +73,7 @@ Tech Bloggers{% endblock %}
     <img src="{{ post.image.url }}" alt="{{ post.title }}" class="featured-post-img" />
     {% else %}
     <div class="default-post-image">
-      <span class="logo-text">Tech Bloggers</span>
+      <span class="logo-text">Tech-In-Bytes</span>
     </div>
     {% endif %}
   </div>

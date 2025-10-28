@@ -1,4 +1,4 @@
-# Tech Bloggers
+# Tech-In-Bytess
 
 A modern blogging platform for developers, IT professionals, and tech enthusiasts.
 
