@@ -1,0 +1,18 @@
+# robots.txt for Tech-In-Bytes Blog
+User-agent: *
+Allow: /
+
+# Block admin and authentication
+Disallow: /admin/
+Disallow: /accounts/
+
+# Block search and filter URLs (to avoid duplicate content)
+Disallow: /*?page=
+Disallow: /*?search=
+
+# Allow important content
+Allow: /blog/
+Allow: /sitemap.xml
+
+# Sitemap location
+Sitemap: https://tech-in-bytes.com/sitemap.xml

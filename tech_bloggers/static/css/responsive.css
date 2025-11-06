@@ -1,0 +1,678 @@
+/* =====================================================
+   RESPONSIVE STYLES - TECH BLOGGERS
+   =====================================================
+   Mobile-first responsive design
+   Breakpoints: 992px, 768px, 576px
+===================================================== */
+
+/* ==========================
+   LARGE SCREENS TO TABLETS (≤992px)
+========================== */
+@media (max-width: 992px) {
+  /* Navbar collapses */
+  .hamburger {
+    display: flex;
+  }
+
+  .nav-menu {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    background: #161b22;
+    border-top: 1px solid #30363d;
+    padding: 1rem 0;
+    text-align: center;
+  }
+
+  .nav-menu.active {
+    display: flex;
+    gap: 1rem;
+  }
+
+  /* Override grid layout for mobile */
+  .nav-content--guest {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    grid-template-columns: none;
+    gap: 0;
+    min-height: auto;
+  }
+
+  .nav-menu--guest {
+    display: none;
+  }
+
+  .nav-menu--guest.active {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    background: #161b22;
+    border-top: 1px solid #30363d;
+    padding: 1rem 0;
+    text-align: center;
+    gap: 1rem;
+  }
+
+  .nav-menu--guest .nav-links {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    grid-column: auto;
+    justify-content: center;
+  }
+
+  .nav-menu--guest .nav-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    grid-column: auto;
+    justify-content: center;
+    margin-top: 1rem;
+  }
+
+  .nav-links {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .nav-buttons {
+    flex-direction: column;
+    margin-top: 1rem;
+  }
+
+  .nav-buttons .btn {
+    width: 100%;
+  }
+
+  .user-greeting {
+    margin: 0 0 1rem 0;
+    justify-content: center;
+  }
+
+  /* Grid collapses */
+  .recent-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .recent-grid > h2:not(.side-post-title),
+  .featured-post,
+  .side-post-title,
+  .side-posts {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+
+  /* Reset grid-latest positioning on mobile */
+  .recent-grid .grid-latest {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+
+  /* Add spacing to the first side-posts container */
+  .recent-grid .side-posts:not(.most) {
+    margin-top: 3rem;
+  }
+
+  /* Most Commented section responsive */
+  .recent-grid .side-posts.most {
+    grid-column: 1 / -1;
+    grid-row: auto;
+    margin-top: 0;
+  }
+  
+  .recent-grid .side-post-title.most {
+    grid-column: 1 / -1;
+    grid-row: auto;
+    margin-top: 0;
+    padding-bottom: 0;
+  }
+
+  /* Recently Posted and Most Commented posts: text below image */
+  .recent-grid .side-posts .side-post > a {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .recent-grid .side-posts .side-post img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+
+  /* Fix text clamping and heading spacing on mobile */
+  .recent-grid .side-posts .side-post-text p {
+    -webkit-line-clamp: 3;
+    line-height: 1.5;
+  }
+
+  /* Fix heading overlap by adding proper spacing */
+  .recent-grid .side-post-title:not(.most) {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    padding-top: 3rem;
+  }
+
+
+  /* Recommended grid responsive */
+  .grid-recommended {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+
+  /* About page */
+  .about-hero h1 {
+    font-size: 2.2rem;
+  }
+
+  .about-hero .lead {
+    font-size: 1.05rem;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  .about-features {
+    grid-template-columns: 1fr 1fr; /* 2 columns instead of 3 */
+    gap: 1.5rem;
+  }
+
+  .feature-card {
+    padding: 1.5rem;
+  }
+  .about-vision {
+    padding: 1.5rem 2rem;
+  }
+
+  /* Ensure side-posts maintain grid layout on mobile */
+  .side-posts {
+    display: grid;
+    gap: 1rem;
+    align-items: stretch;
+  }
+
+  /* Recommended grid single column on smaller screens */
+  .grid-recommended {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .side-post {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+  .side-post img {
+    width: 100%;
+    height: auto;
+  }
+}
+
+/* ==========================
+   TABLETS AND BELOW (≤768px)
+========================== */
+@media (max-width: 768px) {
+  /* Side posts stack */
+  .side-post {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .side-post img {
+    width: 100%;
+    height: auto;
+  }
+  .side-post-title {
+    grid-row: 3 / 4;
+  }
+
+  /* Single post adjustments */
+  .post-header {
+    padding: 1.5rem 1.5rem 1rem;
+  }
+  .post-title {
+    font-size: 1.8rem;
+  }
+  .post-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  .post-actions {
+    margin-left: 0;
+    align-self: stretch;
+  }
+  .post-featured-image {
+    height: 250px;
+  }
+  .post-content {
+    padding: 1.5rem;
+    font-size: 1rem;
+  }
+
+  .author-bio {
+    padding: 1.5rem;
+  }
+  .post-summary {
+    padding: 1.5rem;
+  }
+  .author-card {
+    flex-direction: column;
+    text-align: center;
+  }
+  .author-image {
+    align-self: center;
+  }
+
+  .comments-section {
+    padding: 1.5rem;
+  }
+  .comment-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .comment {
+    padding: 1rem;
+  }
+  .comment-content {
+    margin-left: 0;
+    margin-top: 1rem;
+  }
+  .comment-form-fields {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .comment-input {
+    min-width: unset;
+  }
+
+  /* Manage posts */
+  .post-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .post-actions {
+    order: -1; /* Move buttons to top */
+    margin-bottom: 1rem; /* Space below buttons */
+    align-self: flex-end; /* Align buttons to right side */
+  }
+  .post-image {
+    width: 100%;
+    height: 180px;
+  }
+
+  /* Contact form */
+  .contact-form {
+    grid-template-columns: 1fr;
+  }
+
+  /* About page */
+  .about-hero {
+    padding: 2.5rem 1rem 1.5rem;
+  }
+  .about-hero h1 {
+    font-size: 2rem;
+  }
+  .about-hero .lead {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+  .about-features {
+    grid-template-columns: 1fr; /* stack features */
+    gap: 1.2rem;
+  }
+
+  .feature-card {
+    padding: 1.2rem;
+  }
+  .feature-card i {
+    font-size: 1.8rem;
+  }
+  .about-vision {
+    padding: 1.5rem;
+  }
+  .about-vision h2 {
+    font-size: 1.5rem;
+    text-align: center;
+  }
+  .about-vision p {
+    font-size: 0.95rem;
+    text-align: justify;
+  }
+  .about-buttons {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  .about-buttons a {
+    width: 100%;
+    text-align: center;
+  }
+
+  /* Legal pages */
+  .legal-hero {
+    padding: 2rem 1rem 1.5rem;
+  }
+  
+  .legal-hero h1 {
+    font-size: 2rem;
+  }
+  
+  .legal-subtitle {
+    font-size: 1rem;
+  }
+  
+  .legal-content {
+    padding: 2rem 0;
+  }
+  
+  .legal-document {
+    margin: 0 1rem;
+    padding: 2rem 1.5rem;
+    border-radius: 8px;
+  }
+  
+  .legal-intro {
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .legal-section {
+    padding: 1.25rem;
+    margin-bottom: 2rem;
+  }
+  
+  .legal-section h2 {
+    font-size: 1.3rem;
+  }
+  
+  .legal-section p {
+    font-size: 0.95rem;
+    text-align: left;
+  }
+  
+  .legal-section ul,
+  .legal-section ol {
+    padding: 1rem 1rem 1rem 2rem;
+    margin: 1rem 0;
+  }
+  
+  .legal-section li {
+    text-align: left;
+  }
+  
+  .contact-info {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+    padding: 1.25rem;
+  }
+}
+
+/* ==========================
+   SMALL PHONES (≤576px)
+========================== */
+@media (max-width: 576px) {
+  /* Image upload buttons stack */
+  .image-actions {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .btn-action {
+    width: 100%;
+  }
+  .form-row {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  /* Two-factor authentication buttons stack on mobile */
+  .two-factor-actions {
+    flex-direction: column;
+  }
+  
+  .two-factor-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Two-factor setup page */
+  .authenticator-apps {
+    grid-template-columns: 1fr;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+  
+  .form-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Modal actions stack on mobile */
+  .modal-actions {
+    flex-direction: column;
+  }
+  
+  .modal-actions .btn {
+    width: 100%;
+  }
+
+  /* Backup tokens responsive */
+  .backup-warning {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .token-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+  
+  .token-item .btn {
+    width: 100%;
+  }
+
+  /* Recommendation card images */
+  .recom-card img {
+    height: auto; /* let browser calculate height */
+    aspect-ratio: 16 / 9; /* keep nice proportions */
+    object-fit: cover;
+  }
+
+  /* About page stack */
+  .about-hero h1 {
+    font-size: 1.7rem;
+  }
+
+  .about-hero .lead {
+    font-size: 0.95rem;
+    padding: 0 0.5rem;
+  }
+  .about-vision {
+    padding: 1.2rem;
+  }
+  .about-vision h2 {
+    font-size: 1.3rem;
+  }
+  .about-buttons {
+    gap: 0.8rem;
+  }
+
+  /* Single post small tweaks */
+  .breadcrumb {
+    font-size: 0.8rem;
+    margin: 1rem 0;
+  }
+  .post-title {
+    font-size: 1.5rem;
+  }
+  /* Only stack action buttons on single post page, not manage posts */
+  .single-post .post-actions {
+    flex-direction: column;
+  }
+  .action-btn {
+    justify-content: center;
+  }
+  .author-card {
+    gap: 1rem;
+  }
+
+  .btn,
+  .btn--action {
+    width: 100%;
+    text-align: center; /* Center text when buttons expand */
+    justify-content: center; /* Center flex content */
+  }
+  
+  /* Tag Selector Mobile Styles */
+  .tag-selector {
+    padding: 0.75rem;
+  }
+  
+  .available-tags-list {
+    gap: 0.4rem;
+  }
+  
+  .available-tag {
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  /* Legal pages */
+  .legal-hero h1 {
+    font-size: 1.7rem;
+  }
+  
+  .legal-document {
+    margin: 0 0.5rem;
+    padding: 1.5rem 1rem;
+  }
+  
+  .legal-intro {
+    padding: 1.25rem;
+  }
+  
+  .legal-section {
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .legal-section h2 {
+    font-size: 1.2rem;
+  }
+  
+  .legal-section p {
+    font-size: 0.9rem;
+  }
+  
+  .legal-section ul,
+  .legal-section ol {
+    padding: 0.75rem 0.75rem 0.75rem 1.5rem;
+    margin: 0.75rem 0;
+  }
+  
+  .legal-section li {
+    margin-bottom: 0.5rem;
+  }
+  
+  .contact-info {
+    padding: 1rem;
+  }
+
+  /* Settings page */
+  .settings-tab {
+    flex: 0 0 auto;
+    padding: 1rem 1.5rem;
+  }
+
+  .settings-content {
+    padding: 1rem;
+  }
+
+  .form-group {
+    margin-bottom: 1rem;
+  }
+
+  .password-requirements {
+    font-size: 0.875rem;
+  }
+
+  .requirement-item {
+    padding: 0.25rem 0;
+  }
+
+  .password-field {
+    max-width: 100%;
+  }
+
+  .form-control {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  input.form-control {
+    padding-right: 2.5rem; /* Space for the eye icon */
+  }
+
+  .terms-acceptance {
+    margin: 1rem 0;
+    padding: 0.75rem;
+  }
+
+  .terms-acceptance p {
+    font-size: 0.85rem;
+  }
+
+  /* Delete confirmation */
+  .delete-confirmation {
+    margin: 1rem auto;
+    padding: 0 0.5rem;
+  }
+  
+  .confirmation-card {
+    padding: 1.5rem;
+  }
+  
+  .confirmation-form .form-actions {
+    flex-direction: column;
+  }
+  
+  .post-meta {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+/* ==========================
+   PRINT STYLES FOR BACKUP TOKENS
+========================== */
+@media print {
+  .settings-header,
+  .backup-actions,
+  .security-tips,
+  .copy-all-section {
+    display: none !important;
+  }
+  
+  .backup-tokens {
+    background: white !important;
+    color: black !important;
+  }
+  
+  .token-item {
+    break-inside: avoid;
+    margin-bottom: 1rem;
+  }
+  
+  .token-code {
+    background: #f5f5f5 !important;
+    color: black !important;
+    border: 1px solid #ccc !important;
+  }
+}

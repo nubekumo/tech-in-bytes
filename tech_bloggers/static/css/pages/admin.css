@@ -1,0 +1,238 @@
+/* =====================================================
+   ADMIN INTERFACE - TECH BLOGGERS
+   =====================================================
+   Django Admin interface styling to match our theme
+   Using higher specificity instead of !important where possible
+===================================================== */
+
+/* Body and base styles - these need !important due to Django's specificity */
+body {
+  background: #0d1117 !important;
+  color: #c9d1d9 !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+}
+
+/* Header styling */
+#header {
+  background: #161b22 !important;
+  border-bottom: 1px solid #30363d !important;
+}
+
+#user-tools {
+  color: #c9d1d9;
+}
+
+#user-tools a {
+  color: #58a6ff;
+}
+
+/* Content area */
+#content {
+  background: #0d1117 !important;
+}
+
+/* Module styling - using higher specificity */
+body .module h2, 
+body .module caption {
+  background: #161b22;
+  color: #fff;
+  border: 1px solid #30363d;
+}
+
+body .module {
+  background: #161b22;
+  border: 1px solid #30363d;
+}
+
+body .module table {
+  background: #161b22;
+}
+
+body .module th, 
+body .module td {
+  border-bottom: 1px solid #30363d;
+  color: #c9d1d9;
+}
+
+body .module th a {
+  color: #58a6ff;
+}
+
+/* Form inputs - Django has very specific selectors for these */
+body input[type="text"], 
+body input[type="password"], 
+body input[type="email"], 
+body textarea, 
+body select {
+  background: #0d1117;
+  border: 1px solid #30363d;
+  color: #c9d1d9;
+}
+
+/* Submit buttons - need !important for Django's button styling */
+body input[type="submit"], 
+body .default {
+  background: #30363d !important;
+  border: 1px solid #30363d !important;
+  color: #c9d1d9 !important;
+}
+
+body input[type="submit"]:hover, 
+body .default:hover {
+  background: #484f58 !important;
+  border-color: #484f58 !important;
+  color: #fff !important;
+}
+
+/* Breadcrumbs */
+body .breadcrumbs {
+  background: #161b22;
+  border-bottom: 1px solid #30363d;
+}
+
+body .breadcrumbs a {
+  color: #58a6ff;
+}
+
+/* Object tools */
+body .object-tools {
+  background: #161b22;
+}
+
+body .object-tools a {
+  background: #30363d;
+  color: #c9d1d9;
+}
+
+body .object-tools a:hover {
+  background: #484f58;
+  color: #fff;
+}
+
+/* Paginator */
+body .paginator {
+  background: #161b22;
+  border: 1px solid #30363d;
+}
+
+body .paginator a, 
+body .paginator .this-page {
+  color: #c9d1d9;
+}
+
+body .paginator a:hover {
+  background: #30363d;
+  color: #fff;
+}
+
+/* Form styling */
+body .form-row {
+  background: #161b22;
+  border: 1px solid #30363d;
+}
+
+body .help {
+  color: #8b949e;
+}
+
+body .errorlist {
+  color: #f85149;
+}
+
+/* Action bar */
+body .actions {
+  background: #161b22;
+  border: 1px solid #30363d;
+}
+
+body .actions select {
+  background: #0d1117;
+  border: 1px solid #30363d;
+  color: #c9d1d9;
+}
+
+/* Filter sidebar */
+body #changelist-filter {
+  background: #161b22;
+  border: 1px solid #30363d;
+}
+
+body #changelist-filter h2 {
+  background: #161b22;
+  color: #fff;
+  border-bottom: 1px solid #30363d;
+}
+
+body #changelist-filter h3 {
+  color: #c9d1d9;
+}
+
+body #changelist-filter a {
+  color: #58a6ff;
+}
+
+body #changelist-filter a:hover {
+  background: #30363d;
+}
+
+/* Search box */
+body #searchbar {
+  background: #0d1117;
+  border: 1px solid #30363d;
+  color: #c9d1d9;
+}
+
+body #searchbar:focus {
+  border-color: #58a6ff;
+  box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.2);
+}
+
+/* Delete confirmation page styling */
+body .delete-confirmation h1 {
+  color: #fff;
+  border-bottom: 1px solid #30363d;
+}
+
+body .delete-confirmation li {
+  color: #c9d1d9;
+}
+
+/* Delete confirmation buttons - these need !important due to Django's specificity */
+body .delete-confirmation form input[type="submit"] {
+  background: #f85149 !important;
+  border: 1px solid #f85149 !important;
+  color: #fff !important;
+  padding: 12px 24px !important;
+  border-radius: 6px !important;
+  font-size: 14px !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+body .delete-confirmation form input[type="submit"]:hover {
+  background: #da3633 !important;
+  border-color: #da3633 !important;
+}
+
+body .delete-confirmation form .cancel-link {
+  display: inline-block !important;
+  background: #30363d !important;
+  border: 1px solid #30363d !important;
+  color: #c9d1d9 !important;
+  padding: 12px 24px !important;
+  border-radius: 6px !important;
+  font-size: 14px !important;
+  text-decoration: none !important;
+  margin: 0 0 0 10px !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  height: auto !important;
+  line-height: 1.4 !important;
+  vertical-align: middle !important;
+}
+
+body .delete-confirmation form .cancel-link:hover {
+  background: #58a6ff !important;
+  border-color: #58a6ff !important;
+  color: #fff !important;
+}

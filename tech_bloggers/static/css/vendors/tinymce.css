@@ -1,0 +1,454 @@
+/* =====================================================
+   TINYMCE EDITOR OVERRIDES - TECH BLOGGERS
+   =====================================================
+   Dark theme customization for TinyMCE WYSIWYG editor
+===================================================== */
+
+/* ============================
+   Editor Content Area
+   ============================ */
+/* Scope to TinyMCE iframe content via included site stylesheet inside editor (content_css). */
+.mce-content-body {
+  background: #0d1117 !important;
+  color: #c9d1d9 !important;
+  font-family: inherit !important;
+  line-height: 1.7 !important;
+  padding: 1rem !important;
+}
+
+/* TinyMCE placeholder styling to match other textareas */
+.mce-content-body[data-mce-placeholder]:not(.mce-visualblocks)::before {
+  color: #8b949e !important;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif !important;
+  font-size: 1rem !important;
+  opacity: 0.7 !important;
+  left: 1rem !important;
+  right: 1rem !important;
+  top: 1rem !important;
+}
+
+.mce-content-body a { color: #58a6ff !important; }
+.mce-content-body a:hover { color: #1f6feb !important; }
+.mce-content-body ul { padding-left: 2rem; }
+.mce-content-body ul li::marker { color: #58a6ff; }
+.mce-content-body blockquote {
+  border-left: 4px solid #30363d;
+  margin: 0 0 1rem;
+  padding: 0.5rem 1rem;
+  background: rgba(48, 54, 61, 0.15);
+}
+
+/* ============================
+   Toolbar & UI Elements
+   ============================ */
+/* Toolbar container (outside iframe) */
+.tox {
+  --tox-bg-color: #161b22;
+  --tox-border-color: #30363d;
+  --tox-text: #c9d1d9;
+}
+
+.tox .tox-menubar,
+.tox .tox-toolbar,
+.tox .tox-toolbar__primary {
+  background: #161b22 !important;
+  border-color: #30363d !important;
+}
+
+.tox .tox-tbtn {
+  color: #c9d1d9 !important;
+}
+.tox .tox-tbtn:hover,
+.tox .tox-tbtn--enabled {
+  background: rgba(88, 166, 255, 0.12) !important;
+  color: #58a6ff !important;
+}
+.tox .tox-tbtn--active {
+  background: rgba(88, 166, 255, 0.18) !important;
+  color: #58a6ff !important;
+}
+
+.tox .tox-statusbar {
+  background: #161b22 !important;
+  border-top: 1px solid #30363d !important;
+  color: #8b949e !important;
+}
+
+/* TinyMCE container styling to match form controls */
+.tox.tox-tinymce {
+  border: 1px solid #30363d !important;
+  border-radius: 6px !important;
+  background: #161b22 !important;
+}
+
+.tox .tox-edit-area__iframe {
+  background: #0d1117 !important;
+  border: 1px solid #30363d !important;
+  border-radius: 6px !important;
+}
+
+/* Target the edit area container */
+.tox .tox-edit-area {
+  border: 1px solid #30363d !important;
+  border-radius: 6px !important;
+}
+
+.tox .tox-selectfield select,
+.tox .tox-textfield input {
+  background: #0d1117 !important;
+  border: 1px solid #30363d !important;
+  color: #c9d1d9 !important;
+}
+
+.tox .tox-dialog {
+  background: #161b22 !important;
+  color: #c9d1d9 !important;
+  border: 1px solid #30363d !important;
+}
+
+.tox .tox-button {
+  background: #58a6ff !important;
+  border-color: #58a6ff !important;
+  color: #fff !important;
+}
+
+.tox .tox-button:hover {
+  background: #1f6feb !important;
+  border-color: #1f6feb !important;
+}
+
+/* ============================
+   Table Styling
+   ============================ */
+/* TinyMCE Table Styling */
+.tox .tox-edit-area__iframe body table {
+  border-collapse: collapse !important;
+  border: 1px solid #ccc !important;
+  margin-top: 1.5rem !important;
+  margin-bottom: 2rem !important;
+  /* Don't force left/right margins in editor - allow alignment */
+  display: table !important;
+}
+
+/* Table alignment in editor preview */
+.mce-content-body table[style*="margin-left: auto"][style*="margin-right: auto"] {
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.mce-content-body table[style*="float: right"] {
+  float: right !important;
+}
+
+.mce-content-body table[style*="float: left"] {
+  float: left !important;
+}
+
+.tox .tox-edit-area__iframe body table td,
+.tox .tox-edit-area__iframe body table th {
+  border: 1px solid #ccc !important;
+  padding: 8px !important;
+}
+
+/* Add spacing in editor for elements after tables */
+.mce-content-body table + * {
+  margin-top: 1.5rem !important;
+}
+
+.mce-content-body table + p,
+.mce-content-body table + h1,
+.mce-content-body table + h2,
+.mce-content-body table + h3 {
+  margin-top: 1.5rem !important;
+}
+
+/* Frontend Table Styling */
+.post-content table {
+  border-collapse: collapse !important;
+  border: 1px solid #ccc !important;
+  margin-top: 1.5rem !important;
+  margin-bottom: 2.5rem !important;
+  /* Don't force left/right margins - allow alignment styles to work */
+  width: 100%;
+  display: table !important; /* Ensure proper block-level spacing */
+}
+
+/* Table alignment support - when TinyMCE adds alignment styles */
+.post-content table[style*="margin-left: auto"][style*="margin-right: auto"] {
+  margin-left: auto !important;
+  margin-right: auto !important;
+  width: auto; /* Allow custom width for centered tables */
+}
+
+.post-content table[style*="margin-left: 0"][style*="margin-right: auto"],
+.post-content table[style*="float: right"] {
+  margin-left: 0 !important;
+  margin-right: auto !important;
+  float: right;
+}
+
+.post-content table[style*="margin-left: auto"][style*="margin-right: 0"],
+.post-content table[style*="float: left"] {
+  margin-left: auto !important;
+  margin-right: 0 !important;
+  float: left;
+}
+
+.post-content table td,
+.post-content table th {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: left;
+}
+
+.post-content table th {
+  background-color: #f5f5f5;
+  font-weight: bold;
+}
+
+/* Add generous spacing between tables and following elements */
+.post-content table + * {
+  margin-top: 2rem !important; /* Generous spacing after tables */
+}
+
+/* Ensure paragraphs after tables have proper spacing */
+.post-content table + p,
+.post-content table + h1,
+.post-content table + h2,
+.post-content table + h3,
+.post-content table + ul,
+.post-content table + ol,
+.post-content table + div {
+  margin-top: 2rem !important;
+  display: block !important;
+}
+
+/* ============================
+   Dialog Styling
+   ============================ */
+/* TinyMCE Dialog Styling */
+.tox-dialog {
+  background: #161b22 !important;
+  color: #f0f6fc !important;
+}
+
+.tox-dialog__header {
+  background: #21262d !important;
+  border-bottom: 1px solid #30363d !important;
+}
+
+.tox-dialog__title {
+  color: #f0f6fc !important;
+}
+
+.tox-dialog__body {
+  background: #161b22 !important;
+}
+
+.tox-dialog__footer {
+  background: #21262d !important;
+  border-top: 1px solid #30363d !important;
+}
+
+/* TinyMCE Dialog Content Areas */
+.tox-dialog__body-content {
+  background: #161b22 !important;
+  color: #f0f6fc !important;
+}
+
+/* Image Upload Area Styling */
+.tox-dialog .tox-collection__item {
+  background: #161b22 !important;
+  color: #f0f6fc !important;
+  border: 1px solid #30363d !important;
+}
+
+.tox-dialog .tox-collection__item:hover {
+  background: #21262d !important;
+}
+
+/* File Drop Zone Styling */
+.tox-dialog .tox-dropzone {
+  background: #161b22 !important;
+  border: 2px dashed #30363d !important;
+  color: #8b949e !important;
+}
+
+.tox-dialog .tox-dropzone:hover {
+  background: #21262d !important;
+  border-color: #58a6ff !important;
+}
+
+/* Upload Button Styling */
+.tox-dialog .tox-button {
+  background: #58a6ff !important;
+  color: #fff !important;
+  border: 1px solid #58a6ff !important;
+}
+
+.tox-dialog .tox-button:hover {
+  background: #1f6feb !important;
+  border-color: #1f6feb !important;
+}
+
+.tox-dialog .tox-button--secondary {
+  background: #21262d !important;
+  color: #f0f6fc !important;
+  border: 1px solid #30363d !important;
+}
+
+.tox-dialog .tox-button--secondary:hover {
+  background: #30363d !important;
+  border-color: #58a6ff !important;
+}
+
+/* Form Input Styling in Dialogs */
+.tox-dialog .tox-textfield {
+  background: #0d1117 !important;
+  color: #f0f6fc !important;
+  border: 1px solid #30363d !important;
+}
+
+.tox-dialog .tox-textfield:focus {
+  border-color: #58a6ff !important;
+  box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.2) !important;
+}
+
+.tox-dialog .tox-textarea {
+  background: #0d1117 !important;
+  color: #f0f6fc !important;
+  border: 1px solid #30363d !important;
+}
+
+.tox-dialog .tox-textarea:focus {
+  border-color: #58a6ff !important;
+  box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.2) !important;
+}
+
+/* Table Dialog Styling */
+.tox-dialog .tox-table-dialog {
+  background: #161b22 !important;
+}
+
+.tox-dialog .tox-table-dialog .tox-form__group {
+  background: #161b22 !important;
+}
+
+/* Navigation Tabs in Dialogs */
+.tox-dialog .tox-tab {
+  background: #21262d !important;
+  color: #f0f6fc !important;
+  border: 1px solid #30363d !important;
+}
+
+.tox-dialog .tox-tab--active {
+  background: #161b22 !important;
+  color: #f0f6fc !important;
+  border-bottom-color: #161b22 !important;
+}
+
+.tox-dialog .tox-tab:hover {
+  background: #30363d !important;
+  color: #58a6ff !important;
+}
+
+/* Table Properties - Add spacing below labels */
+.tox-dialog .tox-label {
+  margin-bottom: 0.5rem !important;
+  display: block !important;
+}
+
+/* Table Properties - Add unit hints to labels */
+.tox-dialog label[for="width"]::after,
+.tox-dialog .tox-form__group:has(input[id="width"]) label::after {
+  content: " (in %)";
+  font-size: 0.75rem;
+  color: #8b949e;
+  font-weight: normal;
+}
+
+.tox-dialog label[for="height"]::after,
+.tox-dialog .tox-form__group:has(input[id="height"]) label::after {
+  content: " (in %)";
+  font-size: 0.75rem;
+  color: #8b949e;
+  font-weight: normal;
+}
+
+/* Alternative approach - target any label containing "width" or "height" */
+.tox-dialog label:contains("Width")::after,
+.tox-dialog label:contains("width")::after {
+  content: " (in %)";
+  font-size: 0.75rem;
+  color: #8b949e;
+  font-weight: normal;
+}
+
+.tox-dialog label:contains("Height")::after,
+.tox-dialog label:contains("height")::after {
+  content: " (in %)";
+  font-size: 0.75rem;
+  color: #8b949e;
+  font-weight: normal;
+}
+
+
+/* Close Button (X) Styling */
+.tox-dialog .tox-button--icon {
+  background: transparent !important;
+  border: none !important;
+  color: #f0f6fc !important;
+}
+
+.tox-dialog .tox-button--icon:hover {
+  background: transparent !important;
+  color: #58a6ff !important;
+}
+
+/* Cancel Button with White Border */
+.tox-dialog .tox-button--secondary {
+  background: #21262d !important;
+  color: #f0f6fc !important;
+  border: 1px solid #f0f6fc !important;
+}
+
+.tox-dialog .tox-button--secondary:hover {
+  background: #30363d !important;
+  border-color: #58a6ff !important;
+  color: #58a6ff !important;
+}
+
+/* ============================
+   Code Block Styling
+   ============================ */
+/* Inline code styling */
+code {
+  background: #21262d;
+  color: #f0f6fc;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 0.9em;
+  border: 1px solid #30363d;
+}
+
+/* Code block styling */
+pre {
+  background: #0d1117 !important;
+  color: #f0f6fc !important;
+  padding: 16px !important;
+  border-radius: 8px !important;
+  border: 1px solid #30363d !important;
+  overflow-x: auto !important;
+  margin: 16px 0 !important;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace !important;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+}
+
+/* Override PrismJS theme to match our dark theme */
+pre[class*="language-"] {
+  background: #0d1117 !important;
+  color: #f0f6fc !important;
+}

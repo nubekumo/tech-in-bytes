@@ -26,7 +26,6 @@ local_settings.py
 db.sqlite3
 db.sqlite3-journal
 media/
-static/
 logs/
 # Keep migration files in Git for AWS deployment and database schema history
 # Only ignore auto-generated migration files (if any)
