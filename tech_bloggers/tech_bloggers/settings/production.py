@@ -156,7 +156,7 @@ LOGGING = {
         },
         'file': {
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': BASE_DIR / 'logs' / 'tech_bloggers.log',
+            'filename': BASE_DIR.parent / 'logs' / 'tech_bloggers.log',
             'formatter': 'verbose',
             'maxBytes': 10485760,  # 10MB
             'backupCount': 10,      # Keep 10 backup files in production
@@ -164,7 +164,7 @@ LOGGING = {
         },
         'error_file': {
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': BASE_DIR / 'logs' / 'error.log',
+            'filename': BASE_DIR.parent / 'logs' / 'error.log',
             'formatter': 'verbose',
             'maxBytes': 10485760,
             'backupCount': 10,
