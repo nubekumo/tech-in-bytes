@@ -9,6 +9,7 @@ DEBUG = False
 
 # Allowed hosts - should be set via environment variable
 ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '').split(',')
+ALLOWED_HOSTS.append('ec2-13-159-193-135.ap-northeast-1.compute.amazonaws.com')
 
 # CSRF trusted origins - for domains using HTTPS
 CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',') if os.getenv('CSRF_TRUSTED_ORIGINS') else []
@@ -26,6 +27,8 @@ DATABASES = {
         'CONN_MAX_AGE': 600,  # Keep connections alive for 10 minutes
         'OPTIONS': {
             'connect_timeout': 10,
+	    'sslmode': 'require',
+            'sslrootcert': '/home/django/.postgresql/root.crt',
         },
     }
 }
@@ -112,7 +115,7 @@ else:
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
 
 # Security Settings
-SECURE_SSL_REDIRECT = True
+SECURE_SSL_REDIRECT = False
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # HSTS (HTTP Strict Transport Security)
@@ -135,6 +138,12 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_BROWSER_XSS_FILTER = True
 X_FRAME_OPTIONS = 'DENY'
 
+# Rate limits
+RATELIMIT_ENABLE = True
+RATELIMIT_USE_X_FORWARDED_FOR = False
+RATELIMIT_IP_META_KEY = 'HTTP_X_REAL_IP'
+RATELIMIT_GET_IP = "tech_bloggers.core.utils.get_client_ip"
+
 # Production logging
 LOGGING = {
     'version': 1,
@@ -152,7 +161,7 @@ LOGGING = {
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
-            'formatter': 'simple',
+            'formatter': 'verbose',
         },
         'file': {
             'class': 'logging.handlers.RotatingFileHandler',
