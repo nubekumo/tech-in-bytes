@@ -14,7 +14,7 @@ django-two-factor-auth>=1.17.0
 # Image Processing
 Pillow>=11.3.0
 easy-thumbnails>=2.8.5
-django-image-cropping>=1.7.1
+django-image-cropping>=1.7
 
 # Production Server
 gunicorn>=21.2.0

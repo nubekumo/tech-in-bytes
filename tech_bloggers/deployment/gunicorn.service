@@ -1,37 +1,34 @@
-# Systemd service file for Gunicorn
-# File location: /etc/systemd/system/gunicorn.service
-#
-# After creating this file:
-# 1. Copy to /etc/systemd/system/gunicorn.service
-# 2. Reload systemd: sudo systemctl daemon-reload
-# 3. Enable service: sudo systemctl enable gunicorn
-# 4. Start service: sudo systemctl start gunicorn
-# 5. Check status: sudo systemctl status gunicorn
-
 [Unit]
 Description=Gunicorn daemon for Tech-In-Bytes Django application
 After=network.target
 
 [Service]
 Type=notify
-# User and group to run as (REPLACE 'django' with your user if different)
 User=django
-Group=www-data
+Group=django
 
 # Working directory
-WorkingDirectory=/var/www/techinbytes
+WorkingDirectory=/var/www/techinbytes/tech_bloggers
+
+# Runtime directory (creates /run/gunicorn/ automatically)
+RuntimeDirectory=gunicorn
 
 # Environment variables
 Environment="DJANGO_ENV=production"
 Environment="PATH=/var/www/techinbytes/venv/bin"
-Environment="PYTHONPATH=/var/www/techinbytes"
+Environment="PYTHONPATH=/var/www/techinbytes/tech_bloggers"
 
-# Load additional environment variables from file
+# Load .env file
 EnvironmentFile=/var/www/techinbytes/.env
 
-# Gunicorn execution
+# Gunicorn execution (socket in proper location)
 ExecStart=/var/www/techinbytes/venv/bin/gunicorn \
-    --config /var/www/techinbytes/gunicorn_config.py \
+    --bind unix:/run/gunicorn/gunicorn.sock \
+    --workers 3 \
+    --timeout 30 \
+    --access-logfile /var/www/techinbytes/logs/gunicorn-access.log \
+    --error-logfile /var/www/techinbytes/logs/gunicorn-error.log \
+    --log-level info \
     tech_bloggers.wsgi:application
 
 # Restart policy
@@ -39,28 +36,22 @@ Restart=on-failure
 RestartSec=5s
 
 # Security
-# Prevent service from accessing home directories
-ProtectHome=true
-# Create private /tmp
+ProtectHome=false
 PrivateTmp=true
-# Prevent writing to /usr, /boot, /efi
 ProtectSystem=strict
-# Allow write access to these directories
 ReadWritePaths=/var/www/techinbytes/media
 ReadWritePaths=/var/www/techinbytes/logs
 ReadWritePaths=/var/www/techinbytes/staticfiles
+ReadWritePaths=/home/django/.postgresql
 
 # Process limits
 LimitNOFILE=65536
 LimitNPROC=4096
 
-# Timeout for service startup
+# Timeout
 TimeoutStartSec=60
-
-# Graceful shutdown
 TimeoutStopSec=30
 KillMode=mixed
 
 [Install]
 WantedBy=multi-user.target
-

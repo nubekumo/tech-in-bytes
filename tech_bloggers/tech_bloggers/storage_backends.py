@@ -5,6 +5,15 @@ Custom storage backends for AWS S3.
 from django.conf import settings
 from storages.backends.s3boto3 import S3Boto3Storage
 
+class StaticStorage(S3Boto3Storage):
+    """
+    Custom storage class for static files.
+    Stores files in the 'static' folder in S3 bucket.
+    """
+    location = 'static'
+    file_overwrite = True
+    # Removed default_acl - bucket uses bucket policy instead
+
 
 class MediaStorage(S3Boto3Storage):
     """
@@ -13,5 +22,5 @@ class MediaStorage(S3Boto3Storage):
     """
     location = settings.AWS_MEDIA_LOCATION
     file_overwrite = False
-    default_acl = 'public-read'  # Media files should be publicly accessible
+    # Removed default_acl - bucket uses bucket policy instead
 

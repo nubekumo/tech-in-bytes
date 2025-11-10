@@ -8,7 +8,7 @@ from .base import *
 DEBUG = False
 
 # Allowed hosts - should be set via environment variable
-ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '').split(',')
+ALLOWED_HOSTS = [host.strip() for host in os.getenv('DJANGO_ALLOWED_HOSTS', '').split(',') if host.strip()]
 ALLOWED_HOSTS.append('ec2-13-159-193-135.ap-northeast-1.compute.amazonaws.com')
 
 # CSRF trusted origins - for domains using HTTPS
@@ -27,7 +27,7 @@ DATABASES = {
         'CONN_MAX_AGE': 600,  # Keep connections alive for 10 minutes
         'OPTIONS': {
             'connect_timeout': 10,
-	    'sslmode': 'require',
+	        'sslmode': 'require',
             'sslrootcert': '/home/django/.postgresql/root.crt',
         },
     }
@@ -74,17 +74,28 @@ AWS_QUERYSTRING_AUTH = False  # Don't add auth query parameters to URLs
 
 # Static files (CSS, JavaScript, Images)
 if os.getenv('USE_S3_STATIC', 'False').lower() == 'true':
-    # Use S3 for static files
-    STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+    # Use S3 for static files (Django 4.2+ STORAGES setting)
+    STORAGES = {
+        "default": {
+            "BACKEND": "tech_bloggers.storage_backends.MediaStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "tech_bloggers.storage_backends.StaticStorage",
+        },
+    }
     AWS_STATIC_LOCATION = 'static'
     STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_STATIC_LOCATION}/' if AWS_S3_CUSTOM_DOMAIN else f'https://{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/{AWS_STATIC_LOCATION}/'
 else:
-    # Use WhiteNoise for static files (simpler, still performant)
+    # Use WhiteNoise for static files
     MIDDLEWARE.insert(
         MIDDLEWARE.index('django.middleware.security.SecurityMiddleware') + 1,
         'whitenoise.middleware.WhiteNoiseMiddleware',
     )
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    STORAGES = {
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
     STATIC_URL = '/static/'
 
 # Media files (User uploads) - Always use S3 for media
