@@ -22,9 +22,16 @@ class Profile(models.Model):
         """Helper method to delete the avatar file and clear the field"""
         if self.avatar:
             try:
-                if os.path.isfile(self.avatar.path):
-                    os.remove(self.avatar.path)
-            except (ValueError, OSError):
+                # Check if storage supports path (local file storage)
+                # S3 storage doesn't support .path attribute
+                if hasattr(self.avatar.storage, 'path'):
+                    # Local file storage - use file path
+                    if os.path.isfile(self.avatar.path):
+                        os.remove(self.avatar.path)
+                else:
+                    # Remote storage (S3) - use storage.delete()
+                    self.avatar.storage.delete(self.avatar.name)
+            except (ValueError, OSError, AttributeError):
                 # Handle cases where the file might not exist or path is invalid
                 pass
             # Clear the field without triggering signals
@@ -40,11 +47,17 @@ def delete_old_avatar(sender, instance, **kwargs):
         try:
             old_profile = Profile.objects.get(pk=instance.pk)
             if old_profile.avatar and old_profile.avatar != instance.avatar:
-                # Delete the old avatar file directly
+                # Delete the old avatar file
                 try:
-                    if os.path.isfile(old_profile.avatar.path):
-                        os.remove(old_profile.avatar.path)
-                except (ValueError, OSError):
+                    # Check if storage supports path (local file storage)
+                    if hasattr(old_profile.avatar.storage, 'path'):
+                        # Local file storage - use file path
+                        if os.path.isfile(old_profile.avatar.path):
+                            os.remove(old_profile.avatar.path)
+                    else:
+                        # Remote storage (S3) - use storage.delete()
+                        old_profile.avatar.storage.delete(old_profile.avatar.name)
+                except (ValueError, OSError, AttributeError):
                     pass
         except Profile.DoesNotExist:
             pass
