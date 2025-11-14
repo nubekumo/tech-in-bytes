@@ -6,7 +6,8 @@ from django.db.models.signals import post_delete
 from django.dispatch import receiver
 from PIL import Image, UnidentifiedImageError
 from django.conf import settings
-import os
+
+from apps.core.utils import delete_stored_file
 
 def validate_image(image):
     # Size in bytes
@@ -212,12 +213,7 @@ def delete_post_image_file(sender, instance, **kwargs):
     Delete the post image file from the filesystem when a Post instance is deleted.
     """
     if instance.image:
-        try:
-            if os.path.isfile(instance.image.path):
-                os.remove(instance.image.path)
-        except (ValueError, OSError):
-            # Handle cases where the file might not exist or path is invalid
-            pass
+        delete_stored_file(instance.image)
 
 
 @receiver(post_delete, sender=PostImage)
@@ -226,12 +222,7 @@ def delete_post_content_image_file(sender, instance, **kwargs):
     Delete the content image file from the filesystem when a PostImage instance is deleted.
     """
     if instance.image:
-        try:
-            if os.path.isfile(instance.image.path):
-                os.remove(instance.image.path)
-        except (ValueError, OSError):
-            # Handle cases where the file might not exist or path is invalid
-            pass
+        delete_stored_file(instance.image)
 
 
 @receiver(post_delete, sender=Post)
