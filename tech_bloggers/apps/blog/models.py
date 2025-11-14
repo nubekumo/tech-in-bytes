@@ -1,3 +1,6 @@
+import re
+from urllib.parse import urlparse
+
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.text import slugify
@@ -170,6 +173,38 @@ class PostImage(models.Model):
         """Get number of images in a specific post"""
         return cls.objects.filter(post=post).count()
     
+    @classmethod
+    def sync_post_images_with_content(cls, post, content):
+        """
+        Ensure PostImage records match the images currently referenced in the post body.
+        Deletes any PostImage linked to the post whose filename no longer appears in content.
+        """
+        if not post:
+            return 0
+
+        referenced_filenames = set()
+
+        if content:
+            # Find all <img> tags and collect their src attribute values
+            src_values = re.findall(r'<img[^>]+src=[\'"]([^\'"]+)[\'"]', content, re.IGNORECASE)
+
+            for src in src_values:
+                path = urlparse(src).path
+                filename = path.split('/')[-1]
+                if filename:
+                    referenced_filenames.add(filename)
+
+        deleted_count = 0
+        for post_image in cls.objects.filter(post=post):
+            image_name = getattr(post_image.image, "name", "")
+            filename = image_name.split('/')[-1]
+
+            if not filename or filename not in referenced_filenames:
+                post_image.delete()
+                deleted_count += 1
+
+        return deleted_count
+
     @classmethod
     def get_orphaned_images(cls, hours_threshold=24):
         """Get images that are orphaned (no post association) older than threshold"""

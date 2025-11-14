@@ -498,12 +498,22 @@ class ImageDeleteView(LoginRequiredMixin, View):
             filename = image_url.split('/')[-1]
             file_path = f"post_images/content/{filename}"
             
-            # Delete the file
-            if default_storage.exists(file_path):
+            # Delete PostImage records referencing this file (which will also delete the underlying file)
+            deleted = False
+            post_images = PostImage.objects.filter(image__endswith=filename)
+            if post_images.exists():
+                post_images.delete()
+                deleted = True
+
+            # If no PostImage record exists (e.g., orphaned upload), delete via storage directly
+            if not deleted and default_storage.exists(file_path):
                 default_storage.delete(file_path)
+                deleted = True
+
+            if deleted:
                 return JsonResponse({'success': True, 'message': f'Deleted {filename}'})
-            else:
-                return JsonResponse({'error': 'File not found'}, status=404)
+
+            return JsonResponse({'error': 'File not found'}, status=404)
                 
         except Exception as e:
             return JsonResponse({'error': f'Delete failed: {str(e)}'}, status=500)

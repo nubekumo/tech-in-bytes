@@ -148,6 +148,9 @@ class PostForm(forms.ModelForm):
                     uploaded_by=self.user,
                     post__isnull=True
                 ).update(post=instance)
+
+                # Remove PostImage records (and files) no longer referenced in content
+                PostImage.sync_post_images_with_content(post=instance, content=instance.content)
             
         return instance
 
