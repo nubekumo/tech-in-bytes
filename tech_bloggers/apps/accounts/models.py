@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_delete, pre_save, post_save
 from django.dispatch import receiver
+from storages.backends.s3boto3 import S3Boto3Storage
 import os
 
 
@@ -22,16 +23,20 @@ class Profile(models.Model):
         """Helper method to delete the avatar file and clear the field"""
         if self.avatar:
             try:
-                # Check if storage supports path (local file storage)
-                # S3 storage doesn't support .path attribute
-                if hasattr(self.avatar.storage, 'path'):
-                    # Local file storage - use file path
-                    if os.path.isfile(self.avatar.path):
-                        os.remove(self.avatar.path)
-                else:
+                # Check if storage is S3 (remote) or local file storage
+                # S3Boto3Storage has a path() method but it raises NotImplementedError
+                if isinstance(self.avatar.storage, S3Boto3Storage):
                     # Remote storage (S3) - use storage.delete()
                     self.avatar.storage.delete(self.avatar.name)
-            except (ValueError, OSError, AttributeError):
+                else:
+                    # Local file storage - use file path
+                    try:
+                        if os.path.isfile(self.avatar.path):
+                            os.remove(self.avatar.path)
+                    except NotImplementedError:
+                        # Fallback: if path() raises NotImplementedError, use storage.delete()
+                        self.avatar.storage.delete(self.avatar.name)
+            except (ValueError, OSError, AttributeError, NotImplementedError):
                 # Handle cases where the file might not exist or path is invalid
                 pass
             # Clear the field without triggering signals
@@ -49,15 +54,19 @@ def delete_old_avatar(sender, instance, **kwargs):
             if old_profile.avatar and old_profile.avatar != instance.avatar:
                 # Delete the old avatar file
                 try:
-                    # Check if storage supports path (local file storage)
-                    if hasattr(old_profile.avatar.storage, 'path'):
-                        # Local file storage - use file path
-                        if os.path.isfile(old_profile.avatar.path):
-                            os.remove(old_profile.avatar.path)
-                    else:
+                    # Check if storage is S3 (remote) or local file storage
+                    if isinstance(old_profile.avatar.storage, S3Boto3Storage):
                         # Remote storage (S3) - use storage.delete()
                         old_profile.avatar.storage.delete(old_profile.avatar.name)
-                except (ValueError, OSError, AttributeError):
+                    else:
+                        # Local file storage - use file path
+                        try:
+                            if os.path.isfile(old_profile.avatar.path):
+                                os.remove(old_profile.avatar.path)
+                        except NotImplementedError:
+                            # Fallback: if path() raises NotImplementedError, use storage.delete()
+                            old_profile.avatar.storage.delete(old_profile.avatar.name)
+                except (ValueError, OSError, AttributeError, NotImplementedError):
                     pass
         except Profile.DoesNotExist:
             pass
