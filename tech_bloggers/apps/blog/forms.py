@@ -141,16 +141,17 @@ class PostForm(forms.ModelForm):
             tags = self.cleaned_data.get('tags_input', [])
             instance.tags.set(tags)
             
+            from .models import PostImage
+
             # Associate orphaned PostImage records with this post
             if self.user:
-                from .models import PostImage
                 PostImage.objects.filter(
                     uploaded_by=self.user,
                     post__isnull=True
                 ).update(post=instance)
 
-                # Remove PostImage records (and files) no longer referenced in content
-                PostImage.sync_post_images_with_content(post=instance, content=instance.content)
+            # Remove PostImage records (and files) no longer referenced in content
+            PostImage.sync_post_images_with_content(post=instance, content=instance.content)
             
         return instance
 
