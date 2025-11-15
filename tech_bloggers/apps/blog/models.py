@@ -5,7 +5,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils.text import slugify
 from django.core.exceptions import ValidationError
-from django.db.models.signals import post_delete
+from django.db.models.signals import post_delete, pre_save
 from django.dispatch import receiver
 from PIL import Image, UnidentifiedImageError
 from django.conf import settings
@@ -240,6 +240,23 @@ class Like(models.Model):
 
     def __str__(self):
         return f"{self.user.username} likes {self.post.title}"
+
+
+@receiver(pre_save, sender=Post)
+def delete_old_post_image(sender, instance, **kwargs):
+    """Delete the old post image file when a new one is uploaded"""
+    if instance.pk:  # Only for existing posts
+        try:
+            old_post = Post.objects.get(pk=instance.pk)
+            if old_post.image:
+                old_name = old_post.image.name
+                new_name = getattr(instance.image, "name", None)
+
+                # Delete when the image changed or was cleared
+                if old_name and (not new_name or old_name != new_name):
+                    delete_stored_file(old_post.image)
+        except Post.DoesNotExist:
+            pass
 
 
 @receiver(post_delete, sender=Post)
