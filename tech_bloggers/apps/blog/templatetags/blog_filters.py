@@ -4,6 +4,7 @@ from django.utils.safestring import mark_safe
 from django.conf import settings
 import bleach
 import re
+import html
 
 register = template.Library()
 
@@ -11,7 +12,7 @@ register = template.Library()
 def safe_truncatewords(value, arg):
     """
     Safely truncate HTML content to a specified number of words.
-    First sanitizes the HTML, then strips tags, then truncates.
+    First sanitizes the HTML, then strips tags, decodes HTML entities, then truncates.
     """
     if not value:
         return ""
@@ -29,6 +30,9 @@ def safe_truncatewords(value, arg):
     # Strip HTML tags for word counting and display
     text_content = strip_tags(sanitized)
     
+    # Decode HTML entities (e.g., &rsquo; -> ', &amp; -> &, etc.)
+    text_content = html.unescape(text_content)
+    
     # Split into words and truncate
     words = text_content.split()
     if len(words) <= int(arg):
@@ -41,6 +45,24 @@ def safe_truncatewords(value, arg):
     
     # Return as plain text (not mark_safe) to avoid HTML display issues
     return truncated_text
+
+@register.filter
+def striptags_unescape(value):
+    """
+    Strip HTML tags and decode HTML entities.
+    Useful for displaying plain text from HTML content.
+    """
+    if not value:
+        return ""
+    
+    # Strip HTML tags
+    text_content = strip_tags(value)
+    
+    # Decode HTML entities (e.g., &rsquo; -> ', &amp; -> &, etc.)
+    text_content = html.unescape(text_content)
+    
+    return text_content
+
 
 @register.filter
 def safe_content(value):

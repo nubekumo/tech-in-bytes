@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load blog_filters %}
 
 {% block page_css %}
 <link rel="stylesheet" href="{% static 'css/pages/home.css' %}?v={{ STATIC_VERSION }}" />
@@ -90,7 +91,7 @@
                   <span><i class="fas fa-calendar"></i> {{ post.published_at|date:"M d, Y" }}</span>
                   <span><i class="fas fa-comments"></i> {{ post.top_level_comment_count }}</span>
                 </div>
-                <p>{{ post.content|striptags|truncatechars:140 }}</p>
+                <p>{{ post.content|striptags_unescape|truncatechars:140 }}</p>
                 <div class="meta">
                   {% for tag in post.tags.all %}
                     <span class="category-tag">{{ tag.name }}</span>
