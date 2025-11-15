@@ -83,7 +83,11 @@ class Post(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.title)
+            slug = slugify(self.title)
+            # Truncate slug to max 50 characters (SlugField default max_length)
+            if len(slug) > 50:
+                slug = slug[:50]
+            self.slug = slug
         super().save(*args, **kwargs)
 
     def __str__(self):
