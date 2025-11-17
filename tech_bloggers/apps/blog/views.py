@@ -556,7 +556,7 @@ class PostShareView(View):
                 f"{cd['name']} ({cd['email']}) thought you might be interested in this post:\n"
                 f"{post.title}\n{post_url}\n\n"
                 f"Comments by {cd['name']}: {cd.get('comments') or '—'}\n\n"
-                f"Sent from Tech Bloggers"
+                f"Sent from Tech-In-Bytes"
             )
 
             email = EmailMessage(

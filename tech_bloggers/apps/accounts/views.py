@@ -163,7 +163,7 @@ class SignUpView(CreateView):
             activation_path = reverse('accounts:activate', kwargs={'uidb64': uid, 'token': token})
             activation_url = self.request.build_absolute_uri(activation_path)
 
-            mail_subject = 'Activate your Tech Bloggers account'
+            mail_subject = 'Activate your Tech-In-Bytes account'
             message = render_to_string('accounts/activation_email.html', {
                 'user': user,
                 'domain': current_site.domain,

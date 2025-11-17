@@ -74,7 +74,7 @@ class SignUpTests(TestCase):
         
         # Check activation email was sent
         self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual(mail.outbox[0].subject, 'Activate your Tech Bloggers account')
+        self.assertEqual(mail.outbox[0].subject, 'Activate your Tech-In-Bytes account')
         self.assertEqual(mail.outbox[0].to, ['newuser@example.com'])
 
     def test_signup_with_invalid_data(self):
