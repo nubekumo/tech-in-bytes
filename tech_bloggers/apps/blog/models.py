@@ -230,21 +230,6 @@ class PostImage(models.Model):
         return count
 
 
-class Like(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
-
-    class Meta:
-        unique_together = ['user', 'post']
-        indexes = [
-            models.Index(fields=['user', 'post']),
-            models.Index(fields=['created_at'])
-        ]
-
-    def __str__(self):
-        return f"{self.user.username} likes {self.post.title}"
-
 
 @receiver(pre_save, sender=Post)
 def delete_old_post_image(sender, instance, **kwargs):
