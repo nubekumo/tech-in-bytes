@@ -199,7 +199,9 @@ body .delete-confirmation li {
 
 /* Delete confirmation buttons - these need !important due to Django's specificity */
 body .delete-confirmation form input[type="submit"] {
+  display: inline-block !important;
   background: #f85149 !important;
+  background-color: #f85149 !important;
   border: 1px solid #f85149 !important;
   color: #fff !important;
   padding: 12px 24px !important;
@@ -207,16 +209,24 @@ body .delete-confirmation form input[type="submit"] {
   font-size: 14px !important;
   cursor: pointer !important;
   transition: all 0.2s ease !important;
+  box-sizing: border-box !important;
+  min-height: 44px !important;
+  height: auto !important;
+  line-height: 1.4 !important;
+  vertical-align: middle !important;
+  width: auto !important;
 }
 
 body .delete-confirmation form input[type="submit"]:hover {
   background: #da3633 !important;
+  background-color: #da3633 !important;
   border-color: #da3633 !important;
 }
 
 body .delete-confirmation form .cancel-link {
   display: inline-block !important;
   background: #30363d !important;
+  background-color: #30363d !important;
   border: 1px solid #30363d !important;
   color: #c9d1d9 !important;
   padding: 12px 24px !important;
@@ -226,6 +236,8 @@ body .delete-confirmation form .cancel-link {
   margin: 0 0 0 10px !important;
   cursor: pointer !important;
   transition: all 0.2s ease !important;
+  box-sizing: border-box !important;
+  min-height: 44px !important;
   height: auto !important;
   line-height: 1.4 !important;
   vertical-align: middle !important;
@@ -233,6 +245,7 @@ body .delete-confirmation form .cancel-link {
 
 body .delete-confirmation form .cancel-link:hover {
   background: #58a6ff !important;
+  background-color: #58a6ff !important;
   border-color: #58a6ff !important;
   color: #fff !important;
 }

@@ -191,9 +191,9 @@ DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'no-reply@tech-bloggers.loc
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Django Admin Site Configuration
-ADMIN_SITE_HEADER = "Tech Bloggers Administration"
-ADMIN_SITE_TITLE = "Tech Bloggers Admin"
-ADMIN_INDEX_TITLE = "Welcome to Tech Bloggers Administration"
+ADMIN_SITE_HEADER = "Tech-In-Bytes Administration"
+ADMIN_SITE_TITLE = "Tech-In-Bytes Admin"
+ADMIN_INDEX_TITLE = "Welcome to Tech-In-Bytes Administration"
 
 # Authentication settings
 LOGIN_REDIRECT_URL = 'pages:index'

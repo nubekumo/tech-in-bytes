@@ -7,7 +7,15 @@ from .base import *
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '').split(',') if os.getenv('DJANGO_ALLOWED_HOSTS') else ['localhost', '127.0.0.1']
+# Development: Always allow localhost and 127.0.0.1
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+
+# Optionally add additional hosts from environment variable
+env_hosts = os.getenv('DJANGO_ALLOWED_HOSTS', '')
+if env_hosts:
+    # Split and filter out empty strings
+    additional_hosts = [h.strip() for h in env_hosts.split(',') if h.strip()]
+    ALLOWED_HOSTS.extend(additional_hosts)
 
 # Add testserver for Django test client
 if 'testserver' not in ALLOWED_HOSTS:

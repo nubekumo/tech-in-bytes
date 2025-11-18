@@ -13,7 +13,7 @@ from django.contrib.auth.tokens import default_token_generator
 from .forms import CustomAuthenticationForm, CustomPasswordResetForm, CustomSetPasswordForm
 from django.urls import reverse_lazy
 from django.shortcuts import get_object_or_404, redirect, render
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.contrib import messages
 from django.contrib.auth import login, update_session_auth_hash, authenticate
 import logging
@@ -86,6 +86,17 @@ class CustomLoginView(LoginView):
         user = authenticate(request=self.request, username=username, password=password)
         
         if user is not None:
+            # Check if trying to access admin
+            next_url = self.request.GET.get('next', '')
+            if '/admin/' in next_url and not user.is_staff:
+                # Non-staff user trying to access admin
+                form.add_error(None, ValidationError(
+                    "You do not have permission to access the Admin site. "
+                    "Please sign in with an admin account or contact an administrator.",
+                    code='no_staff_account',
+                ))
+                return self.form_invalid(form)
+            
             # Check if user has 2FA enabled
             if TOTPDevice.objects.filter(user=user, confirmed=True).exists():
                 # User has 2FA enabled, redirect to 2FA verification
@@ -684,14 +695,27 @@ class TwoFactorVerifyView(View):
         
         # Verify the token
         if device.verify_token(token):
-            # Token is valid, log the user in
+            # Token is valid, get the stored next URL before clearing session
+            next_url = request.session.get('2fa_next_url')
+            
+            # Check if trying to access admin and user is not staff
+            if next_url and '/admin/' in next_url and not user.is_staff:
+                # Non-staff user trying to access admin after 2FA
+                messages.error(request, 
+                    "You do not have permission to access the Admin site. "
+                    "Please sign in with an admin account or contact an administrator.")
+                request.session.pop('2fa_user_id', None)
+                request.session.pop('2fa_next_url', None)
+                return redirect('accounts:login')
+            
+            # Log the user in
             # Use the ModelBackend specifically to avoid backend conflicts
             from django.contrib.auth.backends import ModelBackend
             login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             request.session.pop('2fa_user_id', None)
+            request.session.pop('2fa_next_url', None)
             
-            # Check if there's a stored next URL for admin redirects
-            next_url = request.session.pop('2fa_next_url', None)
+            # Determine redirect URL
             if next_url and '/admin/' in next_url:
                 redirect_url = next_url
             else:
